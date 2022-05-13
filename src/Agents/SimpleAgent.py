@@ -5,8 +5,8 @@ from kaggle_environments.envs.kore_fleets.helpers import *
 
 class SimpleAgent(KoreAgent):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name: str = "SimpleAgent"):
+        super().__init__(name)
 
     def step(self, obs, config):
         board = Board(obs, config)
@@ -23,6 +23,6 @@ class SimpleAgent(KoreAgent):
                 action = ShipyardAction.launch_fleet_with_flight_plan(2, direction.to_char())
                 shipyard.next_action = action
 
-        print(me.next_actions)
+        self.monitors[0].log_value(kore_left)
 
         return me.next_actions
