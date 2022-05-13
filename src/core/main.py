@@ -1,13 +1,10 @@
-from kaggle_environments import make
+from src.Agents.SimpleAgent import SimpleAgent
+from src.Environment.KoreEnv import KoreEnv
+from src.Monitoring.KoreMonitor import KoreMonitor
 
 
 def main():
-    env = make("kore_fleets", debug=True)
-    print(env.name, env.version)
-
-    env.run(["balanced"])
-    replay_video = env.render(mode="html", width=1000, height=800)
-    print(replay_video)
+    replay_video = ""
 
     with open("../../output/replays/replay_video.html", "w") as file:
         file.write(replay_video)
