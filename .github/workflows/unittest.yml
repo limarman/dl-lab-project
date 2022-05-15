@@ -21,4 +21,4 @@ jobs:
         pip install -r requirements.txt
     - name: Execute UnitTests
       run: |
-        pylint python -m unittest discover -p "Test*.py"
+        python -m unittest discover -p "Test*.py"
