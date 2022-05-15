@@ -46,9 +46,9 @@ class SimpleReward(KoreReward):
         :param actions: actions to be applied to the shipyards
         :return: new state after applying the actions
         """
-        for shipyard, action in zip(state.board.current_player.shipyards, actions):
+        for shipyard, action in zip(state.board_wrapper.board.current_player.shipyards, actions):
             shipyard.next_action = action
-        next_board = state.board.next()
+        next_board = state.board_wrapper.board.next()
         next_state = SimpleState(next_board)
 
         return next_state
