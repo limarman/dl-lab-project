@@ -25,7 +25,7 @@ class SimpleReward(KoreReward):
         :param action: single action
         :return: scalar reward
         """
-        next_state = current_state.apply_action_to_board(action)
+        next_state = current_state.apply_action_to_board(actions)
 
         # TODO define more advanced reward function
         # TODO move it to superclass ?
