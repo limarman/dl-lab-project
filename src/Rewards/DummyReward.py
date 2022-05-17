@@ -1,16 +1,10 @@
-import math
-from typing import Dict, List
-
-from kaggle_environments.envs.kore_fleets.helpers import ShipyardAction, Board
-
 from src.Rewards.KoreReward import KoreReward
 from src.States.DummyState import DummyState
-from src.States.SimpleState import SimpleState
 
 
 class DummyReward(KoreReward):
     """
-    Simple reward implementation for quick prototyping
+    Dummy reward implementation for quick prototyping
     """
 
     def __init__(self):

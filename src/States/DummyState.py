@@ -22,7 +22,7 @@ class DummyState(KoreState):
     def _get_tensor(self):
         """
         Puts all state values in a torch tensor, eg. as input for a simple MLP
-        :return: floatTensor of size (3*21*21 + 5*1)
+        :return: np array of size (21*21 + 3*1)
         TODO adjust shapes
         """
         data = self.kore_map + [

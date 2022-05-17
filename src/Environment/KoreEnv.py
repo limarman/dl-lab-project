@@ -12,10 +12,10 @@ from src.Rewards.KoreReward import KoreReward
 class KoreEnv(gym.Env):
     ENV_NAME: str = "kore_fleets"
 
-    def __init__(self, state_constr, action_adapter: ActionAdapter, reward: KoreReward):
+    def __init__(self, state_constr, action_adapter: ActionAdapter, reward_calculator: KoreReward):
         self.env = make(self.ENV_NAME, debug=True)
         self.action_adapter = ActionAdapter()
-        self.reward = reward
+        self.reward_calculator = reward_calculator
         self.state_constr = state_constr
         # TODO make num_agents a param
         # set initial state
@@ -27,7 +27,7 @@ class KoreEnv(gym.Env):
         observation = step_result[0]["observation"]
         board = Board(observation, self.env.configuration)
         next_state = self.state_constr(board)
-        next_reward = self.reward.get_reward_from_states(self.current_state, next_state)
+        next_reward = self.reward_calculator.get_reward_from_states(self.current_state, next_state)
         info = {}
         self.current_state = next_state
 

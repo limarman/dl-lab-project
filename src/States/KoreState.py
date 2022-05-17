@@ -32,7 +32,7 @@ class KoreState(ABC):
         for shipyard, action in zip(self.board_wrapper.board.current_player.shipyards, actions):
             shipyard.next_action = action
         next_board = self.board_wrapper.board.next()
-        # calling constructur of
+        # calling constructur of subclass
         next_state = type(self)(next_board)
 
         return next_state

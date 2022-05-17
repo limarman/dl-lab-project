@@ -14,7 +14,7 @@ class TestSimpleState(unittest.TestCase):
 
     def test_get_tensor(self):
         tensor_shape = self.simple_state.tensor.shape
-        self.assertEqual(list(tensor_shape), [3*21*21 + 5*1])
+        self.assertEqual(list(tensor_shape), [3*21*21 + 6*1])
 
     def test_apply_action_to_board(self):
         next_state = self.simple_state.apply_action_to_board([self.spawn_ship_action])

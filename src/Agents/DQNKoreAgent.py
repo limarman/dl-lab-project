@@ -45,7 +45,7 @@ class DQNKoreAgent(KoreAgent):
     def step(self, obs, config):
         board = Board(obs, config)
         state = self.state_constr(board)
-        agent_action = self.dqn.forward(state.values)
+        agent_action = self.dqn.forward(state.tensor)
 
-        return state.apply_action_to_board([agent_action])
+        return self.action_adapter.agent_to_kore_action(agent_action)
 

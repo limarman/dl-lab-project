@@ -28,7 +28,6 @@ class SimpleReward(KoreReward):
         next_state = current_state.apply_action_to_board(actions)
 
         # TODO define more advanced reward function
-        # TODO move it to superclass ?
         return SimpleReward.get_reward_from_states(current_state, next_state)
 
     @staticmethod

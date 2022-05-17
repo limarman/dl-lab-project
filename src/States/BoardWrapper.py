@@ -26,6 +26,7 @@ class BoardWrapper:
         else:
             self.player_me = board.current_player
             if board.opponents:
+                # TODO if singleplayer should be considered, add handling for this
                 self.player_opponent = board.opponents.pop()
 
     def get_kore_map(self) -> [float]:
