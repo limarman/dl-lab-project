@@ -17,7 +17,7 @@ class DQNKoreAgent(KoreAgent):
         super().__init__(name)
 
         self.kore_env = kore_env
-        self.state_adapter = kore_env.state_adapter
+        self.state_constr = kore_env.state_constr
         self.action_adapter = kore_env.action_adapter
 
         self.model = Sequential()
@@ -44,8 +44,8 @@ class DQNKoreAgent(KoreAgent):
 
     def step(self, obs, config):
         board = Board(obs, config)
-        state = self.state_adapter.board_to_state(board)
+        state = self.state_constr(board)
         agent_action = self.dqn.forward(state.values)
 
-        return self.action_adapter.agent_to_kore_action(agent_action)
+        return state.apply_action_to_board([agent_action])
 

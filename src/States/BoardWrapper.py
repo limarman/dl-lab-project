@@ -25,7 +25,8 @@ class BoardWrapper:
             self.player_opponent = board.players.values().remove(self.player_me)[0]
         else:
             self.player_me = board.current_player
-            self.player_opponent = board.opponents.pop()
+            if board.opponents:
+                self.player_opponent = board.opponents.pop()
 
     def get_kore_map(self) -> [float]:
         """
@@ -38,6 +39,10 @@ class BoardWrapper:
 
     def get_kore_opponent(self) -> float:
         return self.board.opponents.pop().kore
+
+    def get_max_spawn_me(self) -> int:
+        # TODO adjust to multiple shipyards
+        return self.player_me.shipyards[0].max_spawn
 
     def get_ship_count_me(self) -> int:
         return self._get_ship_count(self.player_me)

@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from src.States.KoreState import KoreState
+
 
 class KoreReward(ABC):
     """
@@ -10,8 +12,12 @@ class KoreReward(ABC):
         pass
 
     @abstractmethod
-    def get_reward(self, state, action) -> float:
+    def get_reward_from_action(self, state: KoreState, actions) -> float:
         """
         Calculates scalar reward value
         """
+        pass
+
+    @abstractmethod
+    def get_reward_from_states(self, previous_state: KoreState, next_state: KoreState):
         pass

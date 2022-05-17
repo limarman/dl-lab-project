@@ -1,18 +1,19 @@
 from src.Actions.ActionAdapter import ActionAdapter
 from src.Agents.DQNKoreAgent import DQNKoreAgent
 from src.Environment.KoreEnv import KoreEnv
-from src.Monitoring.KoreMonitor import KoreMonitor
-from src.States.DummyAdapter import DummyAdapter
+
+from src.Rewards.DummyReward import DummyReward
+from src.States.DummyState import DummyState
 
 
 def main():
     #kore_amount_monitor = KoreMonitor(agent_name=simple_agent.name, value_name="kore_amount")
     #simple_agent.register_monitor(kore_amount_monitor)
 
-    state_adapter = DummyAdapter()
+    dummy_reward = DummyReward()
     action_adapter = ActionAdapter()
 
-    kore_env = KoreEnv(state_adapter, action_adapter)
+    kore_env = KoreEnv(DummyState, action_adapter, dummy_reward)
     kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env)
     kore_agent.fit()
 

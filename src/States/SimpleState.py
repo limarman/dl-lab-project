@@ -1,7 +1,9 @@
 import torch
+import numpy as np
+from kaggle_environments.envs.halite.helpers import Board
 
-from src.states.KoreState import KoreState
-from src.states.BoardWrapper import *
+from src.States.BoardWrapper import BoardWrapper
+from src.States.KoreState import KoreState
 
 
 class SimpleState(KoreState):
@@ -22,6 +24,7 @@ class SimpleState(KoreState):
         # TODO replace by own function and add test
         self.lost = np.all(self.shipyards_pos <= 0)
         self.step_normalized = self.board_wrapper.get_step()
+        # TODO add max_spawn
         tensor = self._get_tensor()
         super(SimpleState, self).__init__(tensor.shape, tensor, self.board_wrapper)
 
@@ -41,7 +44,7 @@ class SimpleState(KoreState):
             self.shipyards_pos
         ])
 
-        tensor = torch.concat([torch.Tensor(data).flatten() for data in data_list])
+        tensor = np.concatenate([np.array(data).flatten() for data in data_list])
 
         return tensor
 
