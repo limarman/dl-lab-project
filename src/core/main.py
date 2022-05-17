@@ -1,3 +1,5 @@
+import os
+
 from src.Actions.ActionAdapter import ActionAdapter
 from src.Agents.DQNKoreAgent import DQNKoreAgent
 from src.Environment.KoreEnv import KoreEnv
@@ -20,7 +22,8 @@ def main():
     kore_env.env.run([kore_agent.step])
     replay_video = kore_env.render()
 
-    with open("../../output/replays/replay_video.html", "w") as file:
+    os.makedirs("../../output/replays", exist_ok=True)
+    with open("../../output/replays/replay_video.html", "w+") as file:
         file.write(replay_video)
 
 
