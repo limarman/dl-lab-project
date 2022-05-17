@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from kaggle_environments.envs.kore_fleets.helpers import Board
+
 from src.States.KoreState import KoreState
 
 
@@ -9,5 +11,5 @@ class StateAdapter(ABC):
         pass
 
     @abstractmethod
-    def to_state(self, obs, config) -> KoreState:
+    def board_to_state(self, board: Board) -> KoreState:
         pass

@@ -1,23 +1,49 @@
-from kaggle_environments import make, Environment
+from typing import Tuple, Union
 
-from src.Agents.KoreAgent import KoreAgent
-from src.Agents.SimpleAgent import SimpleAgent
+import gym
+from gym.core import ActType, ObsType
+from kaggle_environments import make
+from kaggle_environments.envs.kore_fleets.helpers import Board
+
+from src.Actions.ActionAdapter import ActionAdapter
 from src.Monitoring.KoreMonitor import KoreMonitor
+from src.States.StateAdapter import StateAdapter
 
 
-class KoreEnv:
+class KoreEnv(gym.Env):
 
     ENV_NAME: str = "kore_fleets"
 
-    def __init__(self, agent: KoreAgent):
-        #self.env: Environment = Environment(agents=[SimpleAgent(name="Dummy_agent")])
-        self.env: Environment = make(self.ENV_NAME, debug=True)
-        self.env.agents = [agent]
+    def __init__(self, state_adapter: StateAdapter, action_adapter: ActionAdapter):
+        self.env = make(self.ENV_NAME, debug=True)
+        self.state_adapter = state_adapter
+        self.action_adapter = ActionAdapter()
 
-    def run(self):
-        some_action = {'0-1': 'SPAWN_1'}
-        while not self.env.done:
-            self.env.step([some_action])
+        self.current_kore: float = 0.0
 
-    def render_html(self) -> str:
-        return self.env.render(mode="html", width=1000, height=800)
+    def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+        next_kore_action = self.action_adapter.agent_to_kore_action(action)
+        step_result = self.env.step([next_kore_action])
+        observation = step_result[0]["observation"]
+        board = Board(observation, self.env.configuration)
+        next_state = self.state_adapter.board_to_state(board)
+
+        previous_kore = self.current_kore
+        self.current_kore = board.current_player.kore
+        kore_difference = self.current_kore - previous_kore
+        next_reward = max(kore_difference, 0)
+        info = {}
+
+        return next_state.values, next_reward, self.env.done, info
+
+    def reset(self) -> Union[ObsType, Tuple[ObsType, dict]]:
+        init_step_result = self.env.reset(num_agents=1)
+        init_obs = init_step_result[0]["observation"]
+        board = Board(init_obs, self.env.configuration)
+        self.current_kore = board.current_player.kore
+        init_state = self.state_adapter.board_to_state(board)
+
+        return init_state.values
+
+    def render(self, mode="html", close=False):
+        return self.env.render(mode=mode, width=1000, height=800)
