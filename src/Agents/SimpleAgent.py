@@ -25,4 +25,5 @@ class SimpleAgent(KoreAgent):
 
         self.monitors[0].log_value(kore_left)
 
+        print(me.next_actions)
         return me.next_actions

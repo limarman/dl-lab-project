@@ -9,8 +9,8 @@ def main():
     kore_amount_monitor = KoreMonitor(agent_name=simple_agent.name, value_name="kore_amount")
     simple_agent.register_monitor(kore_amount_monitor)
 
-    kore_env = KoreEnv()
-    kore_env.run_agent(simple_agent)
+    kore_env = KoreEnv(simple_agent)
+    kore_env.run(simple_agent)
 
     replay_video = kore_env.render_html()
 
