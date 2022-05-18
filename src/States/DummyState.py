@@ -1,7 +1,7 @@
 import numpy as np
 
+from src.States.BoardWrapper import BoardWrapper
 from src.States.KoreState import KoreState
-from src.States.BoardWrapper import *
 
 
 class DummyState(KoreState):
@@ -23,7 +23,6 @@ class DummyState(KoreState):
         """
         Puts all state values in a torch tensor, eg. as input for a simple MLP
         :return: np array of size (21*21 + 3*1)
-        TODO adjust shapes
         """
         data = self.kore_map + [
                 self.kore_me,

@@ -4,20 +4,24 @@ import numpy as np
 
 class BoardWrapper:
     """
-    Wrapper for the Board class from the Kaggle environment. Provides utilities to easier generate input features.
+    Wrapper for the Board class from the Kaggle environment.
+    Provides utilities to easier generate input features.
     """
 
     def __init__(self, board: Board, player_id=None):
         """
-        Initializes the current player and its opponent. Since the BoardWrapper may also be used
-        in modelling the opponent, a player_id can be specified, otherwise the current player will be our player
+        Initializes the current player and its opponent. Since the
+        BoardWrapper may also be used in modelling the opponent,
+        a player_id can be specified, otherwise the current player
+        will be our player
 
         :param board: as returned by the Kaggle env
         :param player_id: valid player id of our player
         """
         self.board = board
         if (len(board.opponents)) > 1:
-            raise Exception('BoardWrapper only supports 2 Player game but current game has more than two players')
+            raise Exception('BoardWrapper only supports 2 Player '
+                            + 'game but current game has more than two players')
         if player_id:
             if not board.players[player_id]:
                 raise Exception('Invalid Player ID')
@@ -66,8 +70,9 @@ class BoardWrapper:
 
     def get_shipyard_pos(self) -> np.ndarray:
         """
-        Returns a grid, where the fleets are represented by positive number of ships for current player
-        and by the negative number of ships for the opponent respectively
+        Returns a grid, where the fleets are represented by positive
+        number of ships for current player and by the negative number
+        of ships for the opponent respectively
 
         :return np array (board_size, board_size)
         """

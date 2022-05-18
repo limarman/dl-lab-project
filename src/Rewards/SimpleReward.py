@@ -1,7 +1,6 @@
 import math
 
 from src.Rewards.KoreReward import KoreReward
-from src.States.KoreState import KoreState
 from src.States.SimpleState import SimpleState
 
 
@@ -14,10 +13,9 @@ class SimpleReward(KoreReward):
         """
         TODO add some weights/params here
         """
-        pass
 
     @staticmethod
-    def get_reward_from_action(current_state: SimpleState, actions) -> float:
+    def get_reward_from_action(state: SimpleState, actions) -> float:
         """
         Executes the actions and calculates a reward based on the state changes
 
@@ -25,7 +23,7 @@ class SimpleReward(KoreReward):
         :param action: single action
         :return: scalar reward
         """
-        next_state = current_state.apply_action_to_board(actions)
+        next_state = state.apply_action_to_board(actions)
 
         # TODO define more advanced reward function
         return SimpleReward.get_reward_from_states(current_state, next_state)

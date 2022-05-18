@@ -46,4 +46,3 @@ class TestBoardWrapper(unittest.TestCase):
         expected_pos[15][5] = -1
 
         self.assertTrue((shipyard_pos == expected_pos).all())
-

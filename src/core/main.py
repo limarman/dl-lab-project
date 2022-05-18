@@ -23,7 +23,7 @@ def main():
     replay_video = kore_env.render()
 
     os.makedirs("../../output/replays", exist_ok=True)
-    with open("../../output/replays/replay_video.html", "w+") as file:
+    with open("../../output/replays/replay_video.html", "w+", encoding='utf-8') as file:
         file.write(replay_video)
 
 
