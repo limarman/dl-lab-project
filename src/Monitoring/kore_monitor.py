@@ -1,6 +1,6 @@
 import os
 import wandb
-from src.Monitoring.MissingEntityException import MissingEntityException
+from src.Monitoring.missing_entity_exception import MissingEntityException
 
 WANDB_PROJECT_NAME: str = "rl-dl-lab"
 ENTITY_NAME_ENV_NAME: str = "WANDB_ENTITY"

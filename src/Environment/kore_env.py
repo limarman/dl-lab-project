@@ -5,8 +5,8 @@ from gym.core import ActType, ObsType
 from kaggle_environments import make
 from kaggle_environments.envs.kore_fleets.helpers import Board
 
-from src.Actions.ActionAdapter import ActionAdapter
-from src.Rewards.KoreReward import KoreReward
+from src.Actions.action_adapter import ActionAdapter
+from src.Rewards.kore_reward import KoreReward
 
 
 class KoreEnv(gym.Env):

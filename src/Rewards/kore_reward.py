@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.States.KoreState import KoreState
+from src.States.kore_state import KoreState
 
 
 class KoreReward(ABC):

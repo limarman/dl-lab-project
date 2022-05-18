@@ -1,7 +1,7 @@
 import math
 
-from src.Rewards.KoreReward import KoreReward
-from src.States.SimpleState import SimpleState
+from src.Rewards.kore_reward import KoreReward
+from src.States.simple_state import SimpleState
 
 
 class SimpleReward(KoreReward):
@@ -26,7 +26,7 @@ class SimpleReward(KoreReward):
         next_state = state.apply_action_to_board(actions)
 
         # TODO define more advanced reward function
-        return SimpleReward.get_reward_from_states(current_state, next_state)
+        return SimpleReward.get_reward_from_states(state, next_state)
 
     @staticmethod
     def get_reward_from_states(previous_state: SimpleState, next_state: SimpleState):

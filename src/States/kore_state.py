@@ -2,8 +2,9 @@ from abc import ABC
 from typing import List
 
 from kaggle_environments.envs.kore_fleets.helpers import ShipyardAction
+from kaggle_environments.envs.kore_fleets.helpers import *
 
-from src.States import BoardWrapper
+from src.States import board_wrapper
 
 
 class KoreState(ABC):
@@ -11,7 +12,7 @@ class KoreState(ABC):
     Simple abstract class for standardizing most important state features
     """
 
-    def __init__(self, input_shape, tensor, board_wrapper: BoardWrapper):
+    def __init__(self, input_shape, tensor, board_wrapper: board_wrapper):
         """
         :param input_shape: shape of the input tensor
         :param tensor: input tensor of state

@@ -1,12 +1,11 @@
 import unittest
 
-import numpy as np
 from kaggle_environments.envs.kore_fleets.helpers import ShipyardAction
 from kaggle_environments.envs.kore_fleets.test_kore_fleets import create_board
 
-from src.Rewards.SimpleReward import SimpleReward
-from src.States.BoardWrapper import BoardWrapper
-from src.States.SimpleState import SimpleState
+from src.Rewards.simple_reward import SimpleReward
+from src.States.board_wrapper import BoardWrapper
+from src.States.simple_state import SimpleState
 
 
 class TestSimpleReward(unittest.TestCase):

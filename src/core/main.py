@@ -1,11 +1,11 @@
 import os
 
-from src.Actions.ActionAdapter import ActionAdapter
-from src.Agents.DQNKoreAgent import DQNKoreAgent
-from src.Environment.KoreEnv import KoreEnv
+from src.Actions.action_adapter import ActionAdapter
+from src.Agents.DQN_kore_agent import DQNKoreAgent
+from src.Environment.kore_env import KoreEnv
 
-from src.Rewards.DummyReward import DummyReward
-from src.States.DummyState import DummyState
+from src.Rewards.dummy_reward import DummyReward
+from src.States.dummy_state import DummyState
 
 
 def main():

@@ -87,13 +87,13 @@ class BoardWrapper:
         """
         pos_map = np.zeros((21, 21))
         for _, entity in shipyards_or_fleets.items():
-            x, y = entity.position
+            x_pos, y_pos = entity.position
             if entity.player == self.board.current_player:
                 sign = 1
             else:
                 sign = -1
 
-            pos_map[x][y] = sign * (1 + entity.ship_count)
+            pos_map[x_pos][y_pos] = sign * (1 + entity.ship_count)
 
         return pos_map
 

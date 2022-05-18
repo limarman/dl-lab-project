@@ -2,7 +2,7 @@ import unittest
 
 from kaggle_environments.envs.kore_fleets.test_kore_fleets import create_board, ShipyardAction
 
-from src.States.SimpleState import SimpleState
+from src.States.simple_state import SimpleState
 
 
 class TestSimpleState(unittest.TestCase):

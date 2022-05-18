@@ -1,7 +1,9 @@
 import numpy as np
 
-from src.States.BoardWrapper import BoardWrapper
-from src.States.KoreState import KoreState
+from kaggle_environments.envs.kore_fleets.helpers import *
+
+from src.States.board_wrapper import BoardWrapper
+from src.States.kore_state import KoreState
 
 
 class DummyState(KoreState):

@@ -3,7 +3,7 @@ import numpy as np
 
 from kaggle_environments.envs.kore_fleets.test_kore_fleets import create_board
 
-from src.States.BoardWrapper import BoardWrapper
+from src.States.board_wrapper import BoardWrapper
 
 
 class TestBoardWrapper(unittest.TestCase):

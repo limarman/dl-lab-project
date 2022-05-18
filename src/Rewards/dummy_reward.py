@@ -1,5 +1,5 @@
-from src.Rewards.KoreReward import KoreReward
-from src.States.DummyState import DummyState
+from src.Rewards.kore_reward import KoreReward
+from src.States.dummy_state import DummyState
 
 
 class DummyReward(KoreReward):

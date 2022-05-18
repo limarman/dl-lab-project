@@ -7,8 +7,8 @@ from rl.agents import DQNAgent
 from rl.memory import SequentialMemory
 from rl.policy import BoltzmannQPolicy, LinearAnnealedPolicy, EpsGreedyQPolicy
 
-from src.Agents.KoreAgent import KoreAgent
-from src.Environment.KoreEnv import KoreEnv
+from src.Agents.kore_agent import KoreAgent
+from src.Environment.kore_env import KoreEnv
 
 
 class DQNKoreAgent(KoreAgent):
@@ -32,11 +32,13 @@ class DQNKoreAgent(KoreAgent):
         self.model.add(Activation('linear'))
 
         memory = SequentialMemory(limit=50000, window_length=1)
-        policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1., value_min=.1, value_test=.05,
-                                      nb_steps=40000)
-        self.dqn = DQNAgent(model=self.model, nb_actions=self.action_adapter.N_ACTIONS, memory=memory,
-                            nb_steps_warmup=2000, target_model_update=1000, policy=policy,
-                            train_interval=4, delta_clip=1., enable_double_dqn=True, enable_dueling_network=True)
+        policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1.,
+                                      value_min=.1, value_test=.05, nb_steps=40000)
+        self.dqn = DQNAgent(model=self.model, nb_actions=self.action_adapter.N_ACTIONS,
+                            memory=memory, nb_steps_warmup=2000, target_model_update=1000,
+                            policy=policy, train_interval=4, delta_clip=1.,
+                            enable_double_dqn=True, enable_dueling_network=True)
+
         self.dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
     def fit(self):
@@ -48,4 +50,3 @@ class DQNKoreAgent(KoreAgent):
         agent_action = self.dqn.forward(state.tensor)
 
         return self.action_adapter.agent_to_kore_action(agent_action)
-
