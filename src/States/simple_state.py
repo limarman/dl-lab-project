@@ -4,6 +4,8 @@ from kaggle_environments.envs.kore_fleets.helpers import *
 from src.States.board_wrapper import BoardWrapper
 from src.States.kore_state import KoreState
 
+from kaggle_environments.envs.kore_fleets.test_kore_fleets import create_board
+
 
 class SimpleState(KoreState):
 
@@ -20,6 +22,8 @@ class SimpleState(KoreState):
         self.ship_count_opponent = self.board_wrapper.get_ship_count_opponent()
         self.fleet_pos = self.board_wrapper.get_fleet_pos()
         self.shipyards_pos = self.board_wrapper.get_shipyard_pos()
+        self.shipycard_count_me = self.board_wrapper.get_shipyard_count_me()
+        self.shipycard_count_oppnent = self.board_wrapper.get_shipyard_count_opponent()
         self.lost = np.all(self.shipyards_pos <= 0)
         self.step_normalized = self.board_wrapper.get_step()
         self.max_spawn_me = self.board_wrapper.get_max_spawn_me()
@@ -38,14 +42,21 @@ class SimpleState(KoreState):
             [self.ship_count_opponent],
             [self.step_normalized],
             [self.max_spawn_me],
+            [self.ship_count_me],
+            [self.ship_count_opponent],
             self.kore_map,
             self.fleet_pos,
             self.shipyards_pos
         ])
 
-        tensor = np.concatenate([np.array(data).flatten() for data in data_list])
+        tensor = np.concatenate([np.array(data).flatten() for data in data_list]).squeeze()
 
         return tensor
+
+    @staticmethod
+    def get_input_shape() -> int:
+        dummy_board = create_board()
+        return SimpleState(dummy_board).input_shape[0]
 
 
 
