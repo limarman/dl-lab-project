@@ -47,7 +47,8 @@ class BoardWrapper:
 
     def get_max_spawn_me(self) -> int:
         # TODO adjust to multiple shipyards
-        return self.player_me.shipyards[0].max_spawn
+        if self.player_me.shipyards:
+            return self.player_me.shipyards[0].max_spawn
 
     def get_ship_count_me(self) -> int:
         return self._get_ship_count(self.player_me)

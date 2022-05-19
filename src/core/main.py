@@ -8,6 +8,8 @@ from src.Rewards.dummy_reward import DummyReward
 from src.States.dummy_state import DummyState
 
 
+
+
 def main():
     #kore_amount_monitor = KoreMonitor(agent_name=simple_agent.name, value_name="kore_amount")
     #simple_agent.register_monitor(kore_amount_monitor)
@@ -19,7 +21,7 @@ def main():
     kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env)
     kore_agent.fit()
 
-    kore_env.env.run([kore_agent.step])
+    kore_env.env.run([kore_agent.step, 'balanced'])
     replay_video = kore_env.render()
 
     os.makedirs("../../output/replays", exist_ok=True)
