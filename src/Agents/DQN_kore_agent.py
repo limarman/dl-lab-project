@@ -9,6 +9,7 @@ from rl.policy import BoltzmannQPolicy, LinearAnnealedPolicy, EpsGreedyQPolicy
 
 from src.Agents.kore_agent import KoreAgent
 from src.Environment.kore_env import KoreEnv
+from src.States.board_wrapper import BoardWrapper
 
 
 class DQNKoreAgent(KoreAgent):
@@ -21,7 +22,7 @@ class DQNKoreAgent(KoreAgent):
         self.action_adapter = kore_env.action_adapter
 
         self.model = Sequential()
-        self.model.add(Flatten(input_shape=(1,) + (444,)))
+        self.model.add(Flatten(input_shape=(1,) + (445,)))
         self.model.add(Dense(1024))
         self.model.add(Activation('relu'))
         self.model.add(Dense(1024))
@@ -35,7 +36,7 @@ class DQNKoreAgent(KoreAgent):
         policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1.,
                                       value_min=.1, value_test=.05, nb_steps=40000)
         self.dqn = DQNAgent(model=self.model, nb_actions=self.action_adapter.N_ACTIONS,
-                            memory=memory, nb_steps_warmup=2000, target_model_update=1000,
+                            memory=memory, nb_steps_warmup=2000, target_model_update=150,
                             policy=policy, train_interval=4, delta_clip=1.,
                             enable_double_dqn=True, enable_dueling_network=True)
 
@@ -48,5 +49,6 @@ class DQNKoreAgent(KoreAgent):
         board = Board(obs, config)
         state = self.state_constr(board)
         agent_action = self.dqn.forward(state.tensor)
+        board_wrapper = BoardWrapper(player_id=0, board=board)
 
-        return self.action_adapter.agent_to_kore_action(agent_action)
+        return self.action_adapter.agent_to_kore_action(agent_action, board_wrapper)

@@ -9,6 +9,7 @@ from kaggle_environments.envs.kore_fleets.kore_fleets import balanced_agent
 from src.Actions.action_adapter import ActionAdapter
 from src.Rewards.kore_reward import KoreReward
 from src.Environment.helpers import get_boards_from_kore_env_state
+from src.States.board_wrapper import BoardWrapper
 
 
 class KoreEnv(gym.Env):
@@ -16,7 +17,7 @@ class KoreEnv(gym.Env):
 
     def __init__(self, state_constr, action_adapter: ActionAdapter, reward_calculator: KoreReward, agent: str ='balanced'):
         self.env = make(self.ENV_NAME, debug=True)
-        self.action_adapter = ActionAdapter()
+        self.action_adapter = action_adapter
         self.reward_calculator = reward_calculator
         self.state_constr = state_constr
         self.two_player = bool(agent)
@@ -28,7 +29,8 @@ class KoreEnv(gym.Env):
         self.reset()
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
-        next_kore_action = [self.action_adapter.agent_to_kore_action(action)]
+        board_wrapper = BoardWrapper(self.boards[self.player_id], self.player_id)
+        next_kore_action = [self.action_adapter.agent_to_kore_action(action, board_wrapper)]
         if self.two_player:
             next_opponent_action = self.opponent_agent(self.boards[1].observation, self.env.configuration)
             next_kore_action.append(next_opponent_action)

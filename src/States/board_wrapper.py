@@ -1,5 +1,6 @@
 from kaggle_environments.envs.kore_fleets.helpers import *
 import numpy as np
+from numpy import ndarray
 
 
 class BoardWrapper:
@@ -39,6 +40,14 @@ class BoardWrapper:
         """
         return [cell.kore for pos, cell in self.board.cells.items()]
 
+    def get_shipyard_map(self) -> ndarray:
+        shipyard_map = np.zeros((21, 21))
+        for shipyard_idx, shipyard in enumerate(self.board.current_player.shipyards):
+            shipyard_pos = shipyard.position
+            ship_count_in_decimals = float(str(f".{shipyard.ship_count}"))
+            shipyard_map[shipyard_pos.x, shipyard_pos.y] = shipyard_idx + ship_count_in_decimals
+        return shipyard_map
+
     def get_kore_me(self) -> float:
         return self.player_me.kore
 
@@ -59,6 +68,15 @@ class BoardWrapper:
     def _get_ship_count(self, player: Player) -> int:
         return sum([fleet.ship_count for fleet in player.fleets]) \
                + sum(shipyard.ship_count for shipyard in player.shipyards)
+
+    def get_shipyards_of_current_player(self) -> List[Shipyard]:
+        """
+        Returns a list of shipyards of the player who plays the current turn
+
+        :return list of type shipyard
+        """
+
+        return self.board.current_player.shipyards
 
     def get_fleet_pos(self) -> np.ndarray:
         """

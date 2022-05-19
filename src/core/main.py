@@ -8,8 +8,6 @@ from src.Rewards.dummy_reward import DummyReward
 from src.States.dummy_state import DummyState
 
 
-
-
 def main():
     #kore_amount_monitor = KoreMonitor(agent_name=simple_agent.name, value_name="kore_amount")
     #simple_agent.register_monitor(kore_amount_monitor)
