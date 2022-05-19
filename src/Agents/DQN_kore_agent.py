@@ -3,7 +3,7 @@ from kaggle_environments.envs.kore_fleets.helpers import Board
 from keras import Sequential
 from keras.layers import Flatten, Dense, Activation
 from keras.optimizers import Adam
-from rl.agents import DQNAgent
+from rl.agents.dqn import DQNAgent
 from rl.memory import SequentialMemory
 from rl.policy import BoltzmannQPolicy, LinearAnnealedPolicy, EpsGreedyQPolicy
 
