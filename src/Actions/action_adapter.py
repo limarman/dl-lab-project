@@ -9,7 +9,7 @@ class ActionAdapter:
     def __init__(self):
         pass
 
-    def agent_to_kore_action(self, agent_action: ndarray) -> Dict[str, str]:
+    def agent_to_kore_action(self, agent_action: int) -> Dict[str, str]:
         kore_action = {}
         if agent_action == 0:
             kore_action["0-1"] = "SPAWN_1"
