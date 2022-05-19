@@ -19,13 +19,6 @@ def main():
     kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env)
     kore_agent.fit()
 
-    kore_env.env.run([kore_agent.step, 'balanced'])
-    replay_video = kore_env.render()
-
-    os.makedirs("../../output/replays", exist_ok=True)
-    with open("../../output/replays/replay_video.html", "w+", encoding='utf-8') as file:
-        file.write(replay_video)
-
 
 if __name__ == "__main__":
     main()

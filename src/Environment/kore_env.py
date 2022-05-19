@@ -15,13 +15,13 @@ from src.States.board_wrapper import BoardWrapper
 class KoreEnv(gym.Env):
     ENV_NAME: str = "kore_fleets"
 
-    def __init__(self, state_constr, action_adapter: ActionAdapter, reward_calculator: KoreReward, agent: str ='balanced'):
+    def __init__(self, state_constr, action_adapter: ActionAdapter, reward_calculator: KoreReward, enemy_agent: str = 'balanced'):
         self.env = make(self.ENV_NAME, debug=True)
         self.action_adapter = action_adapter
         self.reward_calculator = reward_calculator
         self.state_constr = state_constr
-        self.two_player = bool(agent)
-        self.opponent_agent = self.env.agents[agent]
+        self.two_player = bool(enemy_agent)
+        self.opponent_agent = self.env.agents[enemy_agent]
         self.player_id = 0
         self.boards = {}
         self.current_state = None

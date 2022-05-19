@@ -40,13 +40,32 @@ class BoardWrapper:
         """
         return [cell.kore for pos, cell in self.board.cells.items()]
 
-    def get_shipyard_map(self) -> ndarray:
-        shipyard_map = np.zeros((21, 21))
-        for shipyard_idx, shipyard in enumerate(self.board.current_player.shipyards):
+    def get_shipyard_fleets_map(self) -> ndarray:
+        """
+        Returns list of length 21*21
+        """
+        shipyard_fleets_map = np.zeros((21, 21))
+        for shipyard_idx, shipyard in enumerate(self.board.players[0].shipyards):
             shipyard_pos = shipyard.position
             ship_count_in_decimals = float(str(f".{shipyard.ship_count}"))
-            shipyard_map[shipyard_pos.x, shipyard_pos.y] = shipyard_idx + ship_count_in_decimals
-        return shipyard_map
+            shipyard_fleets_map[shipyard_pos.x, shipyard_pos.y] = shipyard_idx + 1 + ship_count_in_decimals
+
+        for shipyard_idx, shipyard in enumerate(self.board.players[1].shipyards):
+            shipyard_pos = shipyard.position
+            ship_count_in_decimals = float(str(f".{shipyard.ship_count}"))
+            shipyard_fleets_map[shipyard_pos.x, shipyard_pos.y] = -(shipyard_idx + 1 + ship_count_in_decimals)
+
+        for fleet_idx, fleet in enumerate(self.board.players[0].fleets):
+            fleet_pos = fleet.position
+            ship_count = fleet.ship_count
+            shipyard_fleets_map[fleet_pos.x, fleet_pos.y] = ship_count
+
+        for fleet_idx, fleet in enumerate(self.board.players[1].fleets):
+            fleet_pos = fleet.position
+            ship_count = fleet.ship_count
+            shipyard_fleets_map[fleet_pos.x, fleet_pos.y] = -ship_count
+
+        return shipyard_fleets_map
 
     def get_kore_me(self) -> float:
         return self.player_me.kore

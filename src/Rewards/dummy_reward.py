@@ -25,7 +25,7 @@ class DummyReward(KoreReward):
         next_state = current_state.apply_action_to_board(actions)
         return self.get_reward_from_states(self.current_state, next_state)
 
-    def get_reward_from_states(self, previous_state, next_state):
+    def get_reward_from_states(self, previous_state: DummyState, next_state: DummyState):
         kore_delta = previous_state.kore_me - next_state.kore_me
 
         return max(kore_delta, 0)
