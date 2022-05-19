@@ -3,4 +3,6 @@ kaggle_environments==1.9.9
 keras==2.9.0
 keras_rl2==1.0.5
 numpy==1.21.6
+rl==3.0
+torch==1.11.0
 wandb==0.12.16
