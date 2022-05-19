@@ -13,15 +13,16 @@ from src.Environment.kore_env import KoreEnv
 
 class DQNKoreAgent(KoreAgent):
 
-    def __init__(self, name: str, kore_env: KoreEnv):
+    def __init__(self, name: str, kore_env: KoreEnv, input_size: int, training_steps: int = 100000):
         super().__init__(name)
 
         self.kore_env = kore_env
         self.state_constr = kore_env.state_constr
         self.action_adapter = kore_env.action_adapter
+        self.training_steps = training_steps
 
         self.model = Sequential()
-        self.model.add(Flatten(input_shape=(1,) + (444,)))
+        self.model.add(Flatten(input_shape=(1,) + (input_size,)))
         self.model.add(Dense(1024))
         self.model.add(Activation('relu'))
         self.model.add(Dense(1024))
@@ -42,7 +43,8 @@ class DQNKoreAgent(KoreAgent):
         self.dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
     def fit(self):
-        self.dqn.fit(self.kore_env, nb_steps=100000, visualize=True, verbose=2)
+        self.dqn.fit(self.kore_env, nb_steps=self.training_steps, visualize=True, verbose=2)
+        # self.dqn.fit(self.kore_env, nb_steps=1000, visualize=True, verbose=2)
 
     def step(self, obs, config):
         board = Board(obs, config)
