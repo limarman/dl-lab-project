@@ -18,12 +18,13 @@ from src.States.board_wrapper import BoardWrapper
 
 class DQNKoreAgent(KoreAgent):
 
-    def __init__(self, name: str, kore_env: KoreEnv):
+    def __init__(self, name: str, kore_env: KoreEnv, input_size: int, training_steps: int = 100000):
         super().__init__(name)
 
         self.kore_env = kore_env
         self.state_constr = kore_env.state_constr
         self.action_adapter = kore_env.action_adapter
+        self.training_steps = training_steps
 
         self.model = Sequential()
         self.model.add(Flatten(input_shape=(4,) + (886,)))

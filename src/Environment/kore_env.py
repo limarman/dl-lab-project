@@ -46,7 +46,11 @@ class KoreEnv(gym.Env):
         return next_state.tensor, next_reward, self.env.done, info
 
     def reset(self) -> Union[ObsType, Tuple[ObsType, dict]]:
-        init_step_result = self.env.reset(num_agents=2)
+        if self.two_player:
+            num_agents = 2
+        else:
+            num_agents = 1
+        init_step_result = self.env.reset(num_agents=num_agents)
         self.boards = get_boards_from_kore_env_state(init_step_result, self.env.configuration)
         self.current_state = self.state_constr(self.boards[self.player_id])
 

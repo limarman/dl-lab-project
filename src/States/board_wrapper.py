@@ -101,6 +101,12 @@ class BoardWrapper:
     def get_ship_count_opponent(self) -> int:
         return self._get_ship_count(self.player_opponent)
 
+    def get_shipyard_count_me(self):
+        return len(self.player_me.shipyards)
+
+    def get_shipyard_count_opponent(self):
+        return len(self.player_opponent.shipyards)
+
     def _get_ship_count(self, player: Player) -> int:
         return sum([fleet.ship_count for fleet in player.fleets]) \
                + sum(shipyard.ship_count for shipyard in player.shipyards)

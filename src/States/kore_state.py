@@ -1,4 +1,4 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import List
 
 from kaggle_environments.envs.kore_fleets.helpers import ShipyardAction
@@ -37,3 +37,9 @@ class KoreState(ABC):
         next_state = type(self)(next_board)
 
         return next_state
+
+    @staticmethod
+    @abstractmethod
+    def get_input_shape() -> int:
+        pass
+

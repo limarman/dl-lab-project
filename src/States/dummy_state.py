@@ -6,6 +6,8 @@ from kaggle_environments.envs.kore_fleets.helpers import *
 from src.States.board_wrapper import BoardWrapper
 from src.States.kore_state import KoreState
 
+from kaggle_environments.envs.kore_fleets.test_kore_fleets import create_board
+
 
 class DummyState(KoreState):
 
@@ -41,3 +43,8 @@ class DummyState(KoreState):
             print("nan found")
 
         return data_array
+
+    @staticmethod
+    def get_input_shape():
+        dummy_board = create_board()
+        return DummyState(dummy_board).tensor.shape[0]
