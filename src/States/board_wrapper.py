@@ -77,6 +77,23 @@ class BoardWrapper:
         # TODO adjust to multiple shipyards
         if self.player_me.shipyards:
             return self.player_me.shipyards[0].max_spawn
+        return 0
+
+    def get_max_spawn_shipyard(self, shipyard_idx: int) -> int:
+        n_shipyards = len(self.get_shipyards_of_current_player())
+        if n_shipyards == 0:
+            return 0
+        if shipyard_idx >= n_shipyards:
+            shipyard_idx = n_shipyards - 1
+        return self.player_me.shipyards[shipyard_idx].max_spawn
+
+    def get_ship_count_shipyard(self, shipyard_idx):
+        n_shipyards = len(self.get_shipyards_of_current_player())
+        if n_shipyards == 0:
+            return 0
+        if shipyard_idx >= n_shipyards:
+            shipyard_idx = n_shipyards - 1
+        return self.player_me.shipyards[shipyard_idx].ship_count
 
     def get_ship_count_me(self) -> int:
         return self._get_ship_count(self.player_me)
@@ -95,6 +112,8 @@ class BoardWrapper:
         :return list of type shipyard
         """
 
+        if self.board.current_player.shipyards is None:
+            return []
         return self.board.current_player.shipyards
 
     def get_fleet_pos(self) -> np.ndarray:
@@ -141,3 +160,4 @@ class BoardWrapper:
         if normalized:
             step = step / self.board.configuration.episode_steps
         return step
+

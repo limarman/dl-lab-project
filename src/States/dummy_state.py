@@ -1,3 +1,4 @@
+import numpy
 import numpy as np
 
 from kaggle_environments.envs.kore_fleets.helpers import *
@@ -35,4 +36,8 @@ class DummyState(KoreState):
                 self.shipyard_count_me,
             ]
 
-        return np.array(data)
+        data_array = np.array(data)
+        if numpy.isnan(data_array).any():
+            print("nan found")
+
+        return data_array

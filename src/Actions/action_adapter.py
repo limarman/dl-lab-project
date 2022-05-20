@@ -1,16 +1,13 @@
 import math
 
-from kaggle_environments.envs.kore_fleets.helpers import Board
-from numpy import ndarray
-from typing import Dict, List
+from typing import Dict
 
 from src.States.board_wrapper import BoardWrapper
 
 
 class ActionAdapter:
 
-    N_ACTIONS: int = 1000
-    SHIP_COUNT_LOOKUP_LIST: List[str] = ["1", "2", "5", "10", "15", "20", "30", "40", "50", "100"]
+    N_ACTIONS: int = 100
     MANEUVER_LOOKUP: Dict[int, str] = {
         0: "S",
         1: "N4",
@@ -34,16 +31,23 @@ class ActionAdapter:
             agent_action_str = agent_action_str.zfill(3)
 
         shipyard_idx = int(agent_action_str[0])
-        fleets_amount_idx = int(agent_action_str[1])
-        flight_plan_idx = int(agent_action_str[2])
+        flight_plan_idx = int(agent_action_str[1])
 
         shipyard_id = self.__select_shipyard_id(board_wrapper, shipyard_idx)
         base_action = self.__select_base_action(flight_plan_idx)
-        ship_count = self.__select_ship_count(fleets_amount_idx)
-        direction = self.__select_maneuver(int(ship_count), flight_plan_idx)
-        build_indicator = self.__select_build_indicator(flight_plan_idx)
 
-        kore_action = f"{base_action}_{ship_count}{direction}{build_indicator}"
+        if base_action == "SPAWN":
+            ship_count = str(board_wrapper.get_max_spawn_shipyard(shipyard_idx))
+            kore_action = f"{base_action}_{ship_count}"
+        else:
+            ship_count = board_wrapper.get_ship_count_shipyard(shipyard_idx)
+            if ship_count > 0:
+                direction = self.__select_maneuver(int(ship_count), flight_plan_idx)
+                build_indicator = self.__select_build_indicator(ship_count)
+
+                kore_action = f"{base_action}_{ship_count}{direction}{build_indicator}"
+            else:
+                kore_action = ""
 
         kore_action = {shipyard_id: kore_action}
 
@@ -60,17 +64,12 @@ class ActionAdapter:
     def __select_base_action(self, flight_plan_idx: int) -> str:
         return "SPAWN" if flight_plan_idx == 0 else "LAUNCH"
 
-    def __select_ship_count(self, fleets_amount_idx):
-        return f"{self.SHIP_COUNT_LOOKUP_LIST[fleets_amount_idx]}"
-
-    def __select_build_indicator(self, fleets_amount: int):
-        if fleets_amount == 50:
+    def __select_build_indicator(self, ship_count: int):
+        if ship_count >= 50:
             return "C"
         return ""
 
     def __select_maneuver(self, ship_count: int, flight_plan_idx):
-        if flight_plan_idx == 0:
-            return ""
         max_maneuver_length = math.floor(2 * math.log(ship_count)) + 1
         maneuver = self.MANEUVER_LOOKUP[flight_plan_idx]
 
