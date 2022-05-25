@@ -12,20 +12,23 @@ class RuleBasedActor:
     def __init__(self, board: Board):
         self.board = board
 
-    '''
-    Chooses a random point inside of given ring to expand to (inside radius not inside non_expand_margin)
-    creates a box path flight plan with expanding
-    '''
-
     def expand_randomly(self, shipyard: Shipyard, radius: int, non_expand_margin: int) -> ShipyardAction:
+        """
+        Chooses a random point inside of given ring to expand to (inside radius not inside non_expand_margin)
+        creates a box path flight plan with expanding
+        :param shipyard: shipyard to expand from
+        :param radius: radius around the shipyard to expand to
+        :param non_expand_margin: radius around the shipyard not to expand to
+        :return: expanding action as ShipyardAction
+        """
 
         assert radius > non_expand_margin, 'For expanding it has to be radius>non_expand_margin'
 
         # sampling at most 1000 times a random position with given radius around shipyard
         for _ in range(0, 1000):
 
-            off_x = random.randint(0, 2* radius) - radius
-            off_y = random.randint(0, 2* radius) - radius
+            off_x = random.randint(0, 2 * radius) - radius
+            off_y = random.randint(0, 2 * radius) - radius
             off = Point(off_x, off_y)
 
             if abs(off_x) <= non_expand_margin or abs(off_y) <= non_expand_margin:
@@ -40,56 +43,61 @@ class RuleBasedActor:
 
         return None
 
-    '''
-    Searches for the best box farmer (most kore on the path per time step, ignoring the regeneration)
-    Starting the farm flight plan from the given shipyard
-    Searching in a box with size 2 * radius around the shipyard, whereas the radius should not exceed 9
-    '''
-
     def start_optimal_box_farmer(self, shipyard: Shipyard, radius: int) -> ShipyardAction:
-
+        """
+        Searches for the best box farmer (most kore on the path per time step, ignoring the regeneration)
+        Starting the farm flight plan from the given shipyard
+        Searching in a box with size 2 * radius around the shipyard, whereas the radius should not exceed 9
+        :param shipyard: shipyard to start farmer from
+        :param radius: radius around the shipyard to farm
+        :return: farming action as ShipyardAction
+        """
         kore_map = self._kore_on_paths_map(shipyard, radius)
         self._normalize_by_step_count(kore_map, radius)
         max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
         flight_plan = self._get_box_farmer_flight_plan(max_x - radius, radius - max_y)
         return ShipyardAction.launch_fleet_with_flight_plan(21, flight_plan)
 
-    '''
-    Creating the action to build as many ships as possible at that current time
-    '''
-
-    def build_max(self, shipyard: Shipyard, config: Configuration) -> ShipyardAction:
+    def build_max(self, shipyard: Shipyard) -> ShipyardAction:
+        """
+        Creating the action to build as many ships as possible at that current time
+        :param shipyard: shipyard to build ships
+        :return: building action as ShipyardAction
+        """
         max_spawn = shipyard.max_spawn
         kore = shipyard.player.kore
-        ship_cost = config.spawn_cost
+        ship_cost = self.board.configuration.spawn_cost
 
         # create action
-        number_of_ships_to_create = min(max_spawn, kore / ship_cost)
+        number_of_ships_to_create = min(max_spawn, int(kore / ship_cost))
 
         return ShipyardAction.spawn_ships(number_of_ships_to_create)
 
-    '''
-    Launches all ships currently in the shipyard to attack the closest enemy shipyard
-    '''
-
     def attack_closest(self, shipyard: Shipyard) -> ShipyardAction:
+        """
+        Launches all ships currently in the shipyard to attack the closest enemy shipyard
+        :param shipyard: shipyard to start attack from
+        :return: attacking action to the closest enemy shipyard as ShipyardAction
+        """
 
         no_ships = shipyard.ship_count
-        enemy_shipyard = self._get_closest_enemy_shipyard(self.board, shipyard.position, shipyard.player)
+        enemy_shipyard = self._get_closest_enemy_shipyard(shipyard.position, shipyard.player)
         flight_plan = self._get_shortest_flight_path_between(shipyard.position, enemy_shipyard.position,
                                                              self.board.configuration.size)
 
         return ShipyardAction.launch_fleet_with_flight_plan(no_ships, flight_plan)
 
-    '''
-    Creates a "kore paths map" with given radius and shipyard as the center
-    Thereby one entry of the map stands for the number of kore on the path including this point as the furthest point 
-    from the shipyard.
-    '''
-
     def _kore_on_paths_map(self, shipyard: Shipyard, radius: int) -> numpy.ndarray:
+        """
+        Creates a "kore paths map" with given radius and shipyard as the center
+        Thereby one entry of the map stands for the number of kore on the path including this point as the
+        furthest point from the shipyard.
+        :param shipyard: shipyard as the center of the map
+        :param radius: radius around shipyard to investigate
+        :return: map with size (2 * radius + 1, 2 * radius + 1)
+        """
 
-        map = numpy.zeros(shape=(2 * radius + 1, 2 * radius + 1))
+        kore_map = numpy.zeros(shape=(2 * radius + 1, 2 * radius + 1))
 
         shipyard_map_pos_x = radius
         shipyard_map_pos_y = radius
@@ -104,14 +112,14 @@ class RuleBasedActor:
         # filling the axes
         for p in axes:
             for i in range(1, radius + 1):
-                map[self._flip(shipyard_origin + p * i)] = \
+                kore_map[self._flip(shipyard_origin + p * i)] = \
                     self.board.get_cell_at_point(
                         shipyard.position.translate(self._toggle_translation_space(p * i),
                                                     self.board.configuration.size)).kore + \
                     self.board.get_cell_at_point(
                         shipyard.position.translate(self._toggle_translation_space(p * (i - 1)),
                                                     self.board.configuration.size)).kore + \
-                    map[self._flip(shipyard_origin + p * (i - 1))]
+                    kore_map[self._flip(shipyard_origin + p * (i - 1))]
 
         # fill the rest of the map
         # axis vectors for every quadrant
@@ -132,22 +140,25 @@ class RuleBasedActor:
                         self._toggle_translation_space(translation), self.board.configuration.size)
                     cellpos2 = shipyard.position.translate(
                         self._toggle_translation_space(translation - off_y - off_x), self.board.configuration.size)
-                    map[self._flip(next_pos)] = \
-                        map[self._flip(next_pos - off_y)] + map[self._flip(next_pos - off_x)] - map[
+                    kore_map[self._flip(next_pos)] = \
+                        kore_map[self._flip(next_pos - off_y)] + kore_map[self._flip(next_pos - off_x)] - kore_map[
                             self._flip(next_pos - off_x - off_y)] + \
                         self.board.get_cell_at_point(
                             cellpos1).kore - \
                         self.board.get_cell_at_point(
                             cellpos2).kore
 
-        return map
+        return kore_map
 
-    '''
-    Takes the kore path map with the shipyard being the center and normalizes by the number of time steps it takes
-    until the fleet returns home with loot (divide by number of steps + 1 (construction cost))
-    '''
 
     def _normalize_by_step_count(self, kore_map: numpy.ndarray, radius: int):
+        """
+        Takes the kore path map with the shipyard being the center and normalizes by the number of time steps it takes
+        until the fleet returns home with loot (divide by number of steps + 1 (construction cost))
+        :param kore_map:
+        :param radius:
+        :return:
+        """
         for x in range(0, 2 * radius + 1):
             for y in range(0, 2 * radius + 1):
                 dist_x = abs(x - radius)
@@ -155,27 +166,33 @@ class RuleBasedActor:
 
                 kore_map[y, x] = kore_map[y, x] / (2 * dist_x + 2 * dist_y + 1)
 
-    '''
-    Toggles a translation between board coordinate system (north is decrementing y) and kore path map coordinate system
-    (north is incrementing y)
-    '''
+
 
     def _toggle_translation_space(self, translation: Point) -> Point:
+        """
+        Toggles a translation between board coordinate system (north is decrementing y) and kore path map coordinate system
+        (north is incrementing y)
+        :param translation:
+        :return:
+        """
         return Point(translation.x, -translation.y)
 
-    '''
-    Returns a point which is flipped in x and y
-    '''
-
     def _flip(self, point: Point) -> Point:
+        """
+        Returns a point which is flipped in x and y
+        :param point:
+        :return:
+        """
         return Point(point.y, point.x)
 
-    '''
-    Returns a tuple pointing to a position in the 2 dim square matrix which has a highest entry
-    note that the output is to be interpreted as coordinates, thus flipping the dimensions from usual matrix notation
-    '''
-
     def _argmax_of_2dim_square(self, array: numpy.ndarray, size: int) -> Tuple[int, int]:
+        """
+        Returns a tuple pointing to a position in the 2 dim square matrix which has a highest entry
+        note that the output is to be interpreted as coordinates, thus flipping the dimensions from usual matrix notation
+        :param array:
+        :param size:
+        :return:
+        """
         max_indices_1d = numpy.argmax(array.flatten())
         res = (max_indices_1d % size, int(max_indices_1d / size))
         return res
@@ -213,14 +230,16 @@ class RuleBasedActor:
 
         return flight_plan
 
-    '''
-    Returns a flight plan for a certain translation on the kore paths map. Thereby the following scheme is chosen:
-    - First decide whether North or South
-    - After that decide whether West or East
-    - conclude the box
-    '''
-
     def _get_box_farmer_flight_plan(self, off_x_furthest_point: int, off_y_furthest_point: int) -> str:
+        """
+        Returns a flight plan for a certain translation on the kore paths map. Thereby the following scheme is chosen:
+        - First decide whether North or South
+        - After that decide whether West or East
+        - conclude the box
+        :param off_x_furthest_point:
+        :param off_y_furthest_point:
+        :return:
+        """
         flight_plan = ""
 
         if off_x_furthest_point > 0:
@@ -251,11 +270,13 @@ class RuleBasedActor:
 
         return flight_plan
 
-    '''
-    Returns the closest enemy shipyard from given position
-    '''
-
     def _get_closest_enemy_shipyard(self, position: Point, player: Player) -> Shipyard:
+        """
+        Returns the closest enemy shipyard from given position
+        :param position:
+        :param player:
+        :return:
+        """
         min_dist = 1000000
         enemy_shipyard = None
         for shipyard in self.board.shipyards.values():
@@ -292,5 +313,5 @@ class RuleBasedActor:
             else:
                 return flight_path_y + (flight_path_x if trailing_digits else flight_path_x[0])
         return flight_path_y + (flight_path_x if trailing_digits or not flight_path_x else flight_path_x[
-            0]) if random() < .5 else flight_path_x + (
+            0]) if random.random() < .5 else flight_path_x + (
             flight_path_y if trailing_digits or not flight_path_y else flight_path_y[0])
