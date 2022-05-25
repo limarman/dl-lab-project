@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import List
 
-from src.Monitoring.KoreMonitor import KoreMonitor
+from src.Monitoring.kore_monitor import KoreMonitor
 
 
 class KoreAgent(ABC):
