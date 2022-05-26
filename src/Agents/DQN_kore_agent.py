@@ -2,7 +2,7 @@ import os
 
 import gym
 from kaggle_environments.envs.kore_fleets.helpers import Board
-from keras import Sequential
+from keras import Sequential, Model
 from keras.layers import Flatten, Dense, Activation
 from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
@@ -18,7 +18,7 @@ from src.States.board_wrapper import BoardWrapper
 
 class DQNKoreAgent(KoreAgent):
 
-    def __init__(self, name: str, kore_env: KoreEnv, input_size: int, training_steps: int = 100000):
+    def __init__(self, name: str, kore_env: KoreEnv, model: Model, training_steps: int = 150000):
         super().__init__(name)
 
         self.kore_env = kore_env
@@ -26,20 +26,7 @@ class DQNKoreAgent(KoreAgent):
         self.action_adapter = kore_env.action_adapter
         self.training_steps = training_steps
 
-        self.model = Sequential()
-        self.model.add(Flatten(input_shape=(4,) + (886,)))
-        self.model.add(Dense(1024))
-        self.model.add(Activation('relu'))
-        self.model.add(Dense(1024))
-        self.model.add(Activation('relu'))
-        self.model.add(Dense(1024))
-        self.model.add(Activation('relu'))
-        self.model.add(Dense(1024))
-        self.model.add(Activation('relu'))
-        self.model.add(Dense(1024))
-        self.model.add(Activation('relu'))
-        self.model.add(Dense(self.action_adapter.N_ACTIONS))
-        self.model.add(Activation('linear'))
+        self.model = model
 
         memory = SequentialMemory(limit=1000000, window_length=4)
         policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), attr='eps', value_max=1.,
@@ -53,9 +40,10 @@ class DQNKoreAgent(KoreAgent):
         self.dqn.compile(Adam(lr=0.0001), metrics=['mae'])
 
     def fit(self):
-        wandb_logger = WandbLogger()
-        callbacks = [ReplayCallback(self.step, interval=20), wandb_logger]
-        self.dqn.fit(self.kore_env, nb_steps=1500000, visualize=True, verbose=2, callbacks=callbacks)
+        #wandb_logger = WandbLogger()
+        #callbacks = [ReplayCallback(self.step, interval=20), wandb_logger]
+        callbacks = []
+        self.dqn.fit(self.kore_env, nb_steps=self.training_steps, visualize=True, verbose=2, callbacks=callbacks)
 
     def step(self, obs, config):
         board = Board(obs, config)
