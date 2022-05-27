@@ -1,10 +1,9 @@
 from src.Actions.action_adapter import ActionAdapter
 from src.Agents.DQN_kore_agent import DQNKoreAgent
-from src.Agents.neural_networks.mlp import get_mlp
+from src.Agents.neural_networks.cnn import get_cnn
 from src.Environment.kore_env import KoreEnv
-
 from src.Rewards.dummy_reward import DummyReward
-from src.States.dummy_state import DummyState
+from src.States.dummy_state_map import DummyStateMap
 
 
 def main():
@@ -14,9 +13,9 @@ def main():
     dummy_reward = DummyReward()
     action_adapter = ActionAdapter()
 
-    kore_env = KoreEnv(DummyState, action_adapter, dummy_reward)
-    model = get_mlp(DummyState.get_input_shape(), action_adapter.N_ACTIONS, train_interval=4)
-    kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model)
+    kore_env = KoreEnv(DummyStateMap, action_adapter, dummy_reward)
+    model = get_cnn(DummyStateMap.get_input_shape(), action_adapter.N_ACTIONS, 1)
+    kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model, train_interval=1)
     kore_agent.fit()
 
 

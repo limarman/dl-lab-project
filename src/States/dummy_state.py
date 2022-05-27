@@ -28,7 +28,7 @@ class DummyState(KoreState):
 
     def _get_tensor(self):
         """
-        Puts all state values in a torch tensor, eg. as input for a simple MLP
+        Puts all state values in a numpy array, eg. as input for a simple MLP
         :return: np array of size (21*21 + 3*1)
         """
         data = self.kore_map + self.shipyard_fleets_map + [

@@ -20,5 +20,3 @@ class TestSimpleReward(unittest.TestCase):
     def test_reward_from_action(self):
         reward = self.simple_reward.get_reward_from_action(self.simple_state, [self.spawn_ship_action])
         self.assertEqual(reward, 0)
-
-
