@@ -15,7 +15,7 @@ def main():
 
     kore_env = KoreEnv(DummyStateMap, action_adapter, dummy_reward)
     model = get_cnn(DummyStateMap.get_input_shape(), action_adapter.N_ACTIONS, 1)
-    kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model, train_interval=1)
+    kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model, window_length=1)
     kore_agent.fit()
 
 

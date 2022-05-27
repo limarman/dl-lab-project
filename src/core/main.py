@@ -20,7 +20,7 @@ def main():
 
     kore_env = KoreEnv(SimpleState, action_adapter, dummy_reward)
     model = get_mlp(SimpleState.get_input_shape(), action_adapter.N_ACTIONS, train_interval=4)
-    kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model)
+    kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model, window_length=4)
     kore_agent.fit()
 
 

@@ -16,12 +16,13 @@ class KoreEnv(gym.Env):
     ENV_NAME: str = "kore_fleets"
 
     def __init__(self, state_constr, action_adapter: ActionAdapter, reward_calculator: KoreReward, enemy_agent: str = 'balanced'):
-        self.env = make(self.ENV_NAME, debug=True)
+        self.env = None
+        self.opponent_agent = None
         self.action_adapter = action_adapter
         self.reward_calculator = reward_calculator
         self.state_constr = state_constr
+        self.enemy_agent = enemy_agent
         self.two_player = bool(enemy_agent)
-        self.opponent_agent = self.env.agents[enemy_agent]
         self.player_id = 0
         self.boards = {}
         self.current_state = None
@@ -46,6 +47,9 @@ class KoreEnv(gym.Env):
         return next_state.tensor, next_reward, self.env.done, info
 
     def reset(self) -> Union[ObsType, Tuple[ObsType, dict]]:
+        self.env = make(self.ENV_NAME, debug=True)
+        self.opponent_agent = self.env.agents[self.enemy_agent]
+
         if self.two_player:
             num_agents = 2
         else:

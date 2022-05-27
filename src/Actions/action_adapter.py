@@ -27,8 +27,8 @@ class ActionAdapter:
     def agent_to_kore_action(self, agent_action: int, board_wrapper: BoardWrapper) -> Dict[str, str]:
         agent_action_str = str(agent_action)
 
-        if len(agent_action_str) < 3:
-            agent_action_str = agent_action_str.zfill(3)
+        if len(agent_action_str) < 2:
+            agent_action_str = agent_action_str.zfill(2)
 
         shipyard_idx = int(agent_action_str[0])
         flight_plan_idx = int(agent_action_str[1])

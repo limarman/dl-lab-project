@@ -17,7 +17,7 @@ def main():
 
     kore_env = KoreEnv(SimpleState, action_adapter, simple_reward)
     model = get_mlp(SimpleState.get_input_shape(), action_adapter.N_ACTIONS, train_interval=2)
-    kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model, training_steps=25000, train_interval=2, qpolicy=BiasedSpawnyQPolicy())
+    kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model, training_steps=25000, window_length=2, qpolicy=BiasedSpawnyQPolicy())
     kore_agent.fit()
 
     kore_env.env.run([kore_agent.step, 'balanced'])

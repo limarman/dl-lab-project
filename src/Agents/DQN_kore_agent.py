@@ -18,7 +18,7 @@ from src.States.board_wrapper import BoardWrapper
 
 class DQNKoreAgent(KoreAgent):
 
-    def __init__(self, name: str, kore_env: KoreEnv, model: Model, training_steps: int = 150000, train_interval: int = 4, qpolicy=EpsGreedyQPolicy()):
+    def __init__(self, name: str, kore_env: KoreEnv, model: Model, training_steps: int = 150000, window_length: int = 4, qpolicy=EpsGreedyQPolicy()):
         super().__init__(name)
 
         self.kore_env = kore_env
@@ -28,21 +28,20 @@ class DQNKoreAgent(KoreAgent):
 
         self.model = model
 
-        memory = SequentialMemory(limit=1000000, window_length=train_interval)
+        memory = SequentialMemory(limit=1000000, window_length=window_length)
         policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=1.,
                                       value_min=.1, value_test=.05, nb_steps=200000)
 
         self.dqn = DQNAgent(model=self.model, nb_actions=self.action_adapter.N_ACTIONS,
-                            memory=memory, nb_steps_warmup=6000, target_model_update=10000,
-                            policy=policy, train_interval=train_interval, delta_clip=1.,
-                            enable_double_dqn=True, enable_dueling_network=True)
+                            memory=memory, nb_steps_warmup=100, target_model_update=10000,
+                            policy=policy, train_interval=4, delta_clip=1.,
+                            enable_double_dqn=True, enable_dueling_network=True, batch_size=32)
 
         self.dqn.compile(Adam(lr=0.0001), metrics=['mae'])
 
     def fit(self):
-        #wandb_logger = WandbLogger()
-        #callbacks = [ReplayCallback(self.step, interval=20), wandb_logger]
-        callbacks = []
+        wandb_logger = WandbLogger()
+        callbacks = [ReplayCallback(self.step, interval=20), wandb_logger]
         self.dqn.fit(self.kore_env, nb_steps=self.training_steps, visualize=True, verbose=2, callbacks=callbacks)
 
     def step(self, obs, config):
