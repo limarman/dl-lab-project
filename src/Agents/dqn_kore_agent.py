@@ -1,25 +1,24 @@
-import os
-
-import gym
 from kaggle_environments.envs.kore_fleets.helpers import Board
-from keras import Sequential, Model
-from keras.layers import Flatten, Dense, Activation
+from keras import Model
 from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.memory import SequentialMemory
-from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
-
-from src.Agents.kore_agent import KoreAgent
+from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy, Policy
 from src.Agents.train_callbacks.ReplayCallback import ReplayCallback
 from src.Agents.train_callbacks.WandbLogger import WandbLogger
 from src.Environment.kore_env import KoreEnv
 from src.States.board_wrapper import BoardWrapper
 
 
-class DQNKoreAgent(KoreAgent):
+class DQNKoreAgent:
 
-    def __init__(self, name: str, kore_env: KoreEnv, model: Model, training_steps: int = 150000, window_length: int = 4, qpolicy=EpsGreedyQPolicy()):
-        super().__init__(name)
+    def __init__(
+            self,
+            kore_env: KoreEnv,
+            model: Model,
+            training_steps: int = 150000,
+            qpolicy: Policy = EpsGreedyQPolicy(),
+    ):
 
         self.kore_env = kore_env
         self.state_constr = kore_env.state_constr
@@ -27,8 +26,9 @@ class DQNKoreAgent(KoreAgent):
         self.training_steps = training_steps
 
         self.model = model
+        self.window_length = model.input_shape[1]
 
-        memory = SequentialMemory(limit=1000000, window_length=window_length)
+        memory = SequentialMemory(limit=1000000, window_length=self.window_length)
         policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=1.,
                                       value_min=.1, value_test=.05, nb_steps=200000)
 

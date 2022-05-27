@@ -2,9 +2,9 @@ from keras import Sequential
 from keras.layers import Flatten, Dense, Activation
 
 
-def get_mlp(input_size: int, num_actions: int, train_interval: int = 1):
+def get_mlp(input_size: int, num_actions: int, window_length: int = 4):
     model = Sequential()
-    model.add(Flatten(input_shape=(train_interval,) + (input_size,)))
+    model.add(Flatten(input_shape=(window_length,) + (input_size,)))
     model.add(Dense(1024))
     model.add(Activation('relu'))
     model.add(Dense(1024))

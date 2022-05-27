@@ -24,7 +24,6 @@ class DummyStateMap(KoreState):
         tensor = self._get_tensor()
         super(DummyStateMap, self).__init__(tensor.shape, tensor, self.board_wrapper)
 
-
     @staticmethod
     def get_input_shape():
         dummy_board = create_board()

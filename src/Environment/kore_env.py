@@ -3,8 +3,6 @@ from typing import Tuple, Union
 import gym
 from gym.core import ActType, ObsType
 from kaggle_environments import make
-from kaggle_environments.envs.kore_fleets.helpers import Board
-from kaggle_environments.envs.kore_fleets.kore_fleets import balanced_agent
 
 from src.Actions.action_adapter import ActionAdapter
 from src.Rewards.kore_reward import KoreReward
@@ -15,26 +13,30 @@ from src.States.board_wrapper import BoardWrapper
 class KoreEnv(gym.Env):
     ENV_NAME: str = "kore_fleets"
 
-    def __init__(self, state_constr, action_adapter: ActionAdapter, reward_calculator: KoreReward, enemy_agent: str = 'balanced'):
+    def __init__(
+            self,
+            state_constr,
+            action_adapter: ActionAdapter,
+            kore_reward: KoreReward,
+            enemy_agent: str = 'balanced'
+    ):
         self.env = None
         self.opponent_agent = None
         self.action_adapter = action_adapter
-        self.reward_calculator = reward_calculator
+        self.reward_calculator = kore_reward
         self.state_constr = state_constr
         self.enemy_agent = enemy_agent
-        self.two_player = bool(enemy_agent)
         self.player_id = 0
         self.boards = {}
         self.current_state = None
-        # set initial state and boards
         self.reset()
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         board_wrapper = BoardWrapper(self.boards[self.player_id], self.player_id)
         next_kore_action = [self.action_adapter.agent_to_kore_action(action, board_wrapper)]
-        if self.two_player:
-            next_opponent_action = self.opponent_agent(self.boards[1].observation, self.env.configuration)
-            next_kore_action.append(next_opponent_action)
+
+        next_opponent_action = self.opponent_agent(self.boards[1].observation, self.env.configuration)
+        next_kore_action.append(next_opponent_action)
 
         step_result = self.env.step(next_kore_action)
         self.boards = get_boards_from_kore_env_state(step_result, self.env.configuration)
@@ -49,12 +51,7 @@ class KoreEnv(gym.Env):
     def reset(self) -> Union[ObsType, Tuple[ObsType, dict]]:
         self.env = make(self.ENV_NAME, debug=True)
         self.opponent_agent = self.env.agents[self.enemy_agent]
-
-        if self.two_player:
-            num_agents = 2
-        else:
-            num_agents = 1
-        init_step_result = self.env.reset(num_agents=num_agents)
+        init_step_result = self.env.reset(num_agents=2)
         self.boards = get_boards_from_kore_env_state(init_step_result, self.env.configuration)
         self.current_state = self.state_constr(self.boards[self.player_id])
 

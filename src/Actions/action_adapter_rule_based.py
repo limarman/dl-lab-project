@@ -1,8 +1,8 @@
-from src.Actions.RuleBasedActor import RuleBasedActor
+from src.Actions.action_adapter import ActionAdapter
+from src.Actions.rule_based_actor import RuleBasedActor
 
 from typing import Dict
 
-from src.Actions.action_adapter import ActionAdapter
 from src.States.board_wrapper import BoardWrapper
 from kaggle_environments.envs.kore_fleets.helpers import Shipyard
 
@@ -15,7 +15,6 @@ class ActionAdapterRuleBased(ActionAdapter):
         super().__init__()
 
     def agent_to_kore_action(self, agent_action: int, board_wrapper: BoardWrapper) -> Dict[str, str]:
-
         shipyard_idx = agent_action % 10
         action_idx = int(agent_action / 10)
 
@@ -44,7 +43,8 @@ class ActionAdapterRuleBased(ActionAdapter):
 
         return kore_action
 
-    def __select_shipyard(self, board_wrapper: BoardWrapper, shipyard_idx: int) -> Shipyard:
+    @staticmethod
+    def __select_shipyard(board_wrapper: BoardWrapper, shipyard_idx: int) -> Shipyard:
         shipyards = board_wrapper.get_shipyards_of_current_player()
         if len(shipyards) == 0:
             return None

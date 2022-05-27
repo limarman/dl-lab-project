@@ -1,5 +1,5 @@
 from src.Actions.action_adapter import ActionAdapter
-from src.Agents.DQN_kore_agent import DQNKoreAgent
+from src.Agents.dqn_kore_agent import DQNKoreAgent
 from src.Agents.neural_networks.cnn import get_cnn
 from src.Environment.kore_env import KoreEnv
 from src.Rewards.dummy_reward import DummyReward
