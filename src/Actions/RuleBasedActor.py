@@ -24,6 +24,9 @@ class RuleBasedActor:
 
         assert radius > non_expand_margin, 'For expanding it has to be radius>non_expand_margin'
 
+        if shipyard is None or shipyard.ship_count < 50:
+            return None
+
         # sampling at most 1000 times a random position with given radius around shipyard
         for _ in range(0, 1000):
 
@@ -34,7 +37,7 @@ class RuleBasedActor:
             if abs(off_x) <= non_expand_margin or abs(off_y) <= non_expand_margin:
                 continue
 
-            print(f"Expand coordinates: {off_x}, {off_y}")
+            # print(f"Expand coordinates: {off_x}, {off_y}")
             # check whether at that position there is already some shipyard
             if not self.board.get_shipyard_at_point(shipyard.position.translate(off, self.board.configuration.size)):
                 fleet_size = min(100, shipyard.ship_count)
@@ -52,6 +55,9 @@ class RuleBasedActor:
         :param radius: radius around the shipyard to farm
         :return: farming action as ShipyardAction
         """
+        if shipyard is None:
+            return None
+
         kore_map = self._kore_on_paths_map(shipyard, radius)
         self._normalize_by_step_count(kore_map, radius)
         max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
@@ -64,6 +70,9 @@ class RuleBasedActor:
         :param shipyard: shipyard to build ships
         :return: building action as ShipyardAction
         """
+        if shipyard is None:
+            return None
+
         max_spawn = shipyard.max_spawn
         kore = shipyard.player.kore
         ship_cost = self.board.configuration.spawn_cost
@@ -79,9 +88,16 @@ class RuleBasedActor:
         :param shipyard: shipyard to start attack from
         :return: attacking action to the closest enemy shipyard as ShipyardAction
         """
-
+        if shipyard is None:
+            return None
         no_ships = shipyard.ship_count
+        if no_ships < 20:
+            return None
         enemy_shipyard = self._get_closest_enemy_shipyard(shipyard.position, shipyard.player)
+
+        if enemy_shipyard is None:
+            return None
+
         flight_plan = self._get_shortest_flight_path_between(shipyard.position, enemy_shipyard.position,
                                                              self.board.configuration.size)
 
