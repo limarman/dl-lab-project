@@ -1,10 +1,12 @@
+import itertools
+
 from src.Actions.action_adapter import ActionAdapter
 from src.Actions.rule_based_actor import RuleBasedActor
 
 from typing import Dict
 
 from src.States.board_wrapper import BoardWrapper
-from kaggle_environments.envs.kore_fleets.helpers import Shipyard
+from kaggle_environments.envs.kore_fleets.helpers import *
 
 
 class ActionAdapterRuleBased(ActionAdapter):
@@ -23,9 +25,15 @@ class ActionAdapterRuleBased(ActionAdapter):
         if shipyard is None:
             return {}
 
-        rba = RuleBasedActor(board_wrapper.board)
-        shipyard_action = None
+        shipyard_action = self._get_rb_action(action_idx, shipyard, board_wrapper.board)
 
+        kore_action = {shipyard.id: str(shipyard_action)}
+
+        return kore_action
+
+    @staticmethod
+    def _get_rb_action(action_idx, shipyard: Shipyard, board: Board):
+        rba = RuleBasedActor(board)
         if action_idx == 0:
             shipyard_action = rba.build_max(shipyard)
             # print("build")
@@ -38,10 +46,13 @@ class ActionAdapterRuleBased(ActionAdapter):
         elif action_idx == 3:
             # print("attack")
             shipyard_action = rba.attack_closest(shipyard)
+        else:
+            # why not raise exception here?
+            # raise Exception('Action index is out of bounds')
+            shipyard_action = None
 
-        kore_action = {shipyard.id: str(shipyard_action)}
+        return shipyard_action
 
-        return kore_action
 
     @staticmethod
     def __select_shipyard(board_wrapper: BoardWrapper, shipyard_idx: int) -> Shipyard:

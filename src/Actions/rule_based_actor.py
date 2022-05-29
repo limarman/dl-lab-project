@@ -58,10 +58,15 @@ class RuleBasedActor:
         if shipyard is None:
             return None
 
+        # avoid invalid actions
+        if shipyard.ship_count < 21:
+            return ShipyardAction.launch_fleet_with_flight_plan(min(shipyard.ship_count, 5), 'N')
+
         kore_map = self._kore_on_paths_map(shipyard, radius)
         self._normalize_by_step_count(kore_map, radius)
         max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
         flight_plan = self._get_box_farmer_flight_plan(max_x - radius, radius - max_y)
+
         return ShipyardAction.launch_fleet_with_flight_plan(21, flight_plan)
 
     def build_max(self, shipyard: Shipyard) -> ShipyardAction:
@@ -166,7 +171,6 @@ class RuleBasedActor:
 
         return kore_map
 
-
     def _normalize_by_step_count(self, kore_map: numpy.ndarray, radius: int):
         """
         Takes the kore path map with the shipyard being the center and normalizes by the number of time steps it takes
@@ -181,8 +185,6 @@ class RuleBasedActor:
                 dist_y = abs(y - radius)
 
                 kore_map[y, x] = kore_map[y, x] / (2 * dist_x + 2 * dist_y + 1)
-
-
 
     def _toggle_translation_space(self, translation: Point) -> Point:
         """
@@ -304,11 +306,10 @@ class RuleBasedActor:
                 enemy_shipyard = shipyard
         return enemy_shipyard
 
-    '''
-    Returns the shortest flight plan possible for the shortest path from position_a to position_b
-    '''
-
     def _get_shortest_flight_path_between(self, position_a, position_b, size, trailing_digits=False) -> str:
+        """
+        Returns the shortest flight plan possible for the shortest path from position_a to position_b
+        """
         mag_x = 1 if position_b.x > position_a.x else -1
         abs_x = abs(position_b.x - position_a.x)
         dir_x = mag_x if abs_x < size / 2 else -mag_x
