@@ -21,6 +21,8 @@ class WandbLogger(Callback):
         self.rewards = {}
         self.actions = {}
         self.metrics = {}
+        self.kore_me = {}
+        self.game_length = {}
         self.step = 0
 
     def on_train_begin(self, logs):
@@ -41,6 +43,8 @@ class WandbLogger(Callback):
         self.rewards[episode] = []
         self.actions[episode] = []
         self.metrics[episode] = []
+        self.kore_me[episode] = []
+        self.game_length[episode] = []
 
     def on_episode_end(self, episode, logs):
         """ Compute and log training statistics of the episode when done """
@@ -70,6 +74,8 @@ class WandbLogger(Callback):
             'action_mean': np.mean(self.actions[episode]),
             'action_min': np.min(self.actions[episode]),
             'action_max': np.max(self.actions[episode]),
+            'game_length': self.game_length[episode][-1],
+            'kore_me': self.kore_me[episode][-1],
             #'obs_mean': np.mean(self.observations[episode]),
             #'obs_min': np.min(self.observations[episode]),
             #'obs_max': np.max(self.observations[episode]),
@@ -82,6 +88,8 @@ class WandbLogger(Callback):
         del self.rewards[episode]
         del self.actions[episode]
         del self.metrics[episode]
+        del self.kore_me[episode]
+        del self.game_length[episode]
 
     def on_step_end(self, step, logs):
         """ Update statistics of episode after each step """
@@ -90,4 +98,6 @@ class WandbLogger(Callback):
         self.rewards[episode].append(logs['reward'])
         self.actions[episode].append(logs['action'])
         self.metrics[episode].append(logs['metrics'])
+        self.kore_me[episode].append(logs['info']['kore_me'])
+        self.game_length[episode].append(logs['info']['game_length'])
         self.step += 1

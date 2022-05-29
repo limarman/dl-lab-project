@@ -43,7 +43,10 @@ class KoreEnv(gym.Env):
         next_state = self.state_constr(self.boards[self.player_id])
         next_reward = self.reward_calculator.get_reward_from_states(self.current_state, next_state)
 
-        info = {}
+        info = {
+            'game_length': board_wrapper.board.step,
+            'kore_me': next_state.kore_me
+        }
         self.current_state = next_state
 
         return next_state.tensor, next_reward, self.env.done, info
