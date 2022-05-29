@@ -5,18 +5,18 @@ from src.Agents.dqn_kore_agent import DQNKoreAgent
 from src.Agents.neural_networks.mlp import get_mlp
 from src.Environment.kore_env import KoreEnv
 from src.Agents.policies.spawn_policy import BiasedSpawnyQPolicy
-from src.Rewards.simple_reward import SimpleReward
-from src.States.simple_state import SimpleState
+from src.Rewards.advanced_reward import AdvancedReward
+from src.States.advanced_state import AdvancedState
 
 
 
 
 def main():
-    simple_reward = SimpleReward()
+    simple_reward = AdvancedReward()
     action_adapter = ActionAdapter()
 
-    kore_env = KoreEnv(SimpleState, action_adapter, simple_reward)
-    model = get_mlp(SimpleState.get_input_shape(), action_adapter.N_ACTIONS, window_length=2)
+    kore_env = KoreEnv(AdvancedState, action_adapter, simple_reward)
+    model = get_mlp(AdvancedState.get_input_shape(), action_adapter.N_ACTIONS, window_length=2)
     kore_agent = DQNKoreAgent(name="DQN_Kore_Agent", kore_env=kore_env, model=model, training_steps=25000, window_length=2, qpolicy=BiasedSpawnyQPolicy())
     kore_agent.fit()
 

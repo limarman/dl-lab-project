@@ -14,7 +14,7 @@ class DummyReward(KoreReward):
         pass
 
     @staticmethod
-    def get_reward_from_action(self, current_state: DummyState, actions) -> float:
+    def get_reward_from_action(current_state: DummyState, actions) -> float:
         """
         Executes the actions and calculates a reward based on the state changes
 
@@ -23,9 +23,10 @@ class DummyReward(KoreReward):
         :return: scalar reward
         """
         next_state = current_state.apply_action_to_board(actions)
-        return self.get_reward_from_states(self.current_state, next_state)
+        return DummyReward.get_reward_from_states(current_state, next_state)
 
-    def get_reward_from_states(self, previous_state: DummyState, next_state: DummyState):
-        kore_delta = previous_state.kore_me - next_state.kore_me
+    @staticmethod
+    def get_reward_from_states(previous_state: DummyState, next_state: DummyState):
+        kore_delta = next_state.kore_me - previous_state.kore_me
 
         return max(kore_delta, 0)

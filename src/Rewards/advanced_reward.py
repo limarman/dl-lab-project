@@ -1,10 +1,10 @@
 import math
 
 from src.Rewards.kore_reward import KoreReward
-from src.States.simple_state import SimpleState
+from src.States.advanced_state import AdvancedState
 
 
-class SimpleReward(KoreReward):
+class AdvancedReward(KoreReward):
     """
     Simple reward implementation for quick prototyping
     """
@@ -15,7 +15,7 @@ class SimpleReward(KoreReward):
         """
 
     @staticmethod
-    def get_reward_from_action(state: SimpleState, actions) -> float:
+    def get_reward_from_action(current_state: AdvancedState, actions) -> float:
         """
         Executes the actions and calculates a reward based on the state changes
 
@@ -23,12 +23,12 @@ class SimpleReward(KoreReward):
         :param action: single action
         :return: scalar reward
         """
-        next_state = state.apply_action_to_board(actions)
+        next_state = current_state.apply_action_to_board(actions)
 
-        return SimpleReward.get_reward_from_states(state, next_state)
+        return AdvancedReward.get_reward_from_states(current_state, next_state)
 
     @staticmethod
-    def get_reward_from_states(previous_state: SimpleState, next_state: SimpleState):
+    def get_reward_from_states(previous_state: AdvancedState, next_state: AdvancedState):
         kore_delta = next_state.kore_me - previous_state.kore_me
         ship_delta = next_state.ship_count_me - previous_state.ship_count_me
         kore_distance = max(0, kore_delta - (next_state.kore_opponent - previous_state.kore_opponent))

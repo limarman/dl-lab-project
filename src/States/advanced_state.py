@@ -7,7 +7,7 @@ from src.States.kore_state import KoreState
 from kaggle_environments.envs.kore_fleets.test_kore_fleets import create_board
 
 
-class SimpleState(KoreState):
+class AdvancedState(KoreState):
 
     def __init__(self, board: Board):
         """
@@ -28,7 +28,7 @@ class SimpleState(KoreState):
         self.step_normalized = self.board_wrapper.get_step()
         self.max_spawn_me = self.board_wrapper.get_max_spawn_me()
         tensor = self._get_tensor()
-        super(SimpleState, self).__init__(tensor.shape, tensor, self.board_wrapper)
+        super(AdvancedState, self).__init__(tensor.shape, tensor, self.board_wrapper)
 
     def _get_tensor(self):
         """
@@ -56,7 +56,7 @@ class SimpleState(KoreState):
     @staticmethod
     def get_input_shape() -> int:
         dummy_board = create_board()
-        return SimpleState(dummy_board).input_shape[0]
+        return AdvancedState(dummy_board).input_shape[0]
 
 
 

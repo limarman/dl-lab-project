@@ -2,14 +2,14 @@ import unittest
 
 from kaggle_environments.envs.kore_fleets.test_kore_fleets import create_board, ShipyardAction
 
-from src.States.simple_state import SimpleState
+from src.States.advanced_state import AdvancedState
 
 
 class TestSimpleState(unittest.TestCase):
 
     def setUp(self):
         self.board = create_board(starting_kore=500)
-        self.simple_state = SimpleState(self.board)
+        self.simple_state = AdvancedState(self.board)
         self.spawn_ship_action = ShipyardAction.spawn_ships(1)
 
     def test_get_tensor(self):
