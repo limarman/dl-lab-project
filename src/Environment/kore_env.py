@@ -6,7 +6,7 @@ from kaggle_environments import make
 
 from src.Actions.action_adapter import ActionAdapter
 from src.Rewards.kore_reward import KoreReward
-from src.Environment.helpers import get_boards_from_kore_env_state
+from src.Environment.helpers import get_boards_from_kore_env_state, get_info_logs
 from src.States.board_wrapper import BoardWrapper
 
 
@@ -43,10 +43,8 @@ class KoreEnv(gym.Env):
         next_state = self.state_constr(self.boards[self.player_id])
         next_reward = self.reward_calculator.get_reward_from_states(self.current_state, next_state)
 
-        info = {
-            'game_length': board_wrapper.board.step,
-            'kore_me': next_state.kore_me
-        }
+        info = get_info_logs(next_state)
+
         self.current_state = next_state
 
         return next_state.tensor, next_reward, self.env.done, info
