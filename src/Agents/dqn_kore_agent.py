@@ -30,11 +30,11 @@ class DQNKoreAgent:
 
         memory = SequentialMemory(limit=1000000, window_length=self.window_length)
         policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=1.,
-                                      value_min=.1, value_test=.05, nb_steps=200000)
+                                      value_min=.1, value_test=.05, nb_steps=100000)
 
         self.dqn = DQNAgent(model=self.model, nb_actions=self.action_adapter.N_ACTIONS,
                             memory=memory, nb_steps_warmup=100, target_model_update=10000,
-                            policy=policy, train_interval=4, delta_clip=1.,
+                            policy=policy, train_interval=4, delta_clip=1., gamma=1,
                             enable_double_dqn=True, enable_dueling_network=True, batch_size=32)
 
         self.dqn.compile(Adam(lr=0.0001), metrics=['mae'])
