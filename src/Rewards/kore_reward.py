@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.States.kore_state import KoreState
+from src.States.kore_state import KoreState, Dict
 
 
 class KoreReward(ABC):
@@ -23,5 +23,5 @@ class KoreReward(ABC):
         pass
 
     @abstractmethod
-    def get_reward(self, previous_state: KoreState, next_state: KoreState, action: dict[str, str]):
+    def get_reward(previous_state: KoreState, next_state: KoreState, action: Dict[str, str]):
         pass

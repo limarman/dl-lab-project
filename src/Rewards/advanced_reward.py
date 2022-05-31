@@ -1,4 +1,5 @@
 import math
+from typing import Dict
 
 from src.Rewards.kore_reward import KoreReward
 from src.States.advanced_state import AdvancedState
@@ -44,5 +45,5 @@ class AdvancedReward(KoreReward):
         return reward
 
     @staticmethod
-    def get_reward(previous_state: AdvancedState, next_state: AdvancedState, action: dict[str, str]):
+    def get_reward(previous_state: AdvancedState, next_state: AdvancedState, action: Dict[str, str]):
         return AdvancedReward.get_reward_from_states(previous_state, next_state)
