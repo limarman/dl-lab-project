@@ -22,8 +22,8 @@ class AdvancedState(KoreState):
         self.ship_count_opponent = self.board_wrapper.get_ship_count_opponent()
         self.fleet_pos = self.board_wrapper.get_fleet_pos()
         self.shipyards_pos = self.board_wrapper.get_shipyard_pos()
-        self.shipycard_count_me = self.board_wrapper.get_shipyard_count_me()
-        self.shipycard_count_oppnent = self.board_wrapper.get_shipyard_count_opponent()
+        self.shipyard_count_me = self.board_wrapper.get_shipyard_count_me()
+        self.shipyard_count_opponent = self.board_wrapper.get_shipyard_count_opponent()
         self.lost = np.all(self.shipyards_pos <= 0)
         self.step_normalized = self.board_wrapper.get_step()
         self.max_spawn_me = self.board_wrapper.get_max_spawn_me()
@@ -42,8 +42,8 @@ class AdvancedState(KoreState):
             [self.ship_count_opponent],
             [self.step_normalized],
             [self.max_spawn_me],
-            [self.ship_count_me],
-            [self.ship_count_opponent],
+            [self.shipyard_count_me],
+            [self.shipyard_count_opponent],
             self.kore_map,
             self.fleet_pos,
             self.shipyards_pos

@@ -35,8 +35,6 @@ class DummyReward(KoreReward):
     def get_reward(previous_state: DummyState, next_state: DummyState, action: dict[str, str]):
         kore_delta = next_state.kore_me - previous_state.kore_me
 
-        waiting = 'None' in action.values()
-
         reward = max(kore_delta, 0)
 
         return reward

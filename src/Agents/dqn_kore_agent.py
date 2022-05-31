@@ -16,7 +16,7 @@ class DQNKoreAgent:
             self,
             kore_env: KoreEnv,
             model: Model,
-            training_steps: int = 150000,
+            training_steps: int = 200000,
             qpolicy: Policy = EpsGreedyQPolicy(),
     ):
 

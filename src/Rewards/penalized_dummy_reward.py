@@ -32,7 +32,7 @@ class PenalizedDummyReward(KoreReward):
         return max(kore_delta, 0)
 
     @staticmethod
-    def get_reward(self, previous_state: DummyState, next_state: DummyState, action: dict[str, str]):
+    def get_reward(previous_state: DummyState, next_state: DummyState, action: dict[str, str]):
         kore_delta = next_state.kore_me - previous_state.kore_me
 
         waiting = 'None' in action.values()

@@ -4,6 +4,7 @@ from src.Agents.neural_networks.mlp import get_mlp
 from src.Environment.kore_env import KoreEnv
 
 from src.Rewards.dummy_reward import DummyReward
+from src.Rewards.penalized_dummy_reward import PenalizedDummyReward
 from src.States.advanced_state import AdvancedState
 
 
