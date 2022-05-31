@@ -21,3 +21,7 @@ class KoreReward(ABC):
     @abstractmethod
     def get_reward_from_states(self, previous_state: KoreState, next_state: KoreState):
         pass
+
+    @abstractmethod
+    def get_reward(self, previous_state: KoreState, next_state: KoreState, action: dict[str, str]):
+        pass

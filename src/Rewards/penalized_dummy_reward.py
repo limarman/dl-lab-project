@@ -2,7 +2,7 @@ from src.Rewards.kore_reward import KoreReward
 from src.States.dummy_state import DummyState
 
 
-class DummyReward(KoreReward):
+class PenalizedDummyReward(KoreReward):
     """
     Dummy reward implementation for quick prototyping
     """
@@ -23,7 +23,7 @@ class DummyReward(KoreReward):
         :return: scalar reward
         """
         next_state = current_state.apply_action_to_board(actions)
-        return DummyReward.get_reward_from_states(current_state, next_state)
+        return PenalizedDummyReward.get_reward_from_states(current_state, next_state)
 
     @staticmethod
     def get_reward_from_states(previous_state: DummyState, next_state: DummyState):
@@ -32,11 +32,11 @@ class DummyReward(KoreReward):
         return max(kore_delta, 0)
 
     @staticmethod
-    def get_reward(previous_state: DummyState, next_state: DummyState, action: dict[str, str]):
+    def get_reward(self, previous_state: DummyState, next_state: DummyState, action: dict[str, str]):
         kore_delta = next_state.kore_me - previous_state.kore_me
 
         waiting = 'None' in action.values()
 
-        reward = max(kore_delta, 0)
+        reward = max(kore_delta, 0) + waiting * -100
 
         return reward
