@@ -10,12 +10,12 @@ from rl.callbacks import Callback
 class WandbLogger(Callback):
     """ Similar to TrainEpisodeLogger, but sends data to Weights & Biases to be visualized """
 
-    def __init__(self):
+    def __init__(self, name='dqn_agent'):
         project = "rl-dl-lab"
         entity = os.environ.get("WANDB_ENTITY")
-        name = "dqn_agent"
+        name = name
 
-        wandb.init(project=project, name=name, entity=entity)
+        wandb.init(project=project, name=name, entity=entity, allow_val_change=True)
         self.episode_start = {}
         self.observations = {}
         self.rewards = {}
@@ -23,6 +23,9 @@ class WandbLogger(Callback):
         self.metrics = {}
         self.kore_me = {}
         self.game_length = {}
+        self.kore_delta = {}
+        self.shipyards_me = {}
+        self.shipyards_op = {}
         self.step = 0
 
     def on_train_begin(self, logs):
@@ -45,6 +48,9 @@ class WandbLogger(Callback):
         self.metrics[episode] = []
         self.kore_me[episode] = []
         self.game_length[episode] = []
+        self.kore_delta[episode] = []
+        self.shipyards_me[episode] = []
+        self.shipyards_op[episode] = []
 
     def on_episode_end(self, episode, logs):
         """ Compute and log training statistics of the episode when done """
@@ -74,8 +80,12 @@ class WandbLogger(Callback):
             'action_mean': np.mean(self.actions[episode]),
             'action_min': np.min(self.actions[episode]),
             'action_max': np.max(self.actions[episode]),
-            'game_length': self.game_length[episode][-1],
-            'kore_me': self.kore_me[episode][-1],
+            'Game Length': self.game_length[episode][-1],
+            'My Kore (at end) ': self.kore_me[episode][-1],
+            'Kore Delta (at end)': self.kore_delta[episode][-1],
+            'My Shipyard Count (at end)': self.shipyards_me[episode][-1],
+            'Opponent Shipyard Count (at end)': self.shipyards_op[episode][-1],
+            'Won': 1 if (self.kore_delta[episode][-1] > 0 and self.shipyards_me[episode][-1] > 0) else 0,
             #'obs_mean': np.mean(self.observations[episode]),
             #'obs_min': np.min(self.observations[episode]),
             #'obs_max': np.max(self.observations[episode]),
@@ -100,4 +110,8 @@ class WandbLogger(Callback):
         self.metrics[episode].append(logs['metrics'])
         self.kore_me[episode].append(logs['info']['kore_me'])
         self.game_length[episode].append(logs['info']['game_length'])
+        self.kore_delta[episode].append(logs['info']['kore_delta'])
+        self.shipyards_me[episode].append(logs['info']['shipyard_count_me'])
+        self.shipyards_op[episode].append(logs['info']['shipyard_count_opponent'])
         self.step += 1
+

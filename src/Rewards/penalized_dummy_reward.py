@@ -1,3 +1,5 @@
+from typing import Dict
+
 from src.Rewards.kore_reward import KoreReward
 from src.States.dummy_state import DummyState
 

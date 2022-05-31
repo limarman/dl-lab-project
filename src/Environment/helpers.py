@@ -1,4 +1,6 @@
 from kaggle_environments.envs.kore_fleets.helpers import Board
+from src.States.board_wrapper import BoardWrapper
+from src.States.kore_state import KoreState
 
 
 def get_boards_from_kore_env_state(state_dict, config):
@@ -21,3 +23,15 @@ def get_boards_from_kore_env_state(state_dict, config):
 
     return player_boards
 
+
+def get_info_logs(state: KoreState):
+    """ Calculates some basic metrics for wandb logger"""
+    info = {
+        'game_length': state.board_wrapper.board.step,
+        'kore_me': state.kore_me,
+        'kore_delta': state.kore_me - state.board_wrapper.get_kore_opponent(),
+        'shipyard_count_me': state.board_wrapper.get_shipyard_count_me(),
+        'shipyard_count_opponent': state.board_wrapper.get_shipyard_count_opponent()
+    }
+
+    return info
