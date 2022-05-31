@@ -12,14 +12,14 @@ class MultiActionAdapterRuleBased(ActionAdapterRuleBased):
     low number of shipyards
     """
 
-    MAX_NUM_SHIPYARDS = 4
-    NUM_ACTIONS_PER_SHIPYARD = 4
-    N_ACTIONS: int = NUM_ACTIONS_PER_SHIPYARD ** MAX_NUM_SHIPYARDS # expand, attack, farm, build
+    MAX_NUM_SHIPYARDS = 2
 
 
     def __init__(self):
         super().__init__()
-        self.action_space = list(itertools.product(*[list(range(self.NUM_ACTIONS_PER_SHIPYARD))] * self.NUM_ACTIONS_PER_SHIPYARD))
+        MAX_NUM_SHIPYARDS = 2
+        self.N_ACTIONS: int = super().N_ACTIONS ** MAX_NUM_SHIPYARDS
+        self.action_space = list(itertools.product(*[list(range(super().N_ACTIONS))] * self.MAX_NUM_SHIPYARDS))
 
     def agent_to_kore_action(self, agent_action: int, board_wrapper: BoardWrapper) -> Dict[str, str]:
         action_sequence = self.action_space[agent_action]
