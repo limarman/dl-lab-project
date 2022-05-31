@@ -42,3 +42,7 @@ class AdvancedReward(KoreReward):
                 + 10 * ships_destroyed + 20 * shipyard_delta
 
         return reward
+
+    @staticmethod
+    def get_reward(previous_state: AdvancedState, next_state: AdvancedState, action: dict[str, str]):
+        return AdvancedReward.get_reward_from_states(previous_state, next_state)

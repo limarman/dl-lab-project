@@ -41,7 +41,7 @@ class KoreEnv(gym.Env):
         step_result = self.env.step(next_kore_action)
         self.boards = get_boards_from_kore_env_state(step_result, self.env.configuration)
         next_state = self.state_constr(self.boards[self.player_id])
-        next_reward = self.reward_calculator.get_reward_from_states(self.current_state, next_state)
+        next_reward = self.reward_calculator.get_reward(self.current_state, next_state, next_kore_action[0])
 
         info = {
             'game_length': board_wrapper.board.step,

@@ -55,12 +55,12 @@ class RuleBasedActor:
         :param radius: radius around the shipyard to farm
         :return: farming action as ShipyardAction
         """
-        if shipyard is None:
+        if shipyard is None or shipyard.ship_count < 21:
             return None
 
-        # avoid invalid actions
-        if shipyard.ship_count < 21:
-            return ShipyardAction.launch_fleet_with_flight_plan(min(shipyard.ship_count, 5), 'N')
+        # avoid invalid actions - not desired, agent should learn that the action is bad
+        #if shipyard.ship_count < 21:
+        #   return ShipyardAction.launch_fleet_with_flight_plan(min(shipyard.ship_count, 5), 'N')
 
         kore_map = self._kore_on_paths_map(shipyard, radius)
         self._normalize_by_step_count(kore_map, radius)
@@ -68,6 +68,22 @@ class RuleBasedActor:
         flight_plan = self._get_box_farmer_flight_plan(max_x - radius, radius - max_y)
 
         return ShipyardAction.launch_fleet_with_flight_plan(21, flight_plan)
+
+    def start_optimal_axis_farmer(self, shipyard, radius):
+        """
+
+        :param shipyard:
+        :param radius:
+        :return:
+        """
+        if shipyard is None or shipyard.ship_count < 3:
+            return None
+
+        kore_map = self._kore_on_axis_map(shipyard, radius)
+        max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
+        flight_plan = self._get_box_farmer_flight_plan(max_x - radius, radius - max_y)
+
+        return ShipyardAction.launch_fleet_with_flight_plan(3, flight_plan)
 
     def build_max(self, shipyard: Shipyard) -> ShipyardAction:
         """
@@ -107,6 +123,43 @@ class RuleBasedActor:
                                                              self.board.configuration.size)
 
         return ShipyardAction.launch_fleet_with_flight_plan(no_ships, flight_plan)
+
+    def _kore_on_axis_map(self, shipyard: Shipyard, radius: int) -> numpy.ndarray:
+        """
+        Creates a "kore axis map" with given radius and shipyard as the center
+        Thereby one entry of the map stands for the number of kore on the path including this point as the
+        furthest point from the shipyard.
+        :param shipyard: shipyard as the center of the map
+        :param radius: radius around shipyard to investigate
+        :return: map with size (2 * radius + 1, 2 * radius + 1)
+        """
+
+        kore_map = numpy.zeros(shape=(2 * radius + 1, 2 * radius + 1))
+
+        shipyard_map_pos_x = radius
+        shipyard_map_pos_y = radius
+
+        shipyard_origin = Point(shipyard_map_pos_x, shipyard_map_pos_y)
+
+        axes = [Point(0, -1),
+                Point(1, 0),
+                Point(0, 1),
+                Point(-1, 0)]
+
+        # filling the axes
+        for p in axes:
+            for i in range(1, radius + 1):
+                kore_map[self._flip(shipyard_origin + p * i)] = \
+                    self.board.get_cell_at_point(
+                        shipyard.position.translate(self._toggle_translation_space(p * i),
+                                                    self.board.configuration.size)).kore + \
+                    self.board.get_cell_at_point(
+                        shipyard.position.translate(self._toggle_translation_space(p * (i - 1)),
+                                                    self.board.configuration.size)).kore + \
+                    kore_map[self._flip(shipyard_origin + p * (i - 1))]
+
+        return kore_map
+
 
     def _kore_on_paths_map(self, shipyard: Shipyard, radius: int) -> numpy.ndarray:
         """
@@ -276,10 +329,12 @@ class RuleBasedActor:
 
         if off_x_furthest_point > 0:
             flight_plan += "W"
-            flight_plan += str(abs(off_x_furthest_point) - 1)
+            if off_y_furthest_point != 0:
+                flight_plan += str(abs(off_x_furthest_point) - 1)
         elif off_x_furthest_point < 0:
             flight_plan += "E"
-            flight_plan += str(abs(off_x_furthest_point) - 1)
+            if off_y_furthest_point != 0:
+                flight_plan += str(abs(off_x_furthest_point) - 1)
 
         if off_y_furthest_point > 0:
             flight_plan += "S"

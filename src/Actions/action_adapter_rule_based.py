@@ -11,16 +11,16 @@ from kaggle_environments.envs.kore_fleets.helpers import *
 
 class ActionAdapterRuleBased(ActionAdapter):
 
-    N_ACTIONS: int = 40 #expand, attack, farm, build
+    N_ACTIONS: int = 5 #expand, attack, box-farm, axis-farm, build
 
     def __init__(self):
         super().__init__()
 
     def agent_to_kore_action(self, agent_action: int, board_wrapper: BoardWrapper) -> Dict[str, str]:
-        shipyard_idx = agent_action % 10
-        action_idx = int(agent_action / 10)
+        #shipyard_idx = agent_action % 10
+        action_idx = agent_action
 
-        shipyard = self.__select_shipyard(board_wrapper, shipyard_idx)
+        shipyard = self.__select_shipyard(board_wrapper, 0)
 
         if shipyard is None:
             return {}
@@ -38,12 +38,14 @@ class ActionAdapterRuleBased(ActionAdapter):
             shipyard_action = rba.build_max(shipyard)
             # print("build")
         elif action_idx == 1:
+            shipyard_action = rba.start_optimal_axis_farmer(shipyard, 9)
+        elif action_idx == 2:
             # print("farmer")
             shipyard_action = rba.start_optimal_box_farmer(shipyard, 9)
-        elif action_idx == 2:
+        elif action_idx == 3:
             # print("expand")
             shipyard_action = rba.expand_randomly(shipyard, 4, 1)
-        elif action_idx == 3:
+        elif action_idx == 4:
             # print("attack")
             shipyard_action = rba.attack_closest(shipyard)
         else:
