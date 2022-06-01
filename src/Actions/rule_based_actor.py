@@ -2,6 +2,8 @@ from kaggle_environments.envs.kore_fleets.helpers import *
 import numpy
 import random
 
+from kaggle_environments.envs.kore_fleets.kore_fleets import check_location
+
 '''
 Class for rule based actions as farming, attacking, building etc
 '''
@@ -11,6 +13,42 @@ class RuleBasedActor:
 
     def __init__(self, board: Board):
         self.board = board
+
+    def expand_optimal(self, shipyard: Shipyard) -> ShipyardAction:
+        """
+        Applies the expansion strategy from balanced bot
+        :param shipyard: shipyard to expand from
+        :return: expanding action as ShipyardAction
+        """
+
+        if shipyard is None or shipyard.ship_count < 50:
+            return None
+
+        # copied from balanced agent
+        start_dir = random.randint(0, 3)
+        next_dir = (start_dir + 1) % 4
+        best_kore = 0
+        best_gap1 = 0
+        best_gap2 = 0
+        for gap1 in range(5, 15, 3):
+            for gap2 in range(5, 15, 3):
+                gap2 = random.randint(3, 9)
+                diff1 = Direction.from_index(start_dir).to_point() * gap1
+                diff2 = Direction.from_index(next_dir).to_point() * gap2
+                diff = diff1 + diff2
+                pos = shipyard.position.translate(diff, self.board.configuration.size)
+                h = check_location(self.board, pos, self.board.current_player)
+                if h > best_kore:
+                    best_kore = h
+                    best_gap1 = gap1
+                    best_gap2 = gap2
+        gap1 = str(best_gap1)
+        gap2 = str(best_gap2)
+        flight_plan = Direction.list_directions()[start_dir].to_char() + gap1
+        flight_plan += Direction.list_directions()[next_dir].to_char() + gap2
+        flight_plan += "C"
+
+        return ShipyardAction.launch_fleet_with_flight_plan(max(50 + 7, int(shipyard.ship_count / 2)), flight_plan)
 
     def expand_randomly(self, shipyard: Shipyard, radius: int, non_expand_margin: int) -> ShipyardAction:
         """
