@@ -18,12 +18,13 @@ class DQNKoreAgent:
             model: Model,
             training_steps: int = 150000,
             qpolicy: Policy = EpsGreedyQPolicy(),
+            name: str = 'dqg_agent',
     ):
-
         self.kore_env = kore_env
         self.state_constr = kore_env.state_constr
         self.action_adapter = kore_env.action_adapter
         self.training_steps = training_steps
+        self.name = name
 
         self.model = model
         self.window_length = model.input_shape[1]
@@ -40,8 +41,10 @@ class DQNKoreAgent:
         self.dqn.compile(Adam(lr=0.0001), metrics=['mae'])
 
     def fit(self):
-        wandb_logger = WandbLogger()
-        callbacks = [ReplayCallback(self.step, interval=20), wandb_logger]
+        wandb_logger = WandbLogger(name=self.name)
+        callbacks = [ReplayCallback(self.step, interval=20, folder_name=self.name,
+                                    enemy_agent=self.kore_env.opponent_agent),
+                     wandb_logger]
         self.dqn.fit(self.kore_env, nb_steps=self.training_steps, visualize=True, verbose=2, callbacks=callbacks)
 
     def step(self, obs, config):
