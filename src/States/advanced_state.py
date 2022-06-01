@@ -27,6 +27,7 @@ class AdvancedState(KoreState):
         self.lost = np.all(self.shipyards_pos <= 0)
         self.step_normalized = self.board_wrapper.get_step()
         self.max_spawn_me = self.board_wrapper.get_max_spawn_me()
+        self.cargo = self.board_wrapper.get_cargo()
         tensor = self._get_tensor()
         super(AdvancedState, self).__init__(tensor.shape, tensor, self.board_wrapper)
 
