@@ -86,6 +86,7 @@ class WandbLogger(Callback):
             'My Shipyard Count (at end)': self.shipyards_me[episode][-1],
             'Opponent Shipyard Count (at end)': self.shipyards_op[episode][-1],
             'Won': 1 if (self.kore_delta[episode][-1] > 0 and self.shipyards_me[episode][-1] > 0) else 0,
+            'Actions':  wandb.Histogram(self.actions[episode]),
             #'obs_mean': np.mean(self.observations[episode]),
             #'obs_min': np.min(self.observations[episode]),
             #'obs_max': np.max(self.observations[episode]),
