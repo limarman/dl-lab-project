@@ -26,6 +26,7 @@ class WandbLogger(Callback):
         self.kore_delta = {}
         self.shipyards_me = {}
         self.shipyards_op = {}
+        self.none_actions = {}
         self.step = 0
 
     def on_train_begin(self, logs):
@@ -51,6 +52,7 @@ class WandbLogger(Callback):
         self.kore_delta[episode] = []
         self.shipyards_me[episode] = []
         self.shipyards_op[episode] = []
+        self.none_actions[episode] = []
 
     def on_episode_end(self, episode, logs):
         """ Compute and log training statistics of the episode when done """
@@ -87,6 +89,7 @@ class WandbLogger(Callback):
             'Opponent Shipyard Count (at end)': self.shipyards_op[episode][-1],
             'Won': 1 if (self.kore_delta[episode][-1] > 0 and self.shipyards_me[episode][-1] > 0) else 0,
             'Actions':  wandb.Histogram(np_histogram=np.histogram(self.actions[episode], density=True)),
+            'Invalid Action Frequency': sum(self.none_actions[episode])/len(self.actions[episode]),
             #'obs_mean': np.mean(self.observations[episode]),
             #'obs_min': np.min(self.observations[episode]),
             #'obs_max': np.max(self.observations[episode]),
@@ -101,6 +104,10 @@ class WandbLogger(Callback):
         del self.metrics[episode]
         del self.kore_me[episode]
         del self.game_length[episode]
+        del self.shipyards_me[episode]
+        del self.shipyards_op[episode]
+        del self.none_actions[episode]
+        del self.kore_delta[episode]
 
     def on_step_end(self, step, logs):
         """ Update statistics of episode after each step """
@@ -114,5 +121,6 @@ class WandbLogger(Callback):
         self.kore_delta[episode].append(logs['info']['kore_delta'])
         self.shipyards_me[episode].append(logs['info']['shipyard_count_me'])
         self.shipyards_op[episode].append(logs['info']['shipyard_count_opponent'])
+        self.none_actions[episode].append(logs['info']['none_actions'])
         self.step += 1
 
