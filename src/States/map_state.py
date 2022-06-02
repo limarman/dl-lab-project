@@ -22,6 +22,7 @@ class MapState(KoreState):
         self.max_spawn_map = self.board_wrapper.get_max_spawn_map()
         self.kore_me = self.board_wrapper.get_kore_me()
         self.kore_opponent = self.board_wrapper.get_kore_opponent()
+        self.cargo = self.board_wrapper.get_cargo()
         self.step = self.board_wrapper.get_step(True)
 
         #TODO: Current Kore State would not allow concatenating architectures
