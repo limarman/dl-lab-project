@@ -43,7 +43,7 @@ class KoreEnv(gym.Env):
         next_state = self.state_constr(self.boards[self.player_id])
         next_reward = self.reward_calculator.get_reward(self.current_state, next_state, next_kore_action[0])
 
-        info = get_info_logs(next_state)
+        info = get_info_logs(next_state, next_kore_action[0])
 
         self.current_state = next_state
 
