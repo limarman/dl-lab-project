@@ -29,8 +29,8 @@ class DQNKoreAgent:
         self.window_length = model.input_shape[1]
 
         memory = SequentialMemory(limit=1000000, window_length=self.window_length)
-        policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=1.,
-                                      value_min=.1, value_test=.05, nb_steps=100000)
+        policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=.1,
+                                      value_min=.05, value_test=.05, nb_steps=50000)
 
         self.dqn = DQNAgent(model=self.model, nb_actions=self.action_adapter.N_ACTIONS,
                             memory=memory, nb_steps_warmup=100, target_model_update=10000,
@@ -41,7 +41,7 @@ class DQNKoreAgent:
 
     def fit(self):
         wandb_logger = WandbLogger()
-        callbacks = [ReplayCallback(self.step, interval=20), wandb_logger]
+        callbacks = [ReplayCallback(self.step, interval=25), wandb_logger]
         self.dqn.fit(self.kore_env, nb_steps=self.training_steps, visualize=True, verbose=2, callbacks=callbacks)
 
     def step(self, obs, config):
