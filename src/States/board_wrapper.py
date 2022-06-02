@@ -39,6 +39,47 @@ class BoardWrapper:
         """
         return [cell.kore for pos, cell in self.board.cells.items()]
 
+    def get_overlapping_kore_map(self) -> ndarray:
+        """
+        Makes sure that the kore map has the same axis layout as the other maps generated
+        :return: kore map 21x21 numpy array
+        """
+        kore_map = np.zeros((21,21))
+        for pos, cell in self.board.cells.items():
+            kore_map[pos.x][pos.y] = cell.kore
+
+        return kore_map
+
+    def get_ship_map(self) -> ndarray:
+        """
+        Returns a map with the number of ships (shipyard or fleet) per square
+        Allied forces have positive sign, opponent(s) have negative sign
+        :return: ship map 21x21 numpy array
+        """
+        ship_map = np.zeros((21,21))
+        for _, shipyard in enumerate(self.board.players[0].shipyards):
+            shipyard_pos = shipyard.position
+            ship_count = shipyard.ship_count
+            ship_map[shipyard_pos.x, shipyard_pos.y] = ship_count
+
+        for _, shipyard in enumerate(self.board.players[1].shipyards):
+            shipyard_pos = shipyard.position
+            ship_count = shipyard.ship_count
+            ship_map[shipyard_pos.x, shipyard_pos.y] = -ship_count
+
+        for _, fleet in enumerate(self.board.players[0].fleets):
+            fleet_pos = fleet.position
+            ship_count = fleet.ship_count
+            ship_map[fleet_pos.x, fleet_pos.y] = ship_count
+
+        for _, fleet in enumerate(self.board.players[1].fleets):
+            fleet_pos = fleet.position
+            ship_count = fleet.ship_count
+            ship_map[fleet_pos.x, fleet_pos.y] = -ship_count
+
+        return ship_map
+
+
     def get_shipyard_fleets_map(self) -> ndarray:
         """
         Returns list of length 21*21
@@ -77,6 +118,27 @@ class BoardWrapper:
         if self.player_me.shipyards:
             return self.player_me.shipyards[0].max_spawn
         return 0
+
+    def get_max_spawn_map(self) -> ndarray:
+        """
+        Returns a map of maximum spawns possible per square (per shipyard)
+        Thereby a positive sign indicates allied shipyards and a negative sign represents enemy shipyards
+        This map can also act as an shipyard indicator (non zero when shipyard)
+        :return: max spawn map 21x21 numpy array
+        """
+        max_spawn_map = np.zeros((21, 21))
+        for _, shipyard in enumerate(self.board.players[0].shipyards):
+            shipyard_pos = shipyard.position
+            max_spawn = shipyard.max_spawn
+            max_spawn_map[shipyard_pos.x, shipyard_pos.y] = max_spawn
+
+        for _, shipyard in enumerate(self.board.players[1].shipyards):
+            shipyard_pos = shipyard.position
+            max_spawn = shipyard.max_spawn
+            max_spawn_map[shipyard_pos.x, shipyard_pos.y] = -max_spawn
+
+        return max_spawn_map
+
 
     def get_max_spawn_shipyard(self, shipyard_idx: int) -> int:
         n_shipyards = len(self.get_shipyards_of_current_player())
