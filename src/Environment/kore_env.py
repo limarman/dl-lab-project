@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple, Union, Callable
 
 import gym
 from gym.core import ActType, ObsType
@@ -18,7 +18,7 @@ class KoreEnv(gym.Env):
             state_constr,
             action_adapter: ActionAdapter,
             kore_reward: KoreReward,
-            enemy_agent: str = 'balanced'
+            enemy_agent: Union[str, Callable] = 'balanced'
     ):
         self.env = None
         self.opponent_agent = None
@@ -51,7 +51,10 @@ class KoreEnv(gym.Env):
 
     def reset(self) -> Union[ObsType, Tuple[ObsType, dict]]:
         self.env = make(self.ENV_NAME, debug=True)
-        self.opponent_agent = self.env.agents[self.enemy_agent]
+        if callable(self.enemy_agent):
+            self.opponent_agent = self.enemy_agent
+        else:
+            self.opponent_agent = self.env.agents[self.enemy_agent]
         init_step_result = self.env.reset(num_agents=2)
         self.boards = get_boards_from_kore_env_state(init_step_result, self.env.configuration)
         self.current_state = self.state_constr(self.boards[self.player_id])

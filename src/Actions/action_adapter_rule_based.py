@@ -13,8 +13,10 @@ class ActionAdapterRuleBased(ActionAdapter):
 
     N_ACTIONS: int = 5 #expand, attack, box-farm, axis-farm, build
 
-    def __init__(self):
+    def __init__(self, single_shipyard=False):
         super().__init__()
+        if single_shipyard:
+            self.N_ACTIONS = 4
 
     def agent_to_kore_action(self, agent_action: int, board_wrapper: BoardWrapper) -> Dict[str, str]:
         #shipyard_idx = agent_action % 10
@@ -43,11 +45,11 @@ class ActionAdapterRuleBased(ActionAdapter):
             # print("farmer")
             shipyard_action = rba.start_optimal_box_farmer(shipyard, 9)
         elif action_idx == 3:
-            # print("expand")
-            shipyard_action = rba.expand_randomly(shipyard, 4, 1)
-        elif action_idx == 4:
             # print("attack")
             shipyard_action = rba.attack_closest(shipyard)
+        elif action_idx == 4:
+            # print("expand")
+            shipyard_action = rba.expand_optimal(shipyard)
         else:
             # why not raise exception here?
             # raise Exception('Action index is out of bounds')

@@ -31,7 +31,6 @@ class BoardWrapper:
         else:
             self.player_me = board.current_player
             if board.opponents:
-                # TODO if singleplayer should be considered, add handling for this
                 self.player_opponent = board.opponents.pop()
 
     def get_kore_map(self) -> [float]:
@@ -228,4 +227,10 @@ class BoardWrapper:
         if normalized:
             step = step / self.board.configuration.episode_steps
         return step
+
+    def get_cargo(self) -> float:
+        """
+        Returns the number of cargo that is on the fleets
+        """
+        return sum([fleet.kore for fleet in self.player_me.fleets])
 

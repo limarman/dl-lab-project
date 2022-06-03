@@ -18,19 +18,20 @@ class DQNKoreAgent:
             model: Model,
             training_steps: int = 200000,
             qpolicy: Policy = EpsGreedyQPolicy(),
+            name: str = 'dqg_agent',
     ):
-
         self.kore_env = kore_env
         self.state_constr = kore_env.state_constr
         self.action_adapter = kore_env.action_adapter
         self.training_steps = training_steps
+        self.name = name
 
         self.model = model
         self.window_length = model.input_shape[1]
 
         memory = SequentialMemory(limit=1000000, window_length=self.window_length)
-        policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=.1,
-                                      value_min=.05, value_test=.05, nb_steps=50000)
+        policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=1.,
+                                      value_min=.1, value_test=.05, nb_steps=100000)
 
         self.dqn = DQNAgent(model=self.model, nb_actions=self.action_adapter.N_ACTIONS,
                             memory=memory, nb_steps_warmup=100, target_model_update=10000,
@@ -40,8 +41,10 @@ class DQNKoreAgent:
         self.dqn.compile(Adam(lr=0.0001), metrics=['mae'])
 
     def fit(self):
-        wandb_logger = WandbLogger()
-        callbacks = [ReplayCallback(self.step, interval=25), wandb_logger]
+        wandb_logger = WandbLogger(name=self.name)
+        callbacks = [ReplayCallback(self.step, interval=20, folder_name=self.name,
+                                    enemy_agent=self.kore_env.opponent_agent),
+                     wandb_logger]
         self.dqn.fit(self.kore_env, nb_steps=self.training_steps, visualize=True, verbose=2, callbacks=callbacks)
 
     def step(self, obs, config):
