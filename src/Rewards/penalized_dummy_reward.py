@@ -14,7 +14,7 @@ class PenalizedDummyReward(KoreReward):
         """
         TODO add some weights/params here
         """
-        pass
+        self.previous_advantage = 0
 
     @staticmethod
     def get_reward_from_action(current_state: KoreState, actions) -> float:
@@ -34,12 +34,14 @@ class PenalizedDummyReward(KoreReward):
 
         return max(kore_delta, 0)
 
-    @staticmethod
-    def get_reward(previous_state: KoreState, next_state: KoreState, action: Dict[str, str]):
-        kore_delta = next_state.kore_me - previous_state.kore_me
-
+    def get_reward(self, previous_state: KoreState, next_state: KoreState, action: Dict[str, str]):
         waiting = 'None' in action.values()
 
-        reward = max(kore_delta, 0) + waiting * -100
-
-        return reward
+        ship_importance = 5
+        my_value = next_state.board_wrapper.get_ship_count_me() * (10 + ship_importance) + next_state.board_wrapper.get_kore_me()
+        opponent_value = next_state.board_wrapper.get_ship_count_opponent() * (10 + ship_importance) + next_state.board_wrapper.get_kore_opponent()
+        total_value = my_value + opponent_value
+        next_advantage = my_value / (total_value + 0.0001)
+        #previous_advantage = self.previous_advantage
+        #self.previous_advantage = next_advantage
+        return next_advantage #- waiting

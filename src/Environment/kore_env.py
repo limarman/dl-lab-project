@@ -1,12 +1,16 @@
 from typing import Tuple, Union, Callable
 
 import gym
+import numpy as np
 from gym.core import ActType, ObsType
+from gym.vector.utils import spaces
 from kaggle_environments import make
 
 from src.Actions.action_adapter import ActionAdapter
+from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
 from src.Rewards.kore_reward import KoreReward
 from src.Environment.helpers import get_boards_from_kore_env_state, get_info_logs
+from src.States.advanced_state import AdvancedState
 from src.States.board_wrapper import BoardWrapper
 
 
@@ -43,6 +47,13 @@ class KoreEnv(gym.Env):
         next_state = self.state_constr(self.boards[self.player_id])
         next_reward = self.reward_calculator.get_reward(self.current_state, next_state, next_kore_action[0])
 
+        if self.env.done:
+            my_ship_count = next_state.board_wrapper.get_ship_count_me()
+            opponent_ship_count = next_state.board_wrapper.get_ship_count_opponent()
+            if my_ship_count > opponent_ship_count:
+                print('won')
+                next_reward = 400 - board_wrapper.board.configuration.episode_steps
+
         info = get_info_logs(next_state, next_kore_action[0])
 
         self.current_state = next_state
@@ -63,3 +74,11 @@ class KoreEnv(gym.Env):
 
     def render(self, mode="html", close=False):
         return self.env.render(mode=mode, width=1000, height=800)
+
+    @property
+    def observation_space(self):
+        return spaces.Box(low=-np.Inf, high=np.Inf, shape=[AdvancedState.get_input_shape()])
+
+    @property
+    def action_space(self):
+        return spaces.Discrete(ActionAdapterRuleBased.N_ACTIONS)

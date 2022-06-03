@@ -16,7 +16,7 @@ class DQNKoreAgent:
             self,
             kore_env: KoreEnv,
             model: Model,
-            training_steps: int = 200000,
+            training_steps: int = 1500000,
             qpolicy: Policy = EpsGreedyQPolicy(),
             name: str = 'dqg_agent',
     ):
@@ -30,8 +30,8 @@ class DQNKoreAgent:
         self.window_length = model.input_shape[1]
 
         memory = SequentialMemory(limit=1000000, window_length=self.window_length)
-        policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=.1,
-                                      value_min=.05, value_test=.05, nb_steps=self.training_steps*0.5)
+        policy = LinearAnnealedPolicy(qpolicy, attr='eps', value_max=0.5,
+                                      value_min=.05, value_test=.05, nb_steps=self.training_steps*0.05)
 
         self.dqn = DQNAgent(model=self.model, nb_actions=self.action_adapter.N_ACTIONS,
                             memory=memory, nb_steps_warmup=100, target_model_update=10000,

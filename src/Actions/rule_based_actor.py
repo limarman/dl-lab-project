@@ -139,6 +139,9 @@ class RuleBasedActor:
         # create action
         number_of_ships_to_create = min(max_spawn, int(kore / ship_cost))
 
+        if number_of_ships_to_create == 0:
+            return None
+
         return ShipyardAction.spawn_ships(number_of_ships_to_create)
 
     def attack_closest(self, shipyard: Shipyard) -> ShipyardAction:

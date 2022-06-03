@@ -22,6 +22,7 @@ class AdvancedState(KoreState):
         self.ship_count_opponent = self.board_wrapper.get_ship_count_opponent()
         self.fleet_pos = self.board_wrapper.get_fleet_pos()
         self.shipyards_pos = self.board_wrapper.get_shipyard_pos()
+        self.shipyards_fleets_map = self.board_wrapper.get_shipyard_fleets_map()
         self.shipyard_count_me = self.board_wrapper.get_shipyard_count_me()
         self.shipyard_count_opponent = self.board_wrapper.get_shipyard_count_opponent()
         self.lost = np.all(self.shipyards_pos <= 0)
@@ -46,8 +47,7 @@ class AdvancedState(KoreState):
             [self.shipyard_count_me],
             [self.shipyard_count_opponent],
             self.kore_map,
-            self.fleet_pos,
-            self.shipyards_pos
+            self.shipyards_fleets_map,
         ])
 
         tensor = np.concatenate([np.array(data).flatten() for data in data_list]).squeeze()
