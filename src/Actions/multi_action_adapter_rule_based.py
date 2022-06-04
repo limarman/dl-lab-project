@@ -21,8 +21,8 @@ class MultiActionAdapterRuleBased(ActionAdapterRuleBased):
         self.N_ACTIONS: int = super().N_ACTIONS ** MAX_NUM_SHIPYARDS
         self.action_space = list(itertools.product(*[list(range(super().N_ACTIONS))] * self.MAX_NUM_SHIPYARDS))
 
-    def agent_to_kore_action(self, agent_action: int, board_wrapper: BoardWrapper) -> Dict[str, str]:
-        action_sequence = self.action_space[agent_action]
+    def agent_to_kore_action(self, agent_actions: int, board_wrapper: BoardWrapper) -> Dict[str, str]:
+        action_sequence = self.action_space[agent_actions]
         shipyards = board_wrapper.get_shipyards_of_current_player()
         shipyards = sorted(shipyards, key=lambda x: x.id)
 

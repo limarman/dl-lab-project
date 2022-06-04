@@ -1,5 +1,7 @@
 import itertools
 
+import numpy as np
+
 from src.Actions.action_adapter import ActionAdapter
 from src.Actions.rule_based_actor import RuleBasedActor
 
@@ -18,20 +20,46 @@ class ActionAdapterRuleBased(ActionAdapter):
         if single_shipyard:
             self.N_ACTIONS = 4
 
-    def agent_to_kore_action(self, agent_action: int, board_wrapper: BoardWrapper) -> Dict[str, str]:
+    def agent_to_kore_action(self, agent_actions: List[float], board_wrapper: BoardWrapper) -> Dict[str, str]:
         #shipyard_idx = agent_action % 10
-        action_idx = agent_action
+        player_shipyards = board_wrapper.player_me.shipyards
+        kore_action = {}
 
-        shipyard = self.__select_shipyard(board_wrapper, 0)
-
-        if shipyard is None:
+        if not player_shipyards:
             return {}
 
-        shipyard_action = self._get_rb_action(action_idx, shipyard, board_wrapper.board)
+        for shipyard in player_shipyards:
+            invalid_actions_mask = self.get_invalid_action_mask(shipyard, board_wrapper.board)
+            valid_agent_actions = [agent_actions[i] * invalid_actions_mask[i] for i in range(len(agent_actions))]
+            valid_agent_actions = np.asarray(valid_agent_actions)
+            if np.sum(valid_agent_actions) != 0:
+                valid_agent_actions_probs = valid_agent_actions / np.sum(valid_agent_actions)
+                action_idx = np.random.choice(a=range(len(agent_actions)), p=valid_agent_actions_probs)
+            else:
+                action_idx = np.random.choice(a=range(len(agent_actions)))
 
-        kore_action = {shipyard.id: str(shipyard_action)}
+            action = str(self._get_rb_action(action_idx, shipyard, board_wrapper.board))
+            kore_action[shipyard.id] = action
 
         return kore_action
+
+    def get_invalid_action_mask(self, shipyard: Shipyard, board: Board):
+        rba = RuleBasedActor(board)
+        possible_actions = [
+            rba.build_max(shipyard),
+            rba.start_optimal_axis_farmer(shipyard, 9),
+            rba.start_optimal_box_farmer(shipyard, 9),
+            rba.attack_closest(shipyard),
+            rba.expand_optimal(shipyard),
+        ]
+
+        invalid_actions_mask = [
+            0 if action is None
+            else 1
+            for action in possible_actions
+        ]
+
+        return invalid_actions_mask
 
     @staticmethod
     def _get_rb_action(action_idx, shipyard: Shipyard, board: Board):
