@@ -2,22 +2,15 @@ import os
 
 import wandb
 from kaggle_environments.envs.kore_fleets.helpers import Board
-from keras import Model
-from keras.optimizers import Adam
-from rl.agents.dqn import DQNAgent
-from rl.memory import SequentialMemory
-from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy, Policy
 from stable_baselines3 import A2C
 from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.vec_env import DummyVecEnv, VecVideoRecorder
-from stable_baselines3.ppo import MlpPolicy
+from stable_baselines3.common.vec_env import DummyVecEnv
 from wandb.integration.sb3 import WandbCallback
 
 from src.Agents.train_callbacks.ReplayCallback import ReplayCallback
-from src.Agents.train_callbacks.WandbLogger import WandbLogger
 from src.Environment.kore_env import KoreEnv
 from src.States.board_wrapper import BoardWrapper
-from stable_baselines3 import PPO
+
 
 class A2CAgent:
 
@@ -52,8 +45,7 @@ class A2CAgent:
 
         self.kore_env = DummyVecEnv([self.make_env])
 
-        self.model = PPO(MlpPolicy, self.kore_env, verbose=1, tensorboard_log=f"runs/{run.id}")
-        #self.model = A2C("MlpPolicy", self.kore_env, learning_rate=0.0008, verbose=1, tensorboard_log=f"runs/{run.id}")
+        self.model = A2C("MlpPolicy", self.kore_env, learning_rate=0.0008, verbose=1, tensorboard_log=f"runs/{run.id}")
 
     def make_env(self):
         return Monitor(self.unwrapped_env)

@@ -1,6 +1,7 @@
 import itertools
 
 import numpy as np
+from numpy import ndarray
 
 from src.Actions.action_adapter import ActionAdapter
 from src.Actions.rule_based_actor import RuleBasedActor
@@ -20,7 +21,7 @@ class ActionAdapterRuleBased(ActionAdapter):
         if single_shipyard:
             self.N_ACTIONS = 4
 
-    def agent_to_kore_action(self, agent_actions: List[float], board_wrapper: BoardWrapper) -> Dict[str, str]:
+    def agent_to_kore_action(self, agent_actions: ndarray, board_wrapper: BoardWrapper) -> Dict[str, str]:
         #shipyard_idx = agent_action % 10
         player_shipyards = board_wrapper.player_me.shipyards
         kore_action = {}
