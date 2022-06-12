@@ -87,12 +87,12 @@ class BoardWrapper:
         shipyard_fleets_map = np.zeros((21, 21))
         for shipyard_idx, shipyard in enumerate(self.board.players[0].shipyards):
             shipyard_pos = shipyard.position
-            ship_count_in_decimals = float(str(f".{shipyard.ship_count}"))
+            ship_count_in_decimals = float(str(f".{shipyard.ship_count}".zfill(3)))
             shipyard_fleets_map[shipyard_pos.x, shipyard_pos.y] = shipyard_idx + 1 + ship_count_in_decimals
 
         for shipyard_idx, shipyard in enumerate(self.board.players[1].shipyards):
             shipyard_pos = shipyard.position
-            ship_count_in_decimals = float(str(f".{shipyard.ship_count}"))
+            ship_count_in_decimals = float(str(f".{shipyard.ship_count}".zfill(3)))
             shipyard_fleets_map[shipyard_pos.x, shipyard_pos.y] = -(shipyard_idx + 1 + ship_count_in_decimals)
 
         for fleet_idx, fleet in enumerate(self.board.players[0].fleets):

@@ -1,13 +1,18 @@
 from typing import Tuple, Union, Callable
 
 import gym
+import numpy as np
 from gym.core import ActType, ObsType
+from gym.vector.utils import spaces
 from kaggle_environments import make
 
 from src.Actions.action_adapter import ActionAdapter
+from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
 from src.Rewards.kore_reward import KoreReward
 from src.Environment.helpers import get_boards_from_kore_env_state, get_info_logs
+from src.States.advanced_state import AdvancedState
 from src.States.board_wrapper import BoardWrapper
+from src.States.kore_state import KoreState
 
 
 class KoreEnv(gym.Env):
@@ -29,9 +34,12 @@ class KoreEnv(gym.Env):
         self.player_id = 0
         self.boards = {}
         self.current_state = None
+        self.results = []
         self.reset()
+        self.step_counter = 0
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+        self.step_counter += 1
         board_wrapper = BoardWrapper(self.boards[self.player_id], self.player_id)
         next_kore_action = [self.action_adapter.agent_to_kore_action(action, board_wrapper)]
 
@@ -43,6 +51,7 @@ class KoreEnv(gym.Env):
         next_state = self.state_constr(self.boards[self.player_id])
         next_reward = self.reward_calculator.get_reward(self.current_state, next_state, next_kore_action[0])
 
+        self.__update_win_rate(next_state)
         info = get_info_logs(next_state, next_kore_action[0])
 
         self.current_state = next_state
@@ -51,6 +60,7 @@ class KoreEnv(gym.Env):
 
     def reset(self) -> Union[ObsType, Tuple[ObsType, dict]]:
         self.env = make(self.ENV_NAME, debug=True)
+        self.step_counter = 0
         if callable(self.enemy_agent):
             self.opponent_agent = self.enemy_agent
         else:
@@ -63,3 +73,23 @@ class KoreEnv(gym.Env):
 
     def render(self, mode="html", close=False):
         return self.env.render(mode=mode, width=1000, height=800)
+
+    def __update_win_rate(self, next_state: KoreState):
+        if self.env.done:
+            if len(self.results) > 100:
+                self.results.pop(0)
+            my_ship_count = next_state.board_wrapper.get_ship_count_me()
+            opponent_ship_count = next_state.board_wrapper.get_ship_count_opponent()
+            if my_ship_count > opponent_ship_count:
+                self.results.append(1)
+                print(f'winrate: {sum(self.results) / len(self.results)}')
+            else:
+                self.results.append(0)
+
+    @property
+    def observation_space(self):
+        return spaces.Box(low=-np.Inf, high=np.Inf, shape=[AdvancedState.get_input_shape()])
+
+    @property
+    def action_space(self):
+        return spaces.Box(low=0, high=1, shape=[ActionAdapterRuleBased.N_ACTIONS])
