@@ -7,13 +7,14 @@ from src.Environment.kore_env import KoreEnv
 from src.Rewards.dummy_reward import DummyReward
 from src.Rewards.penalized_dummy_reward import PenalizedDummyReward
 from src.States.advanced_state import AdvancedState
+from src.States.hybrid_state import HybridState
 
 
 def main():
     dummy_reward = PenalizedDummyReward()
     action_adapter = ActionAdapterRuleBased()
 
-    kore_env = KoreEnv(AdvancedState, action_adapter, dummy_reward)
+    kore_env = KoreEnv(HybridState, action_adapter, dummy_reward)
     kore_agent = A2CAgent(kore_env=kore_env)
     kore_agent.fit()
 

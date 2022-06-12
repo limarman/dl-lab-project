@@ -88,8 +88,16 @@ class KoreEnv(gym.Env):
 
     @property
     def observation_space(self):
-        return spaces.Box(low=-np.Inf, high=np.Inf, shape=[AdvancedState.get_input_shape()])
+        spaces = {
+            'maps': gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=self.state_constr.get_input_shape()['maps']),
+            'scalars': gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=self.state_constr.get_input_shape()['scalars'])
+        }
+        return gym.spaces.Dict(spaces)
 
     @property
     def action_space(self):
         return spaces.Box(low=0, high=1, shape=[ActionAdapterRuleBased.N_ACTIONS])
+
+    @property
+    def num_envs(self):
+        return 2

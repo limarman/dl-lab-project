@@ -1,5 +1,6 @@
 import os
 
+import torch
 import wandb
 from kaggle_environments.envs.kore_fleets.helpers import Board
 from stable_baselines3 import A2C
@@ -7,6 +8,7 @@ from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import DummyVecEnv
 from wandb.integration.sb3 import WandbCallback
 
+from src.Agents.neural_networks.hybrid_cnn_mlp import HybridNet
 from src.Agents.train_callbacks.ReplayCallback import ReplayCallback
 from src.Environment.kore_env import KoreEnv
 from src.States.board_wrapper import BoardWrapper
@@ -41,18 +43,24 @@ class A2CAgent:
             save_code=True,  # optional
         )
 
-        self.callback = WandbCallback(gradient_save_freq=100, model_save_path=f"models/{run.id}", verbose=2,)
+        self.wandb_callback = WandbCallback(gradient_save_freq=100, model_save_path=f"models/{run.id}", verbose=2, )
 
         self.kore_env = DummyVecEnv([self.make_env])
 
-        self.model = A2C("MlpPolicy", self.kore_env, learning_rate=0.0008, verbose=1, tensorboard_log=f"runs/{run.id}")
+        policy_kwargs = {
+            'features_extractor_class': HybridNet,
+            'activation_fn': torch.nn.ReLU,
+        }
+
+        self.model = A2C("MultiInputPolicy", self.kore_env, learning_rate=0.0008, policy_kwargs=policy_kwargs,
+                         verbose=1, tensorboard_log=f"runs/{run.id}")
 
     def make_env(self):
         return Monitor(self.unwrapped_env)
 
     def fit(self):
         replay_callback = ReplayCallback(self.step, interval=5, folder_name=self.name)
-        self.model.learn(total_timesteps=2500000, callback=[self.callback, replay_callback])
+        self.model.learn(total_timesteps=2500000, callback=[self.wandb_callback, replay_callback])
 
     def step(self, obs, config):
         board = Board(obs, config)
