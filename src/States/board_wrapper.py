@@ -114,10 +114,7 @@ class BoardWrapper:
         return self.board.opponents.pop().kore
 
     def get_max_spawn_me(self) -> int:
-        # TODO adjust to multiple shipyards
-        if self.player_me.shipyards:
-            return self.player_me.shipyards[0].max_spawn
-        return 0
+        return max([shipyard.max_spawn for shipyard in self.player_me.shipyards])
 
     def get_max_spawn_map(self) -> ndarray:
         """
@@ -220,6 +217,77 @@ class BoardWrapper:
             pos_map[x_pos][y_pos] = sign * (1 + entity.ship_count)
 
         return pos_map
+
+    def get_shipyards_me_map(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for shipyard in self.player_me.shipyards:
+            x_pos, y_pos = shipyard.position
+            pos_map[x_pos][y_pos] = shipyard.ship_count
+        return pos_map
+
+    def get_shipyards_opponent_map(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for shipyard in self.player_opponent.shipyards:
+            x_pos, y_pos = shipyard.position
+            pos_map[x_pos][y_pos] = shipyard.ship_count
+        return pos_map
+
+    def get_ships_me_map(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for fleet in self.player_me.fleets:
+            x_pos, y_pos = fleet.position
+            pos_map[x_pos][y_pos] = fleet.ship_count
+        return pos_map
+
+    def get_ships_opponent_map(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for fleet in self.player_opponent.fleets:
+            x_pos, y_pos = fleet.position
+            pos_map[x_pos][y_pos] = fleet.ship_count
+        return pos_map
+
+    def get_cargo_me_map(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for fleet in self.player_me.fleets:
+            x_pos, y_pos = fleet.position
+            pos_map[x_pos][y_pos] = fleet.kore
+        return pos_map
+
+    def get_cargo_opponent_map(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for fleet in self.player_opponent.fleets:
+            x_pos, y_pos = fleet.position
+            pos_map[x_pos][y_pos] = fleet.kore
+        return pos_map
+
+    def get_shipyards_id_opponent(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for shipyard in self.player_opponent.shipyards:
+            x_pos, y_pos = shipyard.position
+            pos_map[x_pos][y_pos] = 1
+        return pos_map
+
+    def get_shipyards_id_me(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for shipyard in self.player_me.shipyards:
+            x_pos, y_pos = shipyard.position
+            pos_map[x_pos][y_pos] = 1
+        return pos_map
+
+    def get_max_spawn_me_map(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for shipyard in self.player_me.shipyards:
+            x_pos, y_pos = shipyard.position
+            pos_map[x_pos][y_pos] = shipyard.max_spawn
+        return pos_map
+
+    def get_max_spawn_opponent_map(self) -> ndarray:
+        pos_map = np.zeros((21, 21))
+        for shipyard in self.player_opponent.shipyards:
+            x_pos, y_pos = shipyard.position
+            pos_map[x_pos][y_pos] = shipyard.max_spawn
+        return pos_map
+
 
     def get_step(self, normalized=True) -> float:
         """ Returns the normalized current step """
