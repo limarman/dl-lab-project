@@ -16,6 +16,6 @@ Activate your virtual environment and install new requirements (use intel optimi
 
 Perform small test run `python3 -m src.core.main`
 
-Make a suitable jobscript and submit it (e.g. `sbatch jobscript.sh`) for a short time (e.g. a minute) to check if everything works. After that adjust the required time and resourced before resubmitting it.
+Make a suitable jobscript and submit it (e.g. `sbatch jobscript.sh`) for a short time (e.g. a minute) to check if everything works. After that adjust the required time and resources before resubmitting it.
 
 
