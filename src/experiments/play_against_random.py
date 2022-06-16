@@ -1,4 +1,4 @@
-from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
+from src.Actions.action_adapter_rule_based import RuleBasedActionAdapter
 from src.Actions.multi_action_adapter_rule_based import MultiActionAdapterRuleBased
 from src.Agents.baselines.random_rule_based import agent_with_expand
 from src.Agents.dqn_kore_agent import DQNKoreAgent

@@ -1,5 +1,5 @@
 from src.Actions.action_adapter import ActionAdapter
-from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
+from src.Actions.action_adapter_rule_based import RuleBasedActionAdapter
 from src.Agents.dqn_kore_agent import DQNKoreAgent
 from src.Agents.neural_networks.cnn import get_cnn
 from src.Environment.kore_env import KoreEnv
@@ -14,7 +14,7 @@ def main():
     #simple_agent.register_monitor(kore_amount_monitor)
 
     dummy_reward = PenalizedDummyReward()
-    action_adapter = ActionAdapterRuleBased()
+    action_adapter = RuleBasedActionAdapter()
 
     kore_env = KoreEnv(MapState, action_adapter, dummy_reward)
     model = get_cnn(MapState.get_input_shape(), action_adapter.N_ACTIONS, 1)

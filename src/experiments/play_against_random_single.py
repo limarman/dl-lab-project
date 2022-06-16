@@ -1,4 +1,4 @@
-from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
+from src.Actions.action_adapter_rule_based import RuleBasedActionAdapter
 from src.Actions.multi_action_adapter_rule_based import MultiActionAdapterRuleBased
 from src.Agents.baselines.random_rule_based import agent_without_expand
 from src.Agents.dqn_kore_agent import DQNKoreAgent
@@ -17,7 +17,7 @@ with only one shipyard
 
 def main():
     reward = DummyReward()
-    action_adapter = ActionAdapterRuleBased(single_shipyard=True)
+    action_adapter = RuleBasedActionAdapter(single_shipyard=True)
 
     kore_env = KoreEnv(AdvancedState, action_adapter, reward, enemy_agent=agent_without_expand)
     model = get_mlp(AdvancedState.get_input_shape(), action_adapter.N_ACTIONS, window_length=2)
