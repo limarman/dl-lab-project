@@ -3,10 +3,14 @@ This module implements the A2CAgent class
 """
 
 import os
+
+import torch
 import wandb
 from stable_baselines3 import A2C
 from stable_baselines3.common.vec_env import VecEnv
 from wandb.integration.sb3 import WandbCallback
+
+from src.Agents.neural_networks.hybrid_cnn_mlp import HybridNet
 
 
 class A2CAgent:
@@ -34,12 +38,19 @@ class A2CAgent:
         )
 
         self.__tensorboard_log = f"runs/{run.id}"
+
+        policy_kwargs = {
+            'features_extractor_class': HybridNet,
+            'activation_fn': torch.nn.ReLU,
+        }
+
         self.__model = A2C(
-            policy="MlpPolicy",
+            policy="MultiInputPolicy",
             env=self.__env,
             learning_rate=0.0008,
             verbose=1,
             tensorboard_log=self.__tensorboard_log,
+            policy_kwargs=policy_kwargs,
         )
 
     def fit(self):
