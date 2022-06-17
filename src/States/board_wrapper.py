@@ -50,6 +50,33 @@ class BoardWrapper:
 
         return kore_map
 
+    def get_kore_cargo_map(self) -> ndarray:
+        """
+        Returns map with kore cargo per fleet. Thereby every shipyard has player.kore as value.
+        Allied forces get positive sign, enemy forces negative sign
+        :return: kore cargo map 21x21
+        """
+        kore_cargo_map = np.zeros((21,21))
+        for shipyard in self.board.players[0].shipyards:
+            shipyard_pos = shipyard.position
+            kore_cargo_map[shipyard_pos.x, shipyard_pos.y] = self.get_kore_me()
+
+        for shipyard in self.board.players[1].shipyards:
+            shipyard_pos = shipyard.position
+            kore_cargo_map[shipyard_pos.x, shipyard_pos.y] = -self.get_kore_opponent()
+
+        for fleet in self.board.players[0].fleets:
+            fleet_pos = fleet.position
+            fleet_cargo = fleet.kore
+            kore_cargo_map[fleet_pos.x, fleet_pos.y] = fleet_cargo
+
+        for fleet in self.board.players[1].fleets:
+            fleet_pos = fleet.position
+            fleet_cargo = fleet.kore
+            kore_cargo_map[fleet_pos.x, fleet_pos.y] = -fleet_cargo
+
+        return kore_cargo_map
+
     def get_ship_map(self) -> ndarray:
         """
         Returns a map with the number of ships (shipyard or fleet) per square

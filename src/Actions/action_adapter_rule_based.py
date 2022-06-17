@@ -12,7 +12,7 @@ from src.States.board_wrapper import BoardWrapper
 from kaggle_environments.envs.kore_fleets.helpers import *
 
 
-class ActionAdapterRuleBased(ActionAdapter):
+class RuleBasedActionAdapter(ActionAdapter):
 
     N_ACTIONS: int = 5 #expand, attack, box-farm, axis-farm, build
 

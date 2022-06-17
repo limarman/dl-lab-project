@@ -84,17 +84,36 @@ class RuleBasedActor:
 
         return None
 
-    def start_optimal_box_farmer(self, shipyard: Shipyard, radius: int) -> ShipyardAction:
+    def start_farmer(self, shipyard: Shipyard) -> ShipyardAction:
+        """
+        Tries to start a box-farmer, if not possible an axis farmer
+        :param shipyard: shipyard from where to start the farmer
+        :return:
+        """
+        if shipyard is None:
+            return None
+
+        if shipyard.ship_count >= 21:
+            return self.start_optimal_box_farmer(shipyard, 9)
+        elif shipyard.ship_count >= 3:
+            return self.start_optimal_axis_farmer(shipyard, 5)
+        else:
+            return None
+
+    def start_optimal_box_farmer(self, shipyard: Shipyard, radius: int, number_of_ships = 21) -> ShipyardAction:
         """
         Searches for the best box farmer (most kore on the path per time step, ignoring the regeneration)
         Starting the farm flight plan from the given shipyard
         Searching in a box with size 2 * radius around the shipyard, whereas the radius should not exceed 9
         :param shipyard: shipyard to start farmer from
         :param radius: radius around the shipyard to farm
+        :param number_of_ships: number of ships the box farmer should consist of (>=21)
         :return: farming action as ShipyardAction
         """
         if shipyard is None or shipyard.ship_count < 21:
             return None
+
+        assert number_of_ships >= 21, "Error, box farmer has to have at least 21 ships"
 
         # avoid invalid actions - not desired, agent should learn that the action is bad
         #if shipyard.ship_count < 21:
@@ -105,7 +124,7 @@ class RuleBasedActor:
         max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
         flight_plan = self._get_box_farmer_flight_plan(max_x - radius, radius - max_y)
 
-        return ShipyardAction.launch_fleet_with_flight_plan(21, flight_plan)
+        return ShipyardAction.launch_fleet_with_flight_plan(number_of_ships, flight_plan)
 
     def start_optimal_axis_farmer(self, shipyard, radius):
         """

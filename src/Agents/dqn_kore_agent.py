@@ -42,7 +42,9 @@ class DQNKoreAgent:
 
     def fit(self):
         wandb_logger = WandbLogger(name=self.name)
-        callbacks = [ReplayCallback(self.step, interval=25, folder_name=self.name), wandb_logger]
+        callbacks = [ReplayCallback(self.step, interval=20, folder_name=self.name,
+                                    enemy_agent=self.kore_env.opponent_agent),
+                     wandb_logger]
         self.dqn.fit(self.kore_env, nb_steps=self.training_steps, visualize=True, verbose=2, callbacks=callbacks)
 
     def step(self, obs, config):

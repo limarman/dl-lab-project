@@ -2,7 +2,7 @@ import os
 
 from stable_baselines3.common.callbacks import BaseCallback
 
-from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
+from src.Actions.action_adapter_rule_based import RuleBasedActionAdapter
 from src.Environment.kore_env import KoreEnv
 from src.Rewards.penalized_dummy_reward import PenalizedDummyReward
 from src.States.advanced_state import AdvancedState
@@ -27,7 +27,7 @@ class ReplayCallback(BaseCallback):
 
     def __save_replay(self, episode):
         dummy_reward = PenalizedDummyReward()
-        action_adapter = ActionAdapterRuleBased()
+        action_adapter = RuleBasedActionAdapter()
         kore_env = KoreEnv(AdvancedState, action_adapter, dummy_reward)
 
         kore_env.env.run([self.step_func, self.enemy_agent])

@@ -26,6 +26,12 @@ class AdvantageReward(KoreReward):
         next_state = current_state.apply_action_to_board(actions)
         return AdvantageReward.get_reward_from_states(current_state, next_state)
 
+    @staticmethod
+    def get_reward_from_states(previous_state: KoreState, next_state: KoreState):
+        kore_delta = next_state.kore_me - previous_state.kore_me
+
+        return max(kore_delta, 0)
+
     def get_reward(self, previous_state: KoreState, next_state: KoreState, action: Dict[str, str]):
         ship_importance = 5
         my_value = next_state.board_wrapper.get_ship_count_me() * (10 + ship_importance) + next_state.board_wrapper.get_kore_me()

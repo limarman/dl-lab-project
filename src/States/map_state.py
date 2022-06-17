@@ -20,6 +20,7 @@ class MapState(KoreState):
         self.kore_map = self.board_wrapper.get_overlapping_kore_map()
         self.ship_map = self.board_wrapper.get_ship_map()
         self.max_spawn_map = self.board_wrapper.get_max_spawn_map()
+        self.kore_cargo_map = self.board_wrapper.get_kore_cargo_map()
         self.kore_me = self.board_wrapper.get_kore_me()
         self.kore_opponent = self.board_wrapper.get_kore_opponent()
         self.step = self.board_wrapper.get_step(True)
@@ -35,8 +36,9 @@ class MapState(KoreState):
         kore_map = self.kore_map
         ship_map = self.ship_map
         max_spawn_map = self.max_spawn_map
+        kore_cargo_map = self.kore_cargo_map
 
-        return np.stack([kore_map, ship_map, max_spawn_map])
+        return np.stack([kore_map, ship_map, max_spawn_map, kore_cargo_map])
 
     @staticmethod
     def get_input_shape():
