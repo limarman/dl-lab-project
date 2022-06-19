@@ -12,7 +12,7 @@ from src.States.board_wrapper import BoardWrapper
 from kaggle_environments.envs.kore_fleets.helpers import *
 
 
-class RuleBasedActionAdapter(ActionAdapter):
+class ActionAdapterRuleBased(ActionAdapter):
 
     N_ACTIONS: int = 5 #expand, attack, box-farm, axis-farm, build
 
@@ -47,11 +47,11 @@ class RuleBasedActionAdapter(ActionAdapter):
     def get_invalid_action_mask(self, shipyard: Shipyard, board: Board):
         rba = RuleBasedActor(board)
         possible_actions = [
-            rba.build_max(shipyard),
-            rba.start_optimal_axis_farmer(shipyard, 9),
-            rba.start_optimal_box_farmer(shipyard, 9),
-            rba.attack_closest(shipyard),
-            rba.expand_optimal(shipyard),
+            rba.build_max(shipyard, validity_check=True),
+            rba.start_optimal_axis_farmer(shipyard, 9, validity_check=True),
+            rba.start_optimal_box_farmer(shipyard, 9, validity_check=True),
+            rba.attack_closest(shipyard, validity_check=True),
+            rba.expand_optimal(shipyard, validity_check=True),
         ]
 
         invalid_actions_mask = [
