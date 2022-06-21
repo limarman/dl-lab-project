@@ -329,3 +329,9 @@ class BoardWrapper:
         """
         return sum([fleet.kore for fleet in self.player_me.fleets])
 
+    def get_fleet_count_me(self) -> int:
+        return len(self.player_me.fleets)
+
+    def get_fleet_count_opponent(self) -> int:
+        return len(self.player_opponent.fleets)
+

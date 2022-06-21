@@ -36,7 +36,10 @@ def get_info_logs(state: KoreState, actions: Dict[str, str]):
         'kore_me': state.kore_me,
         'kore_delta': state.kore_me - state.board_wrapper.get_kore_opponent(),
         'shipyard_count_me': state.board_wrapper.get_shipyard_count_me(),
-        'shipyard_count_opponent': state.board_wrapper.get_shipyard_count_opponent()
+        'shipyard_count_opponent': state.board_wrapper.get_shipyard_count_opponent(),
+        'fleet_count_me': state.board_wrapper.get_fleet_count_me(),
+        'fleet_count_opponent': state.board_wrapper.get_fleet_count_opponent(),
+        'actions': [v for _, v in actions.items()]
     }
 
     return info

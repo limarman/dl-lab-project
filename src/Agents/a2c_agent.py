@@ -11,6 +11,7 @@ from stable_baselines3.common.vec_env import VecEnv
 from wandb.integration.sb3 import WandbCallback
 
 from src.Agents.neural_networks.hybrid_cnn_mlp import HybridNet
+from src.Agents.train_callbacks.game_stat_callback import GameStatCallback
 
 
 class A2CAgent:
@@ -24,7 +25,7 @@ class A2CAgent:
 
         entity = os.environ.get("WANDB_ENTITY")
         run = wandb.init(
-            project="rl-dl-lab",
+            project="rl-dl-lab-a2c",
             entity=entity,
             sync_tensorboard=True,
             monitor_gym=True,
@@ -60,5 +61,5 @@ class A2CAgent:
 
         self.__model.learn(
             total_timesteps=self.__n_training_steps,
-            callback=[self.__wandb_callback],
+            callback=[self.__wandb_callback, GameStatCallback()],
         )

@@ -80,8 +80,6 @@ class RuleBasedActionAdapter(ActionAdapter):
             # print("expand")
             shipyard_action = rba.expand_optimal(shipyard)
         else:
-            # why not raise exception here?
-            # raise Exception('Action index is out of bounds')
             shipyard_action = None
 
         return shipyard_action
