@@ -115,10 +115,6 @@ class RuleBasedActor:
 
         assert number_of_ships >= 21, "Error, box farmer has to have at least 21 ships"
 
-        # avoid invalid actions - not desired, agent should learn that the action is bad
-        #if shipyard.ship_count < 21:
-        #   return ShipyardAction.launch_fleet_with_flight_plan(min(shipyard.ship_count, 5), 'N')
-
         kore_map = self._kore_on_paths_map(shipyard, radius)
         self._normalize_by_step_count(kore_map, radius)
         max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
