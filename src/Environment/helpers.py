@@ -26,9 +26,9 @@ def get_boards_from_kore_env_state(state_dict, config):
     return player_boards
 
 
-def get_info_logs(state: KoreState, actions: Dict[str, str]):
+def get_info_logs(state: KoreState, actions: Dict[str, str], action_names: Dict[str, str]):
     """ Calculates some basic metrics for wandb logger"""
-    none_actions = sum([1 if (action == 'None' or not action) else 0 for action in actions.values()])
+    none_actions = [1 if (action == 'None' or not action) else 0 for action in actions.values()]
 
     info = {
         'none_actions': none_actions,
@@ -39,7 +39,7 @@ def get_info_logs(state: KoreState, actions: Dict[str, str]):
         'shipyard_count_opponent': state.board_wrapper.get_shipyard_count_opponent(),
         'fleet_count_me': state.board_wrapper.get_fleet_count_me(),
         'fleet_count_opponent': state.board_wrapper.get_fleet_count_opponent(),
-        'actions': [v for _, v in actions.items()]
+        'actions': [name for name in action_names.values()]
     }
 
     return info

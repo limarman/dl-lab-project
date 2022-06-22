@@ -41,8 +41,9 @@ class KoreEnv(gym.Env):
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         self.step_counter += 1
         board_wrapper = BoardWrapper(self.boards[self.player_id], self.player_id)
-        next_kore_action = [self.action_adapter.agent_to_kore_action(action, board_wrapper)]
+        actions_me, action_names_me = self.action_adapter.agent_to_kore_action(action, board_wrapper)
 
+        next_kore_action = [actions_me]
         next_opponent_action = self.opponent_agent(self.boards[1].observation, self.env.configuration)
         next_kore_action.append(next_opponent_action)
 
@@ -52,7 +53,7 @@ class KoreEnv(gym.Env):
         next_reward = self.reward_calculator.get_reward(self.current_state, next_state, next_kore_action[0])
 
         self.__update_win_rate(next_state)
-        info = get_info_logs(next_state, next_kore_action[0])
+        info = get_info_logs(next_state, actions_me, action_names_me)
 
         self.current_state = next_state
 
@@ -97,6 +98,7 @@ class KoreEnv(gym.Env):
     @property
     def action_space(self):
         return spaces.Box(low=0, high=1, shape=[RuleBasedActionAdapter.N_ACTIONS])
+        #return spaces.Discrete(RuleBasedActionAdapter.N_ACTIONS)
 
     @property
     def num_envs(self):

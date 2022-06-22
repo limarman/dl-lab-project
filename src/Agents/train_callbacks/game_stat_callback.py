@@ -23,6 +23,7 @@ class GameStatCallback(BaseCallback):
 
     def _init_callback(self) -> None:
         self.actions = []
+        self.none_actions = []
 
     def _on_step(self) -> bool:
         """
@@ -57,31 +58,18 @@ class GameStatCallback(BaseCallback):
         # always collect action infos
         for infos in self.locals['infos']:
             self.actions += infos['actions']
+            self.none_actions += infos['none_actions']
 
         # push the action frequencies based on steps and not game ends
         # to guarantee proportional results
         if self.n_calls % self.action_interval == 0:
-            striped_actions = map(self._classify_action, self.actions)
-            counts = Counter(striped_actions)
-            wandb.log({'Frequency of ' + key: counts[key]/len(self.actions) for key in counts})
+            counts = Counter(self.actions)
+            action_infos = {'Frequency of ' + key: counts[key]/len(self.actions) for key in counts}
+            action_infos['Frequency of None Actions'] = sum(self.none_actions)/len(self.none_actions)
+            wandb.log(action_infos)
+            self.actions = []
+            self.none_actions = []
 
         return True
 
-    @staticmethod
-    def _classify_action(action: str):
-        """
-        TODO better approach than string matching
-        """
-        if action is None:
-            return 'None'
-        elif 'C' == action[-1]:
-            return 'EXPAND'
-        elif 'SPAWN' in action:
-            return 'SPAWN'
-        elif 'LAUNCH_21' in action:
-            return 'LAUNCH_21'
-        elif 'LAUNCH_3' in action:
-            return 'LAUNCH_3'
-        else:
-            return 'LAUNCH_ATTACK'
 

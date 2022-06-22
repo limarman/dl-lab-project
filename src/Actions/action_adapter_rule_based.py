@@ -21,13 +21,14 @@ class RuleBasedActionAdapter(ActionAdapter):
         if single_shipyard:
             self.N_ACTIONS = 4
 
-    def agent_to_kore_action(self, agent_actions: ndarray, board_wrapper: BoardWrapper) -> Dict[str, str]:
+    def agent_to_kore_action(self, agent_actions: ndarray, board_wrapper: BoardWrapper) -> (Dict[str, str], Dict[str, str]):
         #shipyard_idx = agent_action % 10
         player_shipyards = board_wrapper.player_me.shipyards
         kore_action = {}
+        kore_action_names = {}
 
         if not player_shipyards:
-            return {}
+            return {}, {}
 
         for shipyard in player_shipyards:
             invalid_actions_mask = self.get_invalid_action_mask(shipyard, board_wrapper.board)
@@ -37,12 +38,18 @@ class RuleBasedActionAdapter(ActionAdapter):
                 valid_agent_actions_probs = valid_agent_actions / np.sum(valid_agent_actions)
                 action_idx = np.random.choice(a=range(len(agent_actions)), p=valid_agent_actions_probs)
             else:
-                action_idx = np.random.choice(a=range(len(agent_actions)))
+                # take a random valid action if possible
+                choice_actions = [i for i, val in enumerate(invalid_actions_mask) if val == 1]
+                if not choice_actions:
+                    choice_actions = range(len(agent_actions))
+                action_idx = np.random.choice(a=choice_actions)
 
-            action = str(self._get_rb_action(action_idx, shipyard, board_wrapper.board))
-            kore_action[shipyard.id] = action
 
-        return kore_action
+            action, action_name = self._get_rb_action(action_idx, shipyard, board_wrapper.board)
+            kore_action[shipyard.id] = str(action)
+            kore_action_names[shipyard.id] = action_name
+
+        return kore_action, kore_action_names
 
     def get_invalid_action_mask(self, shipyard: Shipyard, board: Board):
         rba = RuleBasedActor(board)
@@ -67,22 +74,23 @@ class RuleBasedActionAdapter(ActionAdapter):
         rba = RuleBasedActor(board)
         if action_idx == 0:
             shipyard_action = rba.build_max(shipyard)
-            # print("build")
+            action_name = "Build"
         elif action_idx == 1:
             shipyard_action = rba.start_optimal_axis_farmer(shipyard, 9)
+            action_name = "Axis Farming"
         elif action_idx == 2:
-            # print("farmer")
             shipyard_action = rba.start_optimal_box_farmer(shipyard, 9)
+            action_name = "Box Farming"
         elif action_idx == 3:
-            # print("attack")
             shipyard_action = rba.attack_closest(shipyard)
+            action_name = "Attack"
         elif action_idx == 4:
-            # print("expand")
             shipyard_action = rba.expand_optimal(shipyard)
+            action_name = "Expand"
         else:
             shipyard_action = None
 
-        return shipyard_action
+        return shipyard_action, action_name
 
 
     @staticmethod
