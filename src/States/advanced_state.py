@@ -35,7 +35,7 @@ class AdvancedState(KoreState):
     def _get_tensor(self):
         """
         Puts all state values in a torch tensor, eg. as input for a simple MLP
-        :return: floatTensor of size (3*21*21 + 6*1)
+        :return: floatTensor of size (2*21*21 + 8*1)
         """
         data_list = ([
             [self.kore_me],

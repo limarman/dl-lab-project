@@ -13,10 +13,7 @@ class TestAdvancedReward(unittest.TestCase):
     def setUp(self):
         self.board = create_board(starting_kore=500)
         self.board_wrapper = BoardWrapper(self.board)
-        self.simple_reward = AdvancedReward()
-        self.simple_state = AdvancedState(self.board)
+        self.advanced_reward = AdvancedReward()
+        self.advanced_state = AdvancedState(self.board)
         self.spawn_ship_action = ShipyardAction.spawn_ships(1)
 
-    def test_reward_from_action(self):
-        reward = self.simple_reward.get_reward_from_action(self.simple_state, [self.spawn_ship_action])
-        self.assertEqual(reward, 0)
