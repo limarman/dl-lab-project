@@ -8,7 +8,7 @@ class BasicCNN(nn.Module):
     Basic CNN that is used in the hybrid network
     """
 
-    def __init__(self, num_feature_maps: int):
+    def __init__(self, num_feature_maps: int, num_output_features: int):
         super().__init__()
         # board size is 21
         self.conv1 = nn.Conv2d(num_feature_maps, 32, 3)
@@ -23,7 +23,7 @@ class BasicCNN(nn.Module):
         # resulting shape: (batch_size, 64, 8, 8)
         self.fc1 = nn.Linear(16 * 16 * 64, 512)
         self.fc2 = nn.Linear(512, 256)
-        self.fc3 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(256, num_output_features)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
