@@ -1,5 +1,8 @@
+import re
+
 from kaggle_environments.envs.kore_fleets.helpers import *
 import numpy as np
+from kaggle_environments.envs.kore_fleets.kore_fleets import get_col_row, get_to_pos
 from numpy import ndarray
 
 
@@ -334,4 +337,133 @@ class BoardWrapper:
 
     def get_fleet_count_opponent(self) -> int:
         return len(self.player_opponent.fleets)
+
+    def get_feature_map_flight_plan_me(self):
+        return self._get_feature_map_flight_plan_for_player(self.player_me)
+
+    def get_feature_map_flight_plan_opponent(self):
+        return self._get_feature_map_flight_plan_for_player(self.player_opponent)
+
+    def _get_feature_map_flight_plan_for_player(self, player: Player) -> ndarray:
+        """
+        Approximates the flightplan on a map by indicating the timesteps until a fleet will be there,
+        e.g. consider a box-flightplan:
+        000000
+        018700
+        020600
+        034500
+
+        If multiple fleets will travel over a cell, the minimum number of timesteps is indicated.
+        Flightplans end correctly at shipyards, but collisions are not taken into account here.
+        Flightplans are approximated for at most 50 steps
+        """
+        # need to know shipyard positions since flightplans end there
+        shipyards = self.board.shipyards.values()
+        shipyard_pos = [s.position.x + s.position.y * 21 for s in shipyards]
+
+        feature_map = np.zeros((21,21))
+
+        for fleet in player.fleets:
+            directions_numbers_list = self._get_directions_numbers_list(fleet)
+
+            current_pos = fleet.position.x + fleet.position.y * 21
+            pos_list = []
+
+            for _ in range(50):
+                if directions_numbers_list:
+                    current_elem = directions_numbers_list.pop(0)
+                if current_elem == 'C':
+                    # new shipyard is created
+                    break
+
+                if directions_numbers_list and directions_numbers_list[0].isnumeric():
+                    step_length = int(directions_numbers_list.pop(0)) + 1
+                    for _ in range(step_length):
+                        current_pos = self._get_to_pos_char(current_pos, current_elem)
+                        if not current_pos in pos_list:
+                            pos_list.append(current_pos)
+                else:
+                    current_pos = self._get_to_pos_char(current_pos, current_elem)
+                    if not current_pos in pos_list:
+                        pos_list.append(current_pos)
+
+                if current_pos in shipyard_pos:
+                    # remove shipyard pos
+                    pos_list.pop()
+                    break
+
+            # transform positions into np array (only 50 step approximation)
+            feature_map = self._positions_to_map_enumerating(feature_map, pos_list[:50])
+
+        return feature_map
+
+    def _positions_to_map_enumerating(self, feature_map: ndarray, pos_list: List[int]) -> ndarray:
+        """
+        Maps positions to a feature map, where the first position is represented by one
+        and the last by len(pos_list)
+        """
+        coordinate_list = [get_col_row(21, pos) for pos in pos_list]
+        for idx, (col, row) in enumerate(coordinate_list):
+            current_val = feature_map[col][row]
+            if current_val == 0:
+                next_val = idx + 1
+            else:
+                next_val = min(idx + 1, current_val)
+            feature_map[col][row] = next_val
+
+        return feature_map
+
+
+    def _get_directions_numbers_list(self, fleet) -> List[str]:
+        """
+        Get a decomposition of the flightplan by directions and numbers
+        E.g.: W3E12S3 -> ['W', '3', 'E', '12', 'S','3']
+
+        Filters 'C' (stands for build new shipyards) if there are too
+        few ships for that in the fleet
+        """
+        flight_plan = fleet.flight_plan
+        if 'C' in flight_plan and fleet.ship_count < self.board.configuration.convert_cost:
+            # remove 'C' = build shipyard since it will be ignored by the environment
+            flight_plan = flight_plan.replace('C', '')
+
+        if flight_plan[0].isnumeric():
+            # flightplan is missing the current direction
+            # in case flightplan starts with a number
+            # we need to add the direction but decrease the number
+            if int(flight_plan[0]) > 1:
+                current_direction = fleet.direction.name[0]
+                first_dir_length = str(int(flight_plan[0]) - 1)
+                flight_plan = current_direction + str(first_dir_length) + flight_plan[1:]
+            else:
+                # simply remove first number
+                flight_plan = flight_plan[:1]
+
+        # decompose the flightplan into list of N,S,W,E,C and numbers, e.g. [N,4,W,12,S,22]
+        direction_number_list = re.split('(\d+ |[N,S,W,E,C])', flight_plan)
+        direction_number_list = list(filter(None, direction_number_list))
+
+        return direction_number_list
+
+
+    def _get_to_pos_char(self, current_pos: int, direction: str) -> int:
+        """
+        Calculate the next number representing the direction change
+
+        Numbers in [0,21*21-1] are representing positions (x,y) in the grid 21 x 21
+        by the translation: x = pos % size, y = pos // size
+
+        Adapted from the kaggle environment helper functions
+        """
+        size = 21
+        col, row = get_col_row(21, current_pos)
+        if direction == "S":
+            return current_pos - size if current_pos >= size else size ** 2 - size + col
+        elif direction == "N":
+            return col if current_pos + size >= size ** 2 else current_pos + size
+        elif direction == "E":
+            return current_pos + 1 if col < size - 1 else row * size
+        elif direction == "W":
+            return current_pos - 1 if col > 0 else (row + 1) * size - 1
+
 

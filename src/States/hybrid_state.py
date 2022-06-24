@@ -48,6 +48,8 @@ class HybridState(KoreState):
             self.board_wrapper.get_max_spawn_opponent_map(),
             self.board_wrapper.get_cargo_me_map(),
             self.board_wrapper.get_cargo_opponent_map(),
+            self.board_wrapper.get_feature_map_flight_plan_me(),
+            self.board_wrapper.get_feature_map_flight_plan_opponent(),
             self.kore_map
         ])
 
