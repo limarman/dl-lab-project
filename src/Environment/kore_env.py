@@ -7,10 +7,8 @@ from gym.vector.utils import spaces
 from kaggle_environments import make
 
 from src.Actions.action_adapter import ActionAdapter
-from src.Actions.action_adapter_rule_based import RuleBasedActionAdapter
 from src.Rewards.kore_reward import KoreReward
 from src.Environment.helpers import get_boards_from_kore_env_state, get_info_logs
-from src.States.advanced_state import AdvancedState
 from src.States.board_wrapper import BoardWrapper
 from src.States.kore_state import KoreState
 
@@ -97,8 +95,7 @@ class KoreEnv(gym.Env):
 
     @property
     def action_space(self):
-        return spaces.Box(low=0, high=1, shape=[RuleBasedActionAdapter.N_ACTIONS])
-        #return spaces.Discrete(RuleBasedActionAdapter.N_ACTIONS)
+        return spaces.Box(low=0, high=1, shape=[self.action_adapter.N_ACTIONS])
 
     @property
     def num_envs(self):

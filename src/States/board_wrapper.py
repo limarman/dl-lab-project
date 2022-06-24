@@ -366,6 +366,9 @@ class BoardWrapper:
         for fleet in player.fleets:
             directions_numbers_list = self._get_directions_numbers_list(fleet)
 
+            if not directions_numbers_list:
+                break
+
             current_pos = fleet.position.x + fleet.position.y * 21
             pos_list = []
 
@@ -423,25 +426,29 @@ class BoardWrapper:
         few ships for that in the fleet
         """
         flight_plan = fleet.flight_plan
+
+        if not flight_plan:
+            return []
+
         if 'C' in flight_plan and fleet.ship_count < self.board.configuration.convert_cost:
             # remove 'C' = build shipyard since it will be ignored by the environment
             flight_plan = flight_plan.replace('C', '')
 
-        if flight_plan[0].isnumeric():
-            # flightplan is missing the current direction
-            # in case flightplan starts with a number
-            # we need to add the direction but decrease the number
-            if int(flight_plan[0]) > 1:
-                current_direction = fleet.direction.name[0]
-                first_dir_length = str(int(flight_plan[0]) - 1)
-                flight_plan = current_direction + str(first_dir_length) + flight_plan[1:]
-            else:
-                # simply remove first number
-                flight_plan = flight_plan[:1]
-
         # decompose the flightplan into list of N,S,W,E,C and numbers, e.g. [N,4,W,12,S,22]
         direction_number_list = re.split('(\d+ |[N,S,W,E,C])', flight_plan)
         direction_number_list = list(filter(None, direction_number_list))
+
+        if direction_number_list and direction_number_list[0].isnumeric():
+            # flightplan is missing the current direction
+            # in case flightplan starts with a number
+            # we need to add the direction but decrease the number
+            if int(direction_number_list[0]) > 1:
+                current_direction = fleet.direction.name[0]
+                first_dir_length = str(int(flight_plan[0]) - 1)
+                direction_number_list = [current_direction] + [str(first_dir_length)] + direction_number_list[1:]
+            else:
+                # simply remove first number
+                direction_number_list = direction_number_list[1:]
 
         return direction_number_list
 
