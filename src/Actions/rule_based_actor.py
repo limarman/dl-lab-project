@@ -14,15 +14,20 @@ class RuleBasedActor:
     def __init__(self, board: Board):
         self.board = board
 
-    def expand_optimal(self, shipyard: Shipyard) -> ShipyardAction:
+    def expand_optimal(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
         """
         Applies the expansion strategy from balanced bot
         :param shipyard: shipyard to expand from
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
         :return: expanding action as ShipyardAction
         """
 
         if shipyard is None or shipyard.ship_count < 50:
             return None
+
+        # else:
+        #     if validity_check:
+        #         return True
 
         # copied from balanced agent
         start_dir = random.randint(0, 3)
@@ -50,13 +55,14 @@ class RuleBasedActor:
 
         return ShipyardAction.launch_fleet_with_flight_plan(max(50 + 7, int(shipyard.ship_count / 2)), flight_plan)
 
-    def expand_randomly(self, shipyard: Shipyard, radius: int, non_expand_margin: int) -> ShipyardAction:
+    def expand_randomly(self, shipyard: Shipyard, radius: int, non_expand_margin: int, validity_check=False) -> ShipyardAction:
         """
         Chooses a random point inside of given ring to expand to (inside radius not inside non_expand_margin)
         creates a box path flight plan with expanding
         :param shipyard: shipyard to expand from
         :param radius: radius around the shipyard to expand to
         :param non_expand_margin: radius around the shipyard not to expand to
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
         :return: expanding action as ShipyardAction
         """
 
@@ -64,6 +70,9 @@ class RuleBasedActor:
 
         if shipyard is None or shipyard.ship_count < 50:
             return None
+        # else:
+        #     if validity_check:
+        #         return True
 
         # sampling at most 1000 times a random position with given radius around shipyard
         for _ in range(0, 1000):
@@ -84,14 +93,18 @@ class RuleBasedActor:
 
         return None
 
-    def start_farmer(self, shipyard: Shipyard) -> ShipyardAction:
+    def start_farmer(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
         """
         Tries to start a box-farmer, if not possible an axis farmer
         :param shipyard: shipyard from where to start the farmer
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
         :return:
         """
         if shipyard is None:
             return None
+        # else:
+        #     if validity_check:
+        #         return True
 
         if shipyard.ship_count >= 21:
             return self.start_optimal_box_farmer(shipyard, 9)
@@ -100,7 +113,7 @@ class RuleBasedActor:
         else:
             return None
 
-    def start_optimal_box_farmer(self, shipyard: Shipyard, radius: int, number_of_ships = 21) -> ShipyardAction:
+    def start_optimal_box_farmer(self, shipyard: Shipyard, radius: int, number_of_ships=21, validity_check=False) -> ShipyardAction:
         """
         Searches for the best box farmer (most kore on the path per time step, ignoring the regeneration)
         Starting the farm flight plan from the given shipyard
@@ -108,10 +121,14 @@ class RuleBasedActor:
         :param shipyard: shipyard to start farmer from
         :param radius: radius around the shipyard to farm
         :param number_of_ships: number of ships the box farmer should consist of (>=21)
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
         :return: farming action as ShipyardAction
         """
         if shipyard is None or shipyard.ship_count < 21:
             return None
+        # else:
+        #     if validity_check:
+        #         return True
 
         assert number_of_ships >= 21, "Error, box farmer has to have at least 21 ships"
 
@@ -122,15 +139,19 @@ class RuleBasedActor:
 
         return ShipyardAction.launch_fleet_with_flight_plan(number_of_ships, flight_plan)
 
-    def start_optimal_axis_farmer(self, shipyard, radius):
+    def start_optimal_axis_farmer(self, shipyard, radius, validity_check=False):
         """
 
         :param shipyard:
         :param radius:
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
         :return:
         """
         if shipyard is None or shipyard.ship_count < 3:
             return None
+        # else:
+        #     if validity_check:
+        #         return True
 
         kore_map = self._kore_on_axis_map(shipyard, radius)
         max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
@@ -138,14 +159,18 @@ class RuleBasedActor:
 
         return ShipyardAction.launch_fleet_with_flight_plan(3, flight_plan)
 
-    def build_max(self, shipyard: Shipyard) -> ShipyardAction:
+    def build_max(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
         """
         Creating the action to build as many ships as possible at that current time
         :param shipyard: shipyard to build ships
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
         :return: building action as ShipyardAction
         """
         if shipyard is None:
             return None
+        # else:
+        #     if validity_check:
+        #         return True
 
         max_spawn = shipyard.max_spawn
         kore = shipyard.player.kore
@@ -159,10 +184,11 @@ class RuleBasedActor:
 
         return ShipyardAction.spawn_ships(number_of_ships_to_create)
 
-    def attack_closest(self, shipyard: Shipyard) -> ShipyardAction:
+    def attack_closest(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
         """
         Launches all ships currently in the shipyard to attack the closest enemy shipyard
         :param shipyard: shipyard to start attack from
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
         :return: attacking action to the closest enemy shipyard as ShipyardAction
         """
         if shipyard is None:
@@ -174,6 +200,9 @@ class RuleBasedActor:
 
         if enemy_shipyard is None:
             return None
+
+        # if validity_check:
+        #     return True
 
         flight_plan = self._get_shortest_flight_path_between(shipyard.position, enemy_shipyard.position,
                                                              self.board.configuration.size)
