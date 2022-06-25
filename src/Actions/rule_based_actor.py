@@ -25,9 +25,8 @@ class RuleBasedActor:
         if shipyard is None or shipyard.ship_count < 50:
             return None
 
-        # else:
-        #     if validity_check:
-        #         return True
+        elif validity_check:
+            return True
 
         # copied from balanced agent
         start_dir = random.randint(0, 3)
@@ -70,9 +69,8 @@ class RuleBasedActor:
 
         if shipyard is None or shipyard.ship_count < 50:
             return None
-        # else:
-        #     if validity_check:
-        #         return True
+        elif validity_check:
+            return True
 
         # sampling at most 1000 times a random position with given radius around shipyard
         for _ in range(0, 1000):
@@ -102,9 +100,8 @@ class RuleBasedActor:
         """
         if shipyard is None:
             return None
-        # else:
-        #     if validity_check:
-        #         return True
+        elif validity_check:
+            return True
 
         if shipyard.ship_count >= 21:
             return self.start_optimal_box_farmer(shipyard, 9)
@@ -126,9 +123,8 @@ class RuleBasedActor:
         """
         if shipyard is None or shipyard.ship_count < 21:
             return None
-        # else:
-        #     if validity_check:
-        #         return True
+        elif validity_check:
+            return True
 
         assert number_of_ships >= 21, "Error, box farmer has to have at least 21 ships"
 
@@ -149,9 +145,9 @@ class RuleBasedActor:
         """
         if shipyard is None or shipyard.ship_count < 3:
             return None
-        # else:
-        #     if validity_check:
-        #         return True
+
+        elif validity_check:
+            return True
 
         kore_map = self._kore_on_axis_map(shipyard, radius)
         max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
@@ -168,9 +164,8 @@ class RuleBasedActor:
         """
         if shipyard is None:
             return None
-        # else:
-        #     if validity_check:
-        #         return True
+        elif validity_check:
+            return True
 
         max_spawn = shipyard.max_spawn
         kore = shipyard.player.kore
@@ -201,8 +196,8 @@ class RuleBasedActor:
         if enemy_shipyard is None:
             return None
 
-        # if validity_check:
-        #     return True
+        if validity_check:
+            return True
 
         flight_plan = self._get_shortest_flight_path_between(shipyard.position, enemy_shipyard.position,
                                                              self.board.configuration.size)
