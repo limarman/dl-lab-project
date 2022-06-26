@@ -19,17 +19,18 @@ class A2CAgent:
     Wrapper of the a2c model from stable baselines for the kore task
     """
 
-    def __init__(self, env: VecEnv, n_training_steps: int = 1500000):
+    def __init__(self, env: VecEnv, n_training_steps: int = 1500000,name='a2c'):
         self.__env = env
         self.__n_training_steps = n_training_steps
 
         entity = os.environ.get("WANDB_ENTITY")
         run = wandb.init(
-            project="rl-dl-lab-a2c",
+            project="a2c",
             entity=entity,
             sync_tensorboard=True,
             monitor_gym=True,
             save_code=True,
+            name=name,
         )
 
         self.__wandb_callback = WandbCallback(

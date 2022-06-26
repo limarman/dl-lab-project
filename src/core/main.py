@@ -11,7 +11,7 @@ def main():
     rule_based_action_adapter = ActionAdapterRuleBased()
 
     kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, advantage_reward)
-    kore_agent = A2CAgent(env=kore_env_factory.build_multicore_env())
+    kore_agent = A2CAgent(env=kore_env_factory.build_multicore_env(), name='default_experiment')
     kore_agent.fit()
 
 
