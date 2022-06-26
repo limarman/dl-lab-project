@@ -53,6 +53,7 @@ class A2CAgent:
             verbose=1,
             tensorboard_log=self.__tensorboard_log,
             policy_kwargs=policy_kwargs,
+            gamma=1
         )
 
     def fit(self):
