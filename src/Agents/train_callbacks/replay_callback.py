@@ -16,7 +16,7 @@ class ReplayCallback(BaseCallback):
                 self.num_episodes_done += 1
                 if self.num_episodes_done % self.episodes_interval == 0:
                     replay = self.training_env.get_attr("replay", i)[0]
-                    wandb.log({"replay": wandb.Html(replay, inject=False)})
+                    wandb.log({"Game replay": wandb.Html(replay, inject=False)})
 
         return True
 

@@ -35,7 +35,7 @@ class WandbLogger(Callback):
         wandb.config.update({
             'params': self.params,
             'env': self.env.__dict__,
-            'env.env': self.env.__env.__dict__,
+            'env.env': self.env.env.__dict__,
             #'env.env.spec': self.env.env.spec.__dict__,
             'agent': self.model.__dict__
         })

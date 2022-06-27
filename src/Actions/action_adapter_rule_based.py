@@ -1,12 +1,8 @@
-import itertools
-
 import numpy as np
 from numpy import ndarray
 
 from src.Actions.action_adapter import ActionAdapter
 from src.Actions.rule_based_actor import RuleBasedActor
-
-from typing import Dict
 
 from src.States.board_wrapper import BoardWrapper
 from kaggle_environments.envs.kore_fleets.helpers import *

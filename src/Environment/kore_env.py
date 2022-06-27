@@ -68,7 +68,7 @@ class KoreEnv(gym.Env):
         return self.current_state.tensor
 
     def render(self, mode="html"):
-        return self.env.render(mode="html")#, width=500, height=6600)
+        return self.env.render(mode="html")
 
     @property
     def observation_space(self):

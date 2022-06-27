@@ -1,11 +1,11 @@
 import itertools
 from typing import Dict
 
-from src.Actions.action_adapter_rule_based import RuleBasedActionAdapter
+from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
 from src.States.board_wrapper import BoardWrapper
 
 
-class MultiActionAdapterRuleBased(RuleBasedActionAdapter):
+class MultiActionAdapterRuleBased(ActionAdapterRuleBased):
     """
     Adapts the rule based action adapter such that for each shipyard an action is produced.
     The action space is approximated by actions^max_num_shipyards which only works for a
