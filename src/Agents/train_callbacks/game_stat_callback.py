@@ -1,5 +1,4 @@
 from collections import defaultdict, Counter
-from typing import Dict, Any
 
 import wandb
 import numpy as np
@@ -65,7 +64,10 @@ class GameStatCallback(BaseCallback):
         if self.n_calls % self.action_interval == 0:
             counts = Counter(self.actions)
             action_infos = {'Frequency of ' + key: counts[key]/len(self.actions) for key in counts}
-            action_infos['Frequency of None Actions'] = sum(self.none_actions)/len(self.none_actions)
+
+            action_infos['Frequency of None Actions'] = 0
+            if self.none_actions:
+                action_infos['Frequency of None Actions'] = sum(self.none_actions)/len(self.none_actions)
             wandb.log(action_infos)
             self.actions = []
             self.none_actions = []

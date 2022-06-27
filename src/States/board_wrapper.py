@@ -163,7 +163,6 @@ class BoardWrapper:
 
         return max_spawn_map
 
-
     def get_max_spawn_shipyard(self, shipyard_idx: int) -> int:
         n_shipyards = len(self.get_shipyards_of_current_player())
         if n_shipyards == 0:
@@ -315,7 +314,6 @@ class BoardWrapper:
             pos_map[x_pos][y_pos] = shipyard.max_spawn
         return pos_map
 
-
     def get_step(self, normalized=True) -> float:
         """ Returns the normalized current step """
         step = self.board.observation['step']
@@ -334,4 +332,19 @@ class BoardWrapper:
 
     def get_fleet_count_opponent(self) -> int:
         return len(self.player_opponent.fleets)
+
+    def game_result(self) -> int:
+        """
+        Derives from the board state an indicator for the winning player:
+        1: Player is winning
+        0: Opponent wins/Game undecided yet/Draw/
+        """
+        if self.get_step(normalized=True) == 1:
+            if self.get_kore_me() > self.get_kore_opponent():
+                return 1
+            return 0
+        if self.get_shipyard_count_opponent() == 0 and self.get_fleet_count_opponent() == 0:
+            return 1
+
+        return 0
 
