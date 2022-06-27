@@ -66,9 +66,9 @@ class HybridState(KoreState):
         return state
 
     @staticmethod
-    def get_input_shape() -> int:
+    def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
         shapes = {
-            'maps': (13,21,21),
+            'maps': (11, 21, 21),
             'scalars': (7,)
         }
 

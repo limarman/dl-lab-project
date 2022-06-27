@@ -4,7 +4,7 @@ from keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.memory import SequentialMemory
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy, Policy
-from src.Agents.train_callbacks.ReplayCallback import ReplayCallback
+from src.Agents.train_callbacks.replay_callback import ReplayCallback
 from src.Agents.train_callbacks.WandbLogger import WandbLogger
 from src.Environment.kore_env import KoreEnv
 from src.States.board_wrapper import BoardWrapper
@@ -42,7 +42,7 @@ class DQNKoreAgent:
 
     def fit(self):
         wandb_logger = WandbLogger(name=self.name)
-        callbacks = [ReplayCallback(self.step, interval=20, folder_name=self.name,
+        callbacks = [ReplayCallback(self.step, episodes_interval=20, folder_name=self.name,
                                     enemy_agent=self.kore_env.opponent_agent),
                      wandb_logger]
         self.dqn.fit(self.kore_env, nb_steps=self.training_steps, visualize=True, verbose=2, callbacks=callbacks)
