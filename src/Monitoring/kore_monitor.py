@@ -1,5 +1,7 @@
 import os
 import wandb
+from wandb.integration.sb3 import WandbCallback
+
 from src.Monitoring.missing_entity_exception import MissingEntityException
 
 WANDB_PROJECT_NAME: str = "rl-dl-lab"
@@ -9,24 +11,28 @@ ENTITY_NAME: str = os.environ.get(ENTITY_NAME_ENV_NAME)
 
 class KoreMonitor:
 
-    def __init__(self, agent_name: str, value_name: str):
+    def __init__(self):
         if ENTITY_NAME is None:
             raise MissingEntityException(
                 f"No entity name found for WANDB. Please set your environment variable: {ENTITY_NAME_ENV_NAME}"
             )
-        self.agent_name = agent_name
-        self.value_name = value_name
-        wandb.init(project=WANDB_PROJECT_NAME, name=self.agent_name, entity=ENTITY_NAME)
 
-    def log_value(self, value):
-        wandb.log({self.value_name: value})
+        entity = os.environ.get("WANDB_ENTITY")
+        self.run = wandb.init(
+            project=WANDB_PROJECT_NAME,
+            entity=entity,
+            sync_tensorboard=True,
+            monitor_gym=True,
+            save_code=True,
+        )
 
+        self.callback = WandbCallback(
+            gradient_save_freq=100,
+            model_save_path=f"models/{self.run.id}",
+            verbose=2
+        )
 
-def main():
-    kore_monitor = KoreMonitor(agent_name="dummy_agent", value_name="dummy_value")
-    for i in range(100):
-        kore_monitor.log_value(i * 100)
+        self.tensorboard_log = f"runs/{self.run.id}"
 
-
-if __name__ == "__main__":
-    main()
+    def set_run_name(self, name: str):
+        self.run.name = name
