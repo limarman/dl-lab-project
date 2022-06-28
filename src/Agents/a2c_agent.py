@@ -17,8 +17,8 @@ class A2CAgent:
     Wrapper of the a2c model from stable baselines for the kore task
     """
 
-    def __init__(self, env: VecEnv, kore_monitor: KoreMonitor, n_training_steps: int = 1500000):
-        self.name = "a2c"
+    def __init__(self, env: VecEnv, kore_monitor: KoreMonitor, n_training_steps: int = 1500000, name='A2C'):
+        self.name = name
         self.env = env
         self.monitor_callback = kore_monitor.callback
         self.n_training_steps = n_training_steps

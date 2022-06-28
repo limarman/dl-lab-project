@@ -15,6 +15,7 @@ def main():
     env = kore_env_factory.build_multicore_env()
 
     kore_monitor = KoreMonitor()
+    kore_monitor.set_run_name('Win Reward')
     kore_agent = A2CAgent(env=env, kore_monitor=kore_monitor)
     kore_agent.fit()
 
