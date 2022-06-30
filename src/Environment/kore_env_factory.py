@@ -1,6 +1,9 @@
 import multiprocessing
 
 import gym
+
+from typing import Union, Callable
+
 from stable_baselines3.common.monitor import Monitor
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecVideoRecorder, VecEnv, DummyVecEnv
 
@@ -11,10 +14,11 @@ from src.Rewards.kore_reward import KoreReward
 
 class KoreEnvFactory:
 
-    def __init__(self, state_constr, action_adapter: ActionAdapter, kore_reward: KoreReward):
+    def __init__(self, state_constr, action_adapter: ActionAdapter, kore_reward: KoreReward, enemy_agent: Union[str, Callable] = "balanced"):
         self.__state_constr = state_constr
         self.__action_adapter = action_adapter
         self.__kore_reward = kore_reward
+        self.__enemy_agent = enemy_agent
 
     def build_multicore_env(self) -> SubprocVecEnv:
         num_cpu_cores = multiprocessing.cpu_count()
@@ -26,4 +30,4 @@ class KoreEnvFactory:
         return Monitor(self.__build_kore_env())
 
     def __build_kore_env(self) -> gym.Env:
-        return KoreEnv(self.__state_constr, self.__action_adapter, self.__kore_reward)
+        return KoreEnv(self.__state_constr, self.__action_adapter, self.__kore_reward, enemy_agent=self.__enemy_agent)
