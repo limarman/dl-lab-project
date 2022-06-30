@@ -10,7 +10,7 @@ class HybridState(KoreState):
     A state combining map-shaped input and scalar input that can generate input for the HybridNet
     """
 
-    def __init__(self, board: Board):
+    def __init__(self, board: Board, shipyard: Shipyard=None):
         """
         Initializes all relevant state values via the BoardWrapper that may be relevant in calculating the reward
 
@@ -26,6 +26,13 @@ class HybridState(KoreState):
         self.shipyard_count_opponent = self.board_wrapper.get_shipyard_count_opponent()
         self.step_normalized = self.board_wrapper.get_step()
         self.cargo = self.board_wrapper.get_cargo()
+        if shipyard:
+            self.shipyard_pos_x = shipyard.position.x
+            self.shipyard_pos_y = shipyard.position.y
+        else:
+            self.shipyard_pos_x = 5
+            self.shipyard_pos_y = 15
+
 
         tensor = self._get_tensor()
         super(HybridState, self).__init__(self.get_input_shape(), tensor, self.board_wrapper)
@@ -61,6 +68,8 @@ class HybridState(KoreState):
             self.step_normalized,
             self.shipyard_count_me,
             self.shipyard_count_opponent,
+            self.shipyard_pos_x,
+            self.shipyard_pos_y
         ])
 
         return state
@@ -69,7 +78,7 @@ class HybridState(KoreState):
     def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
         shapes = {
             'maps': (13, 21, 21),
-            'scalars': (7,)
+            'scalars': (9,)
         }
 
         return shapes

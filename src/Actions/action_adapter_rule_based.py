@@ -85,6 +85,7 @@ class ActionAdapterRuleBased(ActionAdapter):
             action_name = "Expand"
         else:
             shipyard_action = None
+            action_name = None
 
         return shipyard_action, action_name
 
