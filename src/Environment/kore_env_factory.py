@@ -2,7 +2,7 @@ import multiprocessing
 
 import gym
 from stable_baselines3.common.monitor import Monitor
-from stable_baselines3.common.vec_env import SubprocVecEnv, VecVideoRecorder, VecEnv, DummyVecEnv
+from stable_baselines3.common.vec_env import SubprocVecEnv, VecVideoRecorder, VecEnv, DummyVecEnv, VecNormalize
 
 from src.Actions.action_adapter import ActionAdapter
 from src.Environment.kore_env import KoreEnv
@@ -16,11 +16,12 @@ class KoreEnvFactory:
         self.__action_adapter = action_adapter
         self.__kore_reward = kore_reward
 
-    def build_multicore_env(self) -> SubprocVecEnv:
+    def build_multicore_env(self) -> VecNormalize:
         num_cpu_cores = multiprocessing.cpu_count()
         sub_proc_env = SubprocVecEnv([self.__build_monitor_env for _ in range(num_cpu_cores)])
+        sub_proc_norm_env = VecNormalize(sub_proc_env)
 
-        return sub_proc_env
+        return sub_proc_norm_env
 
     def __build_monitor_env(self) -> Monitor:
         return Monitor(self.__build_kore_env())

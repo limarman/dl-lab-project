@@ -31,8 +31,7 @@ class HybridState(KoreState):
             self.shipyard_pos_y = shipyard.position.y
         else:
             self.shipyard_pos_x = 5
-            self.shipyard_pos_y = 15
-
+            self.shipyard_pos_y = 5
 
         tensor = self._get_tensor()
         super(HybridState, self).__init__(self.get_input_shape(), tensor, self.board_wrapper)

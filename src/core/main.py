@@ -10,7 +10,7 @@ from src.States.hybrid_state import HybridState
 def main():
     state_constr = HybridState
     win_reward = WinReward()
-    rule_based_action_adapter = SingleActionAdapterRuleBased()
+    rule_based_action_adapter = ActionAdapterRuleBased()
 
     kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, win_reward)
     env = kore_env_factory.build_multicore_env()

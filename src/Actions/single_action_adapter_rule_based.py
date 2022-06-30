@@ -11,7 +11,6 @@ class SingleActionAdapterRuleBased(ActionAdapterRuleBased):
     Processes a single action (intended for the substep kore_env)
     """
 
-
     def __init__(self):
         super().__init__()
 
@@ -19,7 +18,13 @@ class SingleActionAdapterRuleBased(ActionAdapterRuleBased):
         """
         Returns the action with highest probability
         """
-        action_idx = np.argmax(agent_actions)
+
+        if np.sum(agent_actions) != 0:
+            agent_actions_probs = agent_actions / np.sum(agent_actions)
+            action_idx = np.random.choice(a=range(len(agent_actions)), p=agent_actions_probs)
+        else:
+            action_idx = np.random.choice(a=range(len(agent_actions)))
+
         action, name = self._get_rb_action(action_idx, shipyard, board_wrapper.board)
         kore_action = {shipyard.id: str(action)}
         kore_action_names = {shipyard.id: name}

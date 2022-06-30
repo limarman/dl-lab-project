@@ -33,7 +33,6 @@ class A2CAgent:
         self.__model = A2C(
             policy="MultiInputPolicy",
             env=self.env,
-            max_grad_norm=0.0005,
             learning_rate=0.0008,
             verbose=1,
             tensorboard_log=kore_monitor.tensorboard_log,

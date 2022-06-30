@@ -10,40 +10,32 @@ from kaggle_environments.envs.kore_fleets.helpers import *
 
 class ActionAdapterRuleBased(ActionAdapter):
 
-    N_ACTIONS: int = 5 #expand, attack, box-farm, axis-farm, build
+    N_ACTIONS: int = 6 #expand, attack, box-farm, axis-farm, build, wait
 
     def __init__(self, single_shipyard=False):
         super().__init__()
         if single_shipyard:
             self.N_ACTIONS = 4
 
-    def agent_to_kore_action(self, agent_actions: ndarray, board_wrapper: BoardWrapper) -> (Dict[str, str], Dict[str, str]):
+    def agent_to_kore_action(self, agent_actions: ndarray, board_wrapper: BoardWrapper, shipyard) -> (Dict[str, str], Dict[str, str]):
         #shipyard_idx = agent_action % 10
-        player_shipyards = board_wrapper.player_me.shipyards
-        kore_action = {}
-        kore_action_names = {}
 
-        if not player_shipyards:
-            return {}, {}
+        invalid_actions_mask = self.get_invalid_action_mask(shipyard, board_wrapper.board)
+        valid_agent_actions = [agent_actions[i] * invalid_actions_mask[i] for i in range(len(agent_actions))]
+        valid_agent_actions = np.asarray(valid_agent_actions)
+        if np.sum(valid_agent_actions) != 0:
+            valid_agent_actions_probs = valid_agent_actions / np.sum(valid_agent_actions)
+            action_idx = np.random.choice(a=range(len(agent_actions)), p=valid_agent_actions_probs)
+        else:
+            # take a random valid action if possible
+            choice_actions = [i for i, val in enumerate(invalid_actions_mask) if val == 1]
+            if not choice_actions:
+                choice_actions = range(len(agent_actions))
+            action_idx = np.random.choice(a=choice_actions)
 
-        for shipyard in player_shipyards:
-            invalid_actions_mask = self.get_invalid_action_mask(shipyard, board_wrapper.board)
-            valid_agent_actions = [agent_actions[i] * invalid_actions_mask[i] for i in range(len(agent_actions))]
-            valid_agent_actions = np.asarray(valid_agent_actions)
-            if np.sum(valid_agent_actions) != 0:
-                valid_agent_actions_probs = valid_agent_actions / np.sum(valid_agent_actions)
-                action_idx = np.random.choice(a=range(len(agent_actions)), p=valid_agent_actions_probs)
-            else:
-                # take a random valid action if possible
-                choice_actions = [i for i, val in enumerate(invalid_actions_mask) if val == 1]
-                if not choice_actions:
-                    choice_actions = range(len(agent_actions))
-                action_idx = np.random.choice(a=choice_actions)
-
-
-            action, action_name = self._get_rb_action(action_idx, shipyard, board_wrapper.board)
-            kore_action[shipyard.id] = str(action)
-            kore_action_names[shipyard.id] = action_name
+        action, name = self._get_rb_action(action_idx, shipyard, board_wrapper.board)
+        kore_action = {shipyard.id: str(action)}
+        kore_action_names = {shipyard.id: name}
 
         return kore_action, kore_action_names
 
@@ -55,6 +47,7 @@ class ActionAdapterRuleBased(ActionAdapter):
             rba.start_optimal_box_farmer(shipyard, 9, validity_check=True),
             rba.attack_closest(shipyard, validity_check=True),
             rba.expand_optimal(shipyard, validity_check=True),
+            rba.wait(shipyard, validity_check=True)
         ]
 
         invalid_actions_mask = [
@@ -83,6 +76,9 @@ class ActionAdapterRuleBased(ActionAdapter):
         elif action_idx == 4:
             shipyard_action = rba.expand_optimal(shipyard)
             action_name = "Expand"
+        elif action_idx == 5:
+            shipyard_action = rba.wait(shipyard)
+            action_name = "Wait"
         else:
             shipyard_action = None
             action_name = None
