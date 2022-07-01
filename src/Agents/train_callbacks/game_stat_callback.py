@@ -53,7 +53,10 @@ class GameStatCallback(BaseCallback):
                 kore_delta = infos['kore_delta']
                 my_fleets = infos['fleet_count_me']
                 my_shipyards = infos['shipyard_count_me']
-                win = 1 if (kore_delta > 0 and (my_fleets > 0 or my_shipyards > 0)) else 0
+                opponent_shipyards = infos['shipyard_count_opponent']
+                opponent_fleets = infos['fleet_count_opponent']
+                win = 1 if ((kore_delta > 0 and (my_fleets > 0 or my_shipyards > 0))
+                            or (opponent_shipyards == 0 and opponent_fleets == 0)) else 0
                 game_stats['Winrate'] = win
 
                 counts = Counter(self.actions[idx])
