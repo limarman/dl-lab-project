@@ -68,10 +68,10 @@ class KoreEnv(gym.Env):
 
         # self.shipyards is the list of shipyards that still need to be processed until the next game step
         if self.shipyards:
-            self.shipyard_sub_step()
+            self._shipyard_sub_step()
             self.game_step_flag = False
         else:
-            self.game_step()
+            self._game_step()
             self.game_step_flag = True
 
         if self.shipyards:
@@ -95,7 +95,7 @@ class KoreEnv(gym.Env):
 
         return next_state.tensor, self.reward, self.env.done, info
 
-    def shipyard_sub_step(self):
+    def _shipyard_sub_step(self):
         """
         - Simulates all accumulated actions on the board and updates the board in-place
         """
@@ -109,7 +109,7 @@ class KoreEnv(gym.Env):
 
         self.boards[self.player_id] = current_copy.next()
 
-    def game_step(self):
+    def _game_step(self):
         """
         - Performs an actual game step, i.e. calls the kaggle actions with all accumulated
         shipyard actions and simulates the opponent

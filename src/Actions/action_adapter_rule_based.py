@@ -18,8 +18,6 @@ class ActionAdapterRuleBased(ActionAdapter):
             self.N_ACTIONS = 4
 
     def agent_to_kore_action(self, agent_actions: ndarray, board_wrapper: BoardWrapper, shipyard) -> (Dict[str, str], Dict[str, str]):
-        #shipyard_idx = agent_action % 10
-
         invalid_actions_mask = self.get_invalid_action_mask(shipyard, board_wrapper.board)
         valid_agent_actions = [agent_actions[i] * invalid_actions_mask[i] for i in range(len(agent_actions))]
         valid_agent_actions = np.asarray(valid_agent_actions)
