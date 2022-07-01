@@ -1,8 +1,8 @@
-gym==0.21
+gym==0.24.1
 kaggle_environments==1.9.9
 keras==2.9.0
 keras_rl2==1.0.5
 numpy==1.21.6
 torch==1.11.0
 wandb==0.12.16
-stable_baselines3==1.5.0
+stable_baselines3

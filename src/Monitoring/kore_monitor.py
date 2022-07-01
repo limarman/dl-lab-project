@@ -28,7 +28,7 @@ class KoreMonitor:
 
         self.callback = WandbCallback(
             gradient_save_freq=100,
-            model_save_path=f"models/{self.run.id}",
+            model_save_path=f"runs/{self.run.id}",
             verbose=2
         )
 

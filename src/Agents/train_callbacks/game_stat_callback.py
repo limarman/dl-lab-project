@@ -1,7 +1,6 @@
 from collections import defaultdict, Counter
 
 import wandb
-import numpy as np
 from stable_baselines3.common.callbacks import BaseCallback
 
 

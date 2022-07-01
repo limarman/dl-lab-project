@@ -202,7 +202,17 @@ class RuleBasedActor:
         flight_plan = self._get_shortest_flight_path_between(shipyard.position, enemy_shipyard.position,
                                                              self.board.configuration.size)
 
+        if len(flight_plan) == 0:
+            return None
+
         return ShipyardAction.launch_fleet_with_flight_plan(no_ships, flight_plan)
+
+    def wait(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
+        if validity_check:
+            # otherwise the shipyard action evaluates to None (interpreted as False) in the action mask
+            return True
+
+        return ShipyardAction.from_str("None")
 
     def _kore_on_axis_map(self, shipyard: Shipyard, radius: int) -> numpy.ndarray:
         """

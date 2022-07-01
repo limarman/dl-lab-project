@@ -1,7 +1,6 @@
 from typing import Dict
 
 from kaggle_environments.envs.kore_fleets.helpers import Board
-from src.States.board_wrapper import BoardWrapper
 from src.States.kore_state import KoreState
 
 
