@@ -1,8 +1,9 @@
 #!/usr/local_rwth/bin/zsh
 
 #SBATCH --ntasks=1
+#SBATCH --array=1-2%1
 
-#SBATCH --cpus-per-task=48
+#SBATCH --cpus-per-task=24
 
 # ask for less than 4 GB memory per task=MPI rank
 #SBATCH --mem-per-cpu=1900M   #M is the default and can therefore be omitted, but could also be K(ilo)|G(iga)|T(era)
@@ -14,7 +15,7 @@
 #SBATCH --output=/home/ob606396/lab/dl-lab-project/jobscripts/output.%J.txt
 
 # setting time to one minute (--time=d-hh:mm:ss)
-#SBATCH --time=0-05:59:00
+#SBATCH --time=0-00:05:00
 
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nils.eberhardt@rwth-aachen.de
