@@ -1,6 +1,7 @@
 """
 This module implements the A2CAgent class
 """
+import os
 
 import torch
 from stable_baselines3 import A2C
@@ -17,11 +18,12 @@ class A2CAgent:
     Wrapper of the a2c model from stable baselines for the kore task
     """
 
-    def __init__(self, env: VecEnv, kore_monitor: KoreMonitor, n_training_steps: int = 1500000, name='A2C'):
+    def __init__(self, env: VecEnv, kore_monitor: KoreMonitor, run_id: str, n_training_steps: int = 1500000, name='A2C', resume_training=False):
         self.name = name
         self.env = env
         self.monitor_callback = kore_monitor.callback
         self.n_training_steps = n_training_steps
+        self.run_id = run_id
 
         kore_monitor.set_run_name(self.name)
 
@@ -30,23 +32,28 @@ class A2CAgent:
             'activation_fn': torch.nn.ReLU,
         }
 
-        self.__model = A2C(
-            policy="MultiInputPolicy",
-            env=self.env,
-            max_grad_norm=0.0005,
-            learning_rate=0.0008,
-            verbose=1,
-            tensorboard_log=kore_monitor.tensorboard_log,
-            policy_kwargs=policy_kwargs,
-            gamma=1
-        )
+        if resume_training:
+            self.__model = A2C.load(f"checkpoints/{run_id}.zip", env=self.env)
+        else:
+            self.__model = A2C(
+                policy="MultiInputPolicy",
+                env=self.env,
+                learning_rate=0.0008,
+                verbose=1,
+                tensorboard_log=kore_monitor.tensorboard_log,
+                policy_kwargs=policy_kwargs,
+                gamma=1
+            )
 
     def fit(self):
         """
         Wrapper of the models fit function
         """
+        try:
+            self.__model.learn(
+                total_timesteps=self.n_training_steps,
+                callback=[self.monitor_callback, GameStatCallback(), ReplayCallback(episodes_interval=50)],
+            )
+        finally:
+            self.__model.save(f"checkpoints/{self.run_id}")
 
-        self.__model.learn(
-            total_timesteps=self.n_training_steps,
-            callback=[self.monitor_callback, GameStatCallback(), ReplayCallback(episodes_interval=50)],
-        )

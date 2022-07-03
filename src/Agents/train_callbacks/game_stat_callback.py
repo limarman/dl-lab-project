@@ -1,7 +1,6 @@
 from collections import defaultdict, Counter
 
 import wandb
-import numpy as np
 from stable_baselines3.common.callbacks import BaseCallback
 
 
@@ -12,7 +11,7 @@ class GameStatCallback(BaseCallback):
     :param verbose:
     """
 
-    def __init__(self, verbose: int = 0, action_interval=10):
+    def __init__(self, verbose: int = 0):
         """
         :param action_interval specifies the length of the step interval
         before pushing aggregated action frequencies to wandb
@@ -25,7 +24,10 @@ class GameStatCallback(BaseCallback):
         self.none_actions = defaultdict(list)
         wandb.define_metric('episodes')
         wandb.define_metric(self.prefix + '/*', step_metric='episodes')
-        self.episodes = 0
+        if 'episodes' in dict(wandb.run.summary):
+            self.episodes = wandb.run.summary['episodes']
+        else:
+            self.episodes = 0
         self.step = 0
 
     def _on_step(self) -> bool:
