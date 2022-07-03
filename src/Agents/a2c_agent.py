@@ -7,7 +7,7 @@ import torch
 from stable_baselines3 import A2C
 from stable_baselines3.common.vec_env import VecEnv
 
-from src.Agents.neural_networks.hybrid_cnn_mlp import HybridNet
+from src.Agents.neural_networks.hybrid_net import HybridNet
 from src.Agents.train_callbacks.game_stat_callback import GameStatCallback
 from src.Agents.train_callbacks.replay_callback import ReplayCallback
 from src.Monitoring.kore_monitor import KoreMonitor
