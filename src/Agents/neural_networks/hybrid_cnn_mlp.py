@@ -5,6 +5,7 @@ from torch import nn
 
 from src.Agents.neural_networks.cnn_pytorch import BasicCNN
 from src.Agents.neural_networks.mlp_pytorch import BasicMLP
+from src.Agents.neural_networks.transformer import VisionTransformer
 
 
 class HybridNet(BaseFeaturesExtractor):
@@ -13,16 +14,19 @@ class HybridNet(BaseFeaturesExtractor):
     Adapted from https://stable-baselines3.readthedocs.io/en/master/guide/custom_policy.html
     """
 
-    def __init__(self, observation_space_dict: gym.spaces.Dict):
-        cnn_output_features = 128
+    def __init__(self, observation_space_dict: gym.spaces.Dict, transformer=False):
+        map_output_features = 120
         mlp_output_features = 64
-        output_features = cnn_output_features + mlp_output_features
+        output_features = map_output_features + mlp_output_features
         super().__init__(observation_space_dict, features_dim=output_features)
         feature_extractors = {}
 
         for key, subspace in observation_space_dict.spaces.items():
             if key == "maps":
-                feature_extractors[key] = BasicCNN(subspace.shape[0], cnn_output_features)
+                if transformer:
+                    feature_extractors[key] = VisionTransformer(subspace.shape[0], map_output_features)
+                else:
+                    feature_extractors[key] = BasicCNN(subspace.shape[0], map_output_features)
             elif key == "scalars":
                 feature_extractors[key] = BasicMLP(subspace.shape[0], mlp_output_features)
             else:
