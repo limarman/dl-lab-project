@@ -319,7 +319,7 @@ class BoardWrapper:
 
     def get_step(self, normalized=True) -> float:
         """ Returns the normalized current step """
-        step = self.board.observation['step']
+        step = self.board.observation['step'] + 1
         if normalized:
             step = step / self.board.configuration.episode_steps
         return step
