@@ -22,7 +22,7 @@ def main():
         n_training_steps = 150000000
     else:
         run_id = 'local' + str(uuid.uuid1())
-        n_training_steps = 4500000
+        n_training_steps = 8500000
 
     state_constr = HybridState
     win_reward = AdvantageReward()

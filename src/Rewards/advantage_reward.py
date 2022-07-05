@@ -10,7 +10,9 @@ class AdvantageReward(KoreReward):
     """
 
     KORE_PER_SHIP: int = 10
-    KORE_PER_SHIPYARD: int = 500
+
+    SHIPS_PER_SHIPYARD = 50
+    KORE_PER_SHIPYARD: int = (KORE_PER_SHIP * SHIPS_PER_SHIPYARD)
 
     def __init__(self, ship_value: int = 5, shipyard_value: int = 250):
         """
@@ -24,7 +26,7 @@ class AdvantageReward(KoreReward):
         """
         super().__init__()
         self.__ship_value = ship_value
-        self.__shipyard_value = shipyard_value
+        self.__shipyard_value = (self.SHIPS_PER_SHIPYARD * self.__ship_value) + shipyard_value
 
     @staticmethod
     def get_reward_from_action(current_state: KoreState, actions) -> float:
