@@ -58,7 +58,7 @@ class A2CAgent:
         try:
             self.__model.learn(
                 total_timesteps=self.n_training_steps,
-                callback=[self.monitor_callback, GameStatCallback(), ReplayCallback(episodes_interval=50)],
+                callback=[self.monitor_callback, GameStatCallback(episodes_interval=10), ReplayCallback(episodes_interval=100)],
             )
         finally:
             self.__model.save(f"checkpoints/{self.run_id}")
