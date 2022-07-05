@@ -351,6 +351,9 @@ class BoardWrapper:
         020600
         034500
 
+        The actual values are (50-timesteps)/50 such that a number close to one indicates that a fleet will be
+        there soon and a number close to zero symbolizes that in the far future there will be a fleet.
+
         If multiple fleets will travel over a cell, the minimum number of timesteps is indicated.
         Flightplans end correctly at shipyards, but collisions are not taken into account here.
         Flightplans are approximated for at most 50 steps
@@ -401,18 +404,24 @@ class BoardWrapper:
     def _positions_to_map_enumerating(self, feature_map: ndarray, pos_list: List[int]) -> ndarray:
         """
         Maps positions to a feature map, where the first position is represented by one
-        and the last by len(pos_list)
+        and the last by (1/50). The list ist truncated at 50. Hence the formula is (50-i)/50
         """
         coordinate_list = [get_col_row(21, pos) for pos in pos_list]
+        coordinate_list = coordinate_list[:50]
+
+        def get_val(pos: int):
+            return (50 - (pos + 1)) / 50
+
         for idx, (col, row) in enumerate(coordinate_list):
             current_val = feature_map[col][row]
             if current_val == 0:
-                next_val = idx + 1
+                next_val = get_val(idx)
             else:
-                next_val = min(idx + 1, current_val)
+                next_val = max(get_val(idx), current_val)
             feature_map[col][row] = next_val
 
         return feature_map
+
 
 
     def _get_directions_numbers_list(self, fleet) -> List[str]:

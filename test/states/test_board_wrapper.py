@@ -87,10 +87,7 @@ class TestBoardWrapper(unittest.TestCase):
                 x = fleet.position.x
                 y = fleet.position.y
 
-                if expected[x][y] == 0:
-                    expected[x][y] = i+1
-                else:
-                    expected[x][y] = min(expected[x][y], i+1)
+                expected[x][y] = max(expected[x][y], (50-(i+1))/50)
         return expected
 
     def test_get_to_pos_char(self):
