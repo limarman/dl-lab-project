@@ -410,7 +410,7 @@ class BoardWrapper:
         coordinate_list = coordinate_list[:50]
 
         def get_val(pos: int):
-            return (50 - (pos + 1)) / 50
+            return (50 - pos) / 50
 
         for idx, (col, row) in enumerate(coordinate_list):
             current_val = feature_map[col][row]
