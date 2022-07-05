@@ -13,7 +13,7 @@ class VisionTransformer(ViTModel):
                            num_channels=num_channels,
                            patch_size=patch_size,
                            hidden_size=hidden_size,
-                           intermediate_size=1024)
+                           intermediate_size=1024) # reducing intermediate size doubles fps
         super().__init__(config)
 
     def forward(self, maps):

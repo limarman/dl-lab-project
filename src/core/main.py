@@ -3,6 +3,7 @@ import uuid
 
 from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
 from src.Agents.a2c_agent import A2CAgent
+from src.Agents.neural_networks.hybrid_net import HybridResNet, HybridTransformer, HybridNetBasicCNN
 from src.Environment.kore_env_factory import KoreEnvFactory
 from src.Monitoring.kore_monitor import KoreMonitor
 from src.Rewards.win_reward import WinReward
@@ -16,8 +17,11 @@ def main():
     if os.environ.get('SLURM_ARRAY_JOB_ID'):
         # use the unique cluster job id
         run_id = 'cluster' + os.environ.get('SLURM_ARRAY_JOB_ID')
+        # run until the cluster kills us
+        n_training_steps = 150000000
     else:
         run_id = 'local' + str(uuid.uuid1())
+        n_training_steps = 1500000
 
     state_constr = HybridState
     win_reward = WinReward()
@@ -33,7 +37,12 @@ def main():
 
     kore_monitor = KoreMonitor(run_id, resume_training=resume_training)
     kore_monitor.set_run_name('Win Reward - Substeps')
-    kore_agent = A2CAgent(env=env, kore_monitor=kore_monitor, resume_training=resume_training, run_id=run_id)
+    kore_agent = A2CAgent(env=env,
+                          kore_monitor=kore_monitor,
+                          n_training_steps=n_training_steps,
+                          resume_training=resume_training,
+                          run_id=run_id,
+                          feature_extractor_class=HybridNetBasicCNN)
     kore_agent.fit()
 
 
