@@ -70,9 +70,7 @@ class HybridState(KoreState):
             self.ship_count_opponent,
             self.step_normalized,
             self.shipyard_count_me,
-            self.shipyard_count_opponent,
-            self.shipyard_pos_x,
-            self.shipyard_pos_y
+            self.shipyard_count_opponent
         ] + self.valid_action_mask)
 
         return state

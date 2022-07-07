@@ -342,6 +342,12 @@ class BoardWrapper:
     def get_feature_map_flight_plan_opponent(self):
         return self._get_feature_map_flight_plan_for_player(self.player_opponent)
 
+    def get_sound_flight_plan_sound_me(self):
+        return self._get_sound_flight_plan_for_player(self.player_me)
+
+    def get_sound_flight_plan_sound_opponent(self):
+        return self._get_sound_flight_plan_for_player(self.player_opponent)
+
     def _get_feature_map_flight_plan_for_player(self, player: Player) -> ndarray:
         """
         Approximates the flightplan on a map by indicating the timesteps until a fleet will be there,
@@ -459,6 +465,73 @@ class BoardWrapper:
 
         return direction_number_list
 
+    def _get_sound_flight_plan_for_player(self, player: Player) -> ndarray:
+        """
+        Approximates the flightplan on a map by taking inspiration from sound
+        More ships make more noise and the noise they make is decaying (exponentially) over their route
+        Feature map consists of summed noise for all fleets of the player
+        flight plans end correctly at shipyards, but collisions are not taken into account here.
+        flight plans are approximated for at most 50 steps
+        """
+        # need to know shipyard positions since flight plans end there
+        shipyards = self.board.shipyards.values()
+        shipyard_pos = [s.position.x + s.position.y * 21 for s in shipyards]
+
+        feature_map = np.zeros((21, 21))
+
+        if len(player.fleets) != 0:
+            print("now")
+
+        for fleet in player.fleets:
+            directions_numbers_list = self._get_directions_numbers_list(fleet)
+
+            if not directions_numbers_list:
+                break
+
+            current_pos = fleet.position.x + fleet.position.y * 21
+            pos_list = [current_pos]
+
+            for _ in range(50):
+                if directions_numbers_list:
+                    current_elem = directions_numbers_list.pop(0)
+                if current_elem == 'C':
+                    # new shipyard is created
+                    break
+
+                if directions_numbers_list and directions_numbers_list[0].isnumeric():
+                    step_length = int(directions_numbers_list.pop(0)) + 1
+                    for _ in range(step_length):
+                        current_pos = self._get_to_pos_char(current_pos, current_elem)
+                        pos_list.append(current_pos)
+                else:
+                    current_pos = self._get_to_pos_char(current_pos, current_elem)
+                    pos_list.append(current_pos)
+
+                if current_pos in shipyard_pos:
+                    # remove shipyard pos
+                    # pos_list.pop()
+                    break
+
+            # transform positions into np array (only 50 step approximation)
+            feature_map = self._positions_to_map_sound_level(feature_map, pos_list[:50], fleet.ship_count)
+
+        return feature_map
+
+    def _positions_to_map_sound_level(self, feature_map: ndarray, pos_list: List[int], fleet_size: int) -> ndarray:
+        """
+        Maps positions to a feature map
+        Adds a summand which decays exponentially with steps following the equation
+        fleet_size * b ^ step , where the step is 0 in the beginning of the route
+        Currently using a b of 0.933 to roughly half the summand every 10 steps
+        """
+        coordinate_list = [get_col_row(21, pos) for pos in pos_list]
+        factor = 1
+        for _, (col, row) in enumerate(coordinate_list):
+            next_summand = fleet_size * factor
+            feature_map[col][row] += next_summand
+            factor = factor * 0.933
+
+        return feature_map
 
     def _get_to_pos_char(self, current_pos: int, direction: str) -> int:
         """
