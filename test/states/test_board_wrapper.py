@@ -56,7 +56,7 @@ class TestBoardWrapper(unittest.TestCase):
         self._test_get_feature_maps_flight_plan('N3C', 50)
 
     def test_get_feature_maps_flightplan_too_few_ships(self):
-        self._test_get_feature_maps_flight_plan('N3C', 49)
+        self._test_get_feature_maps_flight_plan('N3W3C', 49)
 
     def _test_get_feature_maps_flight_plan(self, flight_plan, ships):
         """
@@ -66,6 +66,9 @@ class TestBoardWrapper(unittest.TestCase):
         board_wrapper = BoardWrapper(self.board)
         res = board_wrapper.get_feature_map_flight_plan_me()
         expected = self._simulate_flight()
+
+        # flightplans end at shipyard (in the board simulator they end one step before)
+        res[5][15] = 0
         self.assertTrue((res == expected).all())
 
     def _launch_flight_plan(self, flightplan: str, ships):

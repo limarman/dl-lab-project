@@ -398,8 +398,7 @@ class BoardWrapper:
                         pos_list.append(current_pos)
 
                 if current_pos in shipyard_pos:
-                    # remove shipyard pos
-                    pos_list.pop()
+                    # flightplan ends at shipyard
                     break
 
             # transform positions into np array (only 50 step approximation)
