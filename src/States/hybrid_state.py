@@ -60,6 +60,8 @@ class HybridState(KoreState):
             self.board_wrapper.get_cargo_opponent_map(),
             self.board_wrapper.get_feature_map_flight_plan_me(),
             self.board_wrapper.get_feature_map_flight_plan_opponent(),
+            self.board_wrapper.get_sound_flight_plan_sound_me(),
+            self.board_wrapper.get_sound_flight_plan_sound_opponent(),
             self.kore_map
         ])
 
@@ -80,7 +82,7 @@ class HybridState(KoreState):
     @staticmethod
     def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
         shapes = {
-            'maps': (13, 21, 21),
+            'maps': (15, 21, 21),
             'scalars': (15,)
         }
 

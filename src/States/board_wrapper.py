@@ -478,9 +478,6 @@ class BoardWrapper:
 
         feature_map = np.zeros((21, 21))
 
-        if len(player.fleets) != 0:
-            print("now")
-
         for fleet in player.fleets:
             directions_numbers_list = self._get_directions_numbers_list(fleet)
 
