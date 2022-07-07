@@ -18,7 +18,6 @@ class GameStatCallback(BaseCallback):
         """
         super().__init__()
         self.__episode_interval = episodes_interval
-        self.__episode_count = 0
         self.prefix = 'custom'
 
     def _init_callback(self) -> None:
@@ -46,15 +45,13 @@ class GameStatCallback(BaseCallback):
             self.none_actions[idx] += infos['none_actions']
 
             if done:
-                self.__episode_count += 1
-                if self.__episode_count > self.__episode_interval:
-                    self.__episode_count = 0
+                self.episodes += 1
+                if self.episodes % self.__episode_interval == 0:
                     game_stats = self.__log_gamestats(game_stats, infos, idx)
 
         return True
 
     def __log_gamestats(self, game_stats, infos, idx):
-        self.episodes += 1
         game_stats['Game Length'] = infos['game_length']
         game_stats['Kore Delta (at End)'] = infos['kore_delta']
         game_stats['Shipyard Count me (at End)'] = infos['shipyard_count_me']

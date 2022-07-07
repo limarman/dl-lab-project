@@ -44,7 +44,6 @@ class A2CAgent:
                 policy="MultiInputPolicy",
                 env=self.env,
                 learning_rate=0.0008,
-                max_grad_norm=0.0005,
                 verbose=1,
                 tensorboard_log=kore_monitor.tensorboard_log,
                 policy_kwargs=policy_kwargs,
