@@ -66,9 +66,7 @@ class HybridState(KoreState):
             self.ship_count_opponent,
             self.step_normalized,
             self.shipyard_count_me,
-            self.shipyard_count_opponent,
-            self.shipyard_pos_x,
-            self.shipyard_pos_y
+            self.shipyard_count_opponent
         ])
 
         return state
@@ -77,7 +75,7 @@ class HybridState(KoreState):
     def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
         shapes = {
             'maps': (13, 21, 21),
-            'scalars': (9,)
+            'scalars': (7,)
         }
 
         return shapes
