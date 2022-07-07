@@ -28,6 +28,9 @@ def get_boards_from_kore_env_state(state_dict, config):
 def get_info_logs(state: KoreState, actions: Dict[str, str], action_names: Dict[str, str]):
     """ Calculates some basic metrics for wandb logger"""
     none_actions = [1 if (action == 'None' or not action) else 0 for action in actions.values()]
+    # for action in actions:
+    #     if actions[action] == "None":
+    #         print(f"invalid action: {action_names[action]}")
 
     info = {
         'none_actions': none_actions,

@@ -6,6 +6,7 @@ from src.Agents.a2c_agent import A2CAgent
 from src.Agents.neural_networks.hybrid_net import HybridResNet, HybridTransformer, HybridNetBasicCNN
 from src.Environment.kore_env_factory import KoreEnvFactory
 from src.Monitoring.kore_monitor import KoreMonitor
+from src.Rewards.advantage_reward import AdvantageReward
 from src.Rewards.win_reward import WinReward
 from src.States.hybrid_state import HybridState
 
@@ -21,10 +22,10 @@ def main():
         n_training_steps = 150000000
     else:
         run_id = 'local' + str(uuid.uuid1())
-        n_training_steps = 1500000
+        n_training_steps = 8500000
 
     state_constr = HybridState
-    win_reward = WinReward()
+    win_reward = AdvantageReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
 
     kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, win_reward)

@@ -1,6 +1,8 @@
 import numpy as np
 from kaggle_environments.envs.kore_fleets.helpers import *
 
+from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
+from src.Actions.action_validity_masking import get_action_validity_mask
 from src.States.board_wrapper import BoardWrapper
 from src.States.kore_state import KoreState
 
@@ -29,9 +31,11 @@ class HybridState(KoreState):
         if shipyard:
             self.shipyard_pos_x = shipyard.position.x
             self.shipyard_pos_y = shipyard.position.y
+            self.valid_action_mask = get_action_validity_mask(shipyard, board)
         else:
             self.shipyard_pos_x = 5
             self.shipyard_pos_y = 5
+            self.valid_action_mask = [0 for _ in range(ActionAdapterRuleBased().N_ACTIONS)]
 
         tensor = self._get_tensor()
         super(HybridState, self).__init__(self.get_input_shape(), tensor, self.board_wrapper)
@@ -67,9 +71,9 @@ class HybridState(KoreState):
             self.step_normalized,
             self.shipyard_count_me,
             self.shipyard_count_opponent,
+            self.shipyard_pos_x,
             self.shipyard_pos_y,
-            self.shipyard_pos_x
-        ])
+        ] + self.valid_action_mask)
 
         return state
 
@@ -77,7 +81,7 @@ class HybridState(KoreState):
     def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
         shapes = {
             'maps': (13, 21, 21),
-            'scalars': (9,)
+            'scalars': (15,)
         }
 
         return shapes

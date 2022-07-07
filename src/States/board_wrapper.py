@@ -553,7 +553,6 @@ class BoardWrapper:
         elif direction == "W":
             return current_pos - 1 if col > 0 else (row + 1) * size - 1
 
-
     def game_result(self) -> int:
         """
         Derives from the board state an indicator for the winning player:

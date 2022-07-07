@@ -22,7 +22,7 @@ class RuleBasedActor:
         :return: expanding action as ShipyardAction
         """
 
-        if shipyard is None or shipyard.ship_count < 50:
+        if shipyard is None or shipyard.ship_count < 57:
             return None
 
         elif validity_check:
@@ -164,8 +164,6 @@ class RuleBasedActor:
         """
         if shipyard is None:
             return None
-        elif validity_check:
-            return True
 
         max_spawn = shipyard.max_spawn
         kore = shipyard.player.kore
@@ -176,6 +174,8 @@ class RuleBasedActor:
 
         if number_of_ships_to_create == 0:
             return None
+        elif validity_check:
+            return True
 
         return ShipyardAction.spawn_ships(number_of_ships_to_create)
 
