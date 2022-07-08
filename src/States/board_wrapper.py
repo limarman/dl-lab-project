@@ -398,8 +398,7 @@ class BoardWrapper:
                         pos_list.append(current_pos)
 
                 if current_pos in shipyard_pos:
-                    # remove shipyard pos
-                    pos_list.pop()
+                    # flightplan ends at shipyard
                     break
 
             # transform positions into np array (only 50 step approximation)
@@ -478,9 +477,6 @@ class BoardWrapper:
         shipyard_pos = [s.position.x + s.position.y * 21 for s in shipyards]
 
         feature_map = np.zeros((21, 21))
-
-        if len(player.fleets) != 0:
-            print("now")
 
         for fleet in player.fleets:
             directions_numbers_list = self._get_directions_numbers_list(fleet)
