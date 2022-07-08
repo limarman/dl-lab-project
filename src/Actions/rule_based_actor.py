@@ -741,22 +741,22 @@ class RuleBasedActor:
 
         return flight_plan
 
-    def _get_closest_shipyard(self, position: Point, player: Player, enemy_shipyard = True) -> Shipyard:
+    def _get_closest_shipyard(self, position: Point, player: Player, enemy = True) -> Shipyard:
         """
         Returns the closest shipyard from given position. In the case of searching for an allied shipyard,
         the shipyard at the given point is ignored
         Implementation vastly taken from the Balanced Bot
         :param position:
         :param player:
-        :param enemy_shipyard: whether we are searching for the closest opponent or own shipyard
+        :param enemy: whether we are searching for the closest opponent or own shipyard
         :return:
         """
         min_dist = 1000000
         enemy_shipyard = None
         for shipyard in self.board.shipyards.values():
-            if enemy_shipyard and shipyard.player_id == player.id:
+            if enemy and shipyard.player_id == player.id:
                 continue
-            elif not enemy_shipyard and (shipyard.player_id != player.id or shipyard.position == position):
+            elif not enemy and (shipyard.player_id != player.id or shipyard.position == position):
                 continue
             dist = position.distance_to(shipyard.position, self.board.configuration.size)
             if dist < min_dist:
