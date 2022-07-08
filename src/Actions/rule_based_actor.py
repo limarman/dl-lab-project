@@ -91,6 +91,34 @@ class RuleBasedActor:
 
         return None
 
+    def defend_closest(self, shipyard: Shipyard, validity_check = False):
+        """
+        If there are more than one shipyard: launches half of the ships currently in the shipyard to defend the closest
+        own shipyard, else do not do anything
+        :param shipyard: shipyard to start defending act from
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
+        :return: defending action to the closest own shipyard as ShipyardAction
+        """
+        if shipyard is None:
+            return None
+        no_ships = shipyard.ship_count
+
+        own_shipyard = self._get_closest_shipyard(shipyard.position, shipyard.player)
+
+        if own_shipyard is None:
+            return None
+
+        if validity_check:
+            return True
+
+        flight_plan = self._get_shortest_flight_path_between(shipyard.position, own_shipyard.position,
+                                                             self.board.configuration.size)
+
+        if len(flight_plan) == 0:
+            return None
+
+        return ShipyardAction.launch_fleet_with_flight_plan(int(no_ships/2), flight_plan)
+
     def start_farmer(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
         """
         Tries to start a box-farmer, if not possible an axis farmer
@@ -109,6 +137,40 @@ class RuleBasedActor:
             return self.start_optimal_axis_farmer(shipyard, 5)
         else:
             return None
+
+    def start_optimal_boomerang_farmer(self, shipyard : Shipyard, radius: int, number_of_ships: int = 21,
+                                       validity_check = False, probabilistic = False) -> ShipyardAction:
+        """
+        Searches for the best boomerang farmer (most kore on the path per time step, ignoring the regeneration)
+        Starting the farm flight plan from the given shipyard
+        Searching in a box with size 2 * radius around the shipyard, whereas the radius should not exceed 9
+        :param shipyard: shipyard to start farmer from
+        :param radius: radius around the shipyard to farm
+        :param number_of_ships: number of ships the box farmer should consist of (>=21)
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
+        :param probabilistic: whether the optimal position is chosen by an argmax or sampled proportional to value size
+        :return: farming action as ShipyardAction
+        """
+
+        if shipyard is None or shipyard.ship_count < 21:
+            return None
+        elif validity_check:
+            return True
+
+        assert number_of_ships >= 21, "Error, boomerang farmer has to have at least 21 ships"
+
+        kore_maps = self._kore_on_paths_map_boomerang(shipyard, radius)
+        self._normalize_by_step_count(kore_maps[0], radius)
+        self._normalize_by_step_count(kore_maps[1], radius)
+        if not probabilistic:
+            slice_no, max_x, max_y = self._argmax_of_3dim_square(kore_maps, 2 * radius + 1)
+        else:
+            slice_no, max_x, max_y = self._probabilistic_argmax_of_3dim_square(kore_maps, 2 * radius + 1,
+                                                                               pre_transform= lambda x : x**6)
+
+        flight_plan = self._get_boomerang_farmer_flight_plan(max_x - radius, radius - max_y, slice_no == 0)
+
+        return ShipyardAction.launch_fleet_with_flight_plan(number_of_ships, flight_plan)
 
     def start_optimal_box_farmer(self, shipyard: Shipyard, radius: int, number_of_ships=21, validity_check=False) -> ShipyardAction:
         """
@@ -191,7 +253,7 @@ class RuleBasedActor:
         no_ships = shipyard.ship_count
         if no_ships < 20:
             return None
-        enemy_shipyard = self._get_closest_enemy_shipyard(shipyard.position, shipyard.player)
+        enemy_shipyard = self._get_closest_shipyard(shipyard.position, shipyard.player)
 
         if enemy_shipyard is None:
             return None
@@ -314,6 +376,90 @@ class RuleBasedActor:
 
         return kore_map
 
+    def _kore_on_paths_map_boomerang(self, shipyard: Shipyard, radius: int) -> numpy.ndarray:
+        """
+        Creates a "kore paths map" with given radius and shipyard as the center
+        Thereby one entry of the map stands for the number of kore on the path a boomerang farmer would take
+        including this point as the furthest point from the shipyard.
+        :param shipyard: shipyard as the center of the map
+        :param radius: radius around shipyard to investigate
+        :return: (3-dim) map with size (2, 2 * radius + 1, 2 * radius + 1)
+        """
+
+        kore_map = numpy.zeros(shape=(2 * radius + 1, 2 * radius + 1))
+
+        shipyard_map_pos_x = radius
+        shipyard_map_pos_y = radius
+
+        shipyard_origin = Point(shipyard_map_pos_x, shipyard_map_pos_y)
+
+        axes = [Point(0, -1),
+                Point(1, 0),
+                Point(0, 1),
+                Point(-1, 0)]
+
+        # filling the axes
+        for p in axes:
+            for i in range(1, radius + 1):
+                kore_map[self._flip(shipyard_origin + p * i)] = \
+                    self.board.get_cell_at_point(
+                        shipyard.position.translate(self._toggle_translation_space(p * i),
+                                                    self.board.configuration.size)).kore + \
+                    self.board.get_cell_at_point(
+                        shipyard.position.translate(self._toggle_translation_space(p * (i - 1)),
+                                                    self.board.configuration.size)).kore + \
+                    kore_map[self._flip(shipyard_origin + p * (i - 1))]
+
+
+        #For boomerang farmers it matters in which direction the turn is, as this changes the path
+        #different than for box-farmers. That is why we check for left turning and right turning boomerangs
+        kore_maps = numpy.stack([kore_map, numpy.copy(kore_map)])
+
+        # fill the rest of the map
+        # axis vectors for every quadrant
+        offsets = [(Point(0, -1), Point(1, 0)),
+                   (Point(1, 0), Point(0, 1)),
+                   (Point(0, 1), Point(-1, 0)),
+                   (Point(-1, 0), Point(0, -1))]
+
+        for i in range(0, 2): # for right turning and left turning boomerang farmers
+
+            #checking right turning boomerangs for i==0 and left turning for i ==1
+            boomerang_turn = 1 if i == 0 else -1
+
+            for (off_y, off_x) in offsets:
+                # bringing the pointer in correct start position
+                start_pos = Point(shipyard_map_pos_x, shipyard_map_pos_y)
+
+                for x in range(1, radius + 1):
+                    for y in range(1, radius + 1):
+                        translation = (off_x * x) + (off_y * y)
+                        next_pos = start_pos + translation
+                        if boomerang_turn == 1:
+                            cellpos1 = shipyard.position.translate(
+                                self._toggle_translation_space(translation), self.board.configuration.size)
+                            cellpos2 = shipyard.position.translate(
+                                self._toggle_translation_space(translation - off_x), self.board.configuration.size)
+                            kore_maps[i, self._flip(next_pos).x, self._flip(next_pos).y] = \
+                                kore_maps[i, self._flip(next_pos - off_x).x, self._flip(next_pos - off_x).y] +\
+                                self.board.get_cell_at_point(
+                                    cellpos1).kore + \
+                                self.board.get_cell_at_point(
+                                    cellpos2).kore
+                        else: #left turning boomerang
+                            cellpos1 = shipyard.position.translate(
+                                self._toggle_translation_space(translation), self.board.configuration.size)
+                            cellpos2 = shipyard.position.translate(
+                                self._toggle_translation_space(translation - off_y), self.board.configuration.size)
+                            kore_maps[i, self._flip(next_pos).x, self._flip(next_pos).y] = \
+                                kore_maps[i, self._flip(next_pos - off_y).x, self._flip(next_pos - off_y).y] + \
+                                self.board.get_cell_at_point(
+                                    cellpos1).kore + \
+                                self.board.get_cell_at_point(
+                                    cellpos2).kore
+
+        return kore_maps
+
     def _normalize_by_step_count(self, kore_map: numpy.ndarray, radius: int):
         """
         Takes the kore path map with the shipyard being the center and normalizes by the number of time steps it takes
@@ -357,6 +503,48 @@ class RuleBasedActor:
         max_indices_1d = numpy.argmax(array.flatten())
         res = (max_indices_1d % size, int(max_indices_1d / size))
         return res
+
+    def _argmax_of_3dim_square(self, array: numpy.ndarray, size: int) -> Tuple[int, int, int]:
+        """
+            Returns a tuple pointing to a position in the 3 dim square matrix which has a highest entry
+            note that the output is to be interpreted as coordinates, thus flipping the dimensions from usual matrix notation
+            :param array: 3 dimensional numpy array
+            :param size: diameter of one slice of the 3 dim array
+            :return: Tuple(slice_no, x, y)
+        """
+        number_of_slices, _, _ = array.shape
+        arr = array.flatten()
+        max_indices_1d = numpy.argmax(array.flatten())
+        slice_no = int(max_indices_1d / size**2)
+        max_indices_1d = max_indices_1d % size**2
+        x = max_indices_1d % size
+        y = int(max_indices_1d / size)
+
+        return slice_no, x, y
+
+    def _probabilistic_argmax_of_3dim_square(self, array: numpy.ndarray, size: int,
+                                             pre_transform = lambda x: x) -> Tuple[int,int,int]:
+        """
+            Returns a tuple pointing to a position in the 3 dim square matrix which is a sample from the value induced
+            probability distribution of the matrix (after the transform)
+            note that the output is to be interpreted as coordinates, thus flipping the dimensions from usual matrix notation
+            :param array: 3 dimensional numpy array
+            :param size: diameter of one slice of the 3 dim array
+            :param pre_transform: lambda function which applies to every matrix entry before sampling
+            :return: Tuple(slice_no, x, y)        """
+
+        number_of_slices, _, _ = array.shape
+        max_indices_1d = pre_transform(array.flatten())
+        normalizing_const = numpy.sum(max_indices_1d)
+        max_indices_1d = max_indices_1d / normalizing_const
+        max_indices_1d = numpy.random.choice(list(range(len(max_indices_1d))), 1, p=max_indices_1d)[0]
+        slice_no = int(max_indices_1d / size**2)
+        max_indices_1d = max_indices_1d % size**2
+        x = max_indices_1d % size
+        y = int(max_indices_1d / size)
+
+        return slice_no, x, y
+
 
     def _get_expand_box_flight_plan(self, off_x_furthest_point: int, off_y_furthest_point: int) -> str:
         flight_plan = ""
@@ -433,17 +621,142 @@ class RuleBasedActor:
 
         return flight_plan
 
-    def _get_closest_enemy_shipyard(self, position: Point, player: Player) -> Shipyard:
+    def _get_boomerang_farmer_flight_plan(self, off_x_furthest_point: int, off_y_furthest_point: int, turn_right: bool) -> str:
         """
-        Returns the closest enemy shipyard from given position
+        Returns a flight plan for a boomerang farmer for a certain translation on the kore paths map.
+        :param off_x_furthest_point:
+        :param off_y_furthest_point:
+        :param turn_right: whether we send a right-turning boomerang farmer or a left-turning boomerang farmer
+        :return:
+        """
+        flight_plan = ""
+
+        if off_x_furthest_point == 0 or off_y_furthest_point == 0:
+            #degenerated boomerang can be handled with the box farmer
+            return self._get_box_farmer_flight_plan(off_x_furthest_point, off_y_furthest_point)
+
+        #possible quadrants (1,1), (1,0), (0,1), (0,0)
+        quadrant = (off_x_furthest_point > 0, off_y_furthest_point > 0)
+
+        dist_no_y = abs(off_y_furthest_point) - 1
+        dist_no_x = abs(off_x_furthest_point) - 1
+
+        if turn_right:
+            if quadrant == (1,1):
+                flight_plan += "N"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "E"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "W"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "S"
+
+            elif quadrant == (0,0):
+                flight_plan += "S"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "W"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "E"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "N"
+
+            elif quadrant == (1,0):
+                flight_plan += "E"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "S"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "N"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "W"
+
+            elif quadrant == (0,1):
+                flight_plan += "W"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "N"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "S"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "E"
+
+        else:
+            if quadrant == (0,1):
+                flight_plan += "N"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "W"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "E"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "S"
+
+            elif quadrant == (1,0):
+                flight_plan += "S"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "E"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "W"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "N"
+
+            elif quadrant == (1,1):
+                flight_plan += "E"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "N"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "S"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "W"
+
+            elif quadrant == (0,0):
+                flight_plan += "W"
+                if dist_no_x != 0:
+                    flight_plan += str(dist_no_x)
+                flight_plan += "S"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "N"
+                if dist_no_y != 0:
+                    flight_plan += str(dist_no_y)
+                flight_plan += "E"
+
+        return flight_plan
+
+    def _get_closest_shipyard(self, position: Point, player: Player, enemy_shipyard = True) -> Shipyard:
+        """
+        Returns the closest shipyard from given position. In the case of searching for an allied shipyard,
+        the shipyard at the given point is ignored
+        Implementation vastly taken from the Balanced Bot
         :param position:
         :param player:
+        :param enemy_shipyard: whether we are searching for the closest opponent or own shipyard
         :return:
         """
         min_dist = 1000000
         enemy_shipyard = None
         for shipyard in self.board.shipyards.values():
-            if shipyard.player_id == player.id:
+            if enemy_shipyard and shipyard.player_id == player.id:
+                continue
+            elif not enemy_shipyard and (shipyard.player_id != player.id or shipyard.position == position):
                 continue
             dist = position.distance_to(shipyard.position, self.board.configuration.size)
             if dist < min_dist:
