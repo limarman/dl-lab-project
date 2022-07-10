@@ -103,7 +103,7 @@ class RuleBasedActor:
             return None
         no_ships = shipyard.ship_count
 
-        if no_ships <= 1:
+        if no_ships <= 40:
             return None
 
         own_shipyard = self._get_closest_shipyard(shipyard.position, shipyard.player, enemy=False)
