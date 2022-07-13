@@ -75,6 +75,13 @@ class KoreEnv(gym.Env):
             self._game_step()
             self.game_step_flag = True
 
+        # update shipyards to simulations
+        updated_shipyards = []
+        for shipyard in self.shipyards:
+            if shipyard.id in self.boards[0].shipyards:
+                updated_shipyards.append(self.boards[0].shipyards[shipyard.id])
+        self.shipyards = updated_shipyards
+
         if self.shipyards:
             self.current_shipyard = self.shipyards.pop(0)
         else:
@@ -156,7 +163,7 @@ class KoreEnv(gym.Env):
             'scalars': gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=self.state_constr.get_input_shape()['scalars'])
         }
 
-        if isinstance(self.state_constr, MultimodalState):
+        if self.state_constr is MultimodalState:
             spaces['shipyards'] = gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=self.state_constr.get_input_shape()['shipyards'])
 
         return gym.spaces.Dict(spaces)
