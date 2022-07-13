@@ -33,11 +33,13 @@ class HybridState(KoreState):
             self.shipyard_pos_y = shipyard.position.y
             self.valid_action_mask = get_action_validity_mask(shipyard, board)
             self.ships_at_shipyard = shipyard.ship_count
+            self.max_spawn_at_shipyard = shipyard.max_spawn
         else:
             self.shipyard_pos_x = 5
             self.shipyard_pos_y = 5
             self.valid_action_mask = [0 for _ in range(ActionAdapterRuleBased().N_ACTIONS)]
             self.ships_at_shipyard = shipyard.ship_count
+            self.max_spawn_at_shipyard = 0
 
         tensor = self._get_tensor()
         super(HybridState, self).__init__(self.get_input_shape(), tensor, self.board_wrapper)
@@ -61,7 +63,8 @@ class HybridState(KoreState):
             self.shipyard_count_opponent,
             self.shipyard_pos_x,
             self.shipyard_pos_y,
-            self.ships_at_shipyard
+            self.ships_at_shipyard,
+            self.max_spawn_at_shipyard
         ] + self.valid_action_mask)
 
         return state
@@ -70,7 +73,7 @@ class HybridState(KoreState):
     def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
         shapes = {
             'maps': (15, 21, 21),
-            'scalars': (16,)
+            'scalars': (17,)
         }
 
         return shapes
