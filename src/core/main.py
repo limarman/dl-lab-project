@@ -1,6 +1,8 @@
 import os
 import uuid
 
+from stable_baselines3.common.evaluation import evaluate_policy
+
 from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
 from src.Agents.a2c_agent import A2CAgent
 from src.Agents.neural_networks.hybrid_net import HybridResNet, HybridTransformer, HybridNetBasicCNN
@@ -9,6 +11,7 @@ from src.Monitoring.kore_monitor import KoreMonitor
 from src.Rewards.advantage_reward import AdvantageReward
 from src.Rewards.win_reward import WinReward
 from src.States.hybrid_state import HybridState
+from src.experiments.win_rate_evaluator import WinRateEvaluator
 
 
 def main():
@@ -22,13 +25,13 @@ def main():
         n_training_steps = 150000000
     else:
         run_id = 'local' + str(uuid.uuid1())
-        n_training_steps = 8500000
+        n_training_steps = 8000
 
     state_constr = HybridState
-    win_reward = AdvantageReward()
+    advantage_reward = AdvantageReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
 
-    kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, win_reward)
+    kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, advantage_reward)
     env = kore_env_factory.build_multicore_env()
 
     if os.path.exists(f"checkpoints/{run_id}.zip"):
@@ -45,6 +48,8 @@ def main():
                           run_id=run_id,
                           feature_extractor_class=HybridNetBasicCNN)
     kore_agent.fit()
+
+    win_rate_evaluator = WinRateEvaluator(kore_agent)
 
 
 if __name__ == "__main__":
