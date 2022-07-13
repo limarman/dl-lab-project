@@ -36,6 +36,31 @@ class BoardWrapper:
             if board.opponents:
                 self.player_opponent = board.opponents.pop()
 
+    def get_feature_map_collection(self) -> ndarray:
+    """
+    Returns the feature all important feature maps
+    with shape (15,21,21)
+    """
+        maps = np.stack([
+            self.get_ships_me_map(),
+            self.get_ships_opponent_map(),
+            self.get_shipyards_id_me(),
+            self.get_shipyards_id_opponent(),
+            self.get_shipyards_me_map(),
+            self.get_shipyards_opponent_map(),
+            self.get_max_spawn_me_map(),
+            self.get_max_spawn_opponent_map(),
+            self.get_cargo_me_map(),
+            self.get_cargo_opponent_map(),
+            self.get_feature_map_flight_plan_me(),
+            self.get_feature_map_flight_plan_opponent(),
+            self.get_sound_flight_plan_sound_me(),
+            self.get_sound_flight_plan_sound_opponent(),
+            self.get_overlapping_kore_map()
+        ])
+
+        return maps
+
     def get_kore_map(self) -> [float]:
         """
         Returns list of length 21*21

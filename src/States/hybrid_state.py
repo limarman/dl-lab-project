@@ -32,10 +32,12 @@ class HybridState(KoreState):
             self.shipyard_pos_x = shipyard.position.x
             self.shipyard_pos_y = shipyard.position.y
             self.valid_action_mask = get_action_validity_mask(shipyard, board)
+            self.ships_at_shipyard = shipyard.ship_count
         else:
             self.shipyard_pos_x = 5
             self.shipyard_pos_y = 5
             self.valid_action_mask = [0 for _ in range(ActionAdapterRuleBased().N_ACTIONS)]
+            self.ships_at_shipyard = shipyard.ship_count
 
         tensor = self._get_tensor()
         super(HybridState, self).__init__(self.get_input_shape(), tensor, self.board_wrapper)
@@ -47,23 +49,7 @@ class HybridState(KoreState):
         """
         state = {}
 
-        state['maps'] = np.stack([
-            self.board_wrapper.get_ships_me_map(),
-            self.board_wrapper.get_ships_opponent_map(),
-            self.board_wrapper.get_shipyards_id_me(),
-            self.board_wrapper.get_shipyards_id_opponent(),
-            self.board_wrapper.get_shipyards_me_map(),
-            self.board_wrapper.get_shipyards_opponent_map(),
-            self.board_wrapper.get_max_spawn_me_map(),
-            self.board_wrapper.get_max_spawn_opponent_map(),
-            self.board_wrapper.get_cargo_me_map(),
-            self.board_wrapper.get_cargo_opponent_map(),
-            self.board_wrapper.get_feature_map_flight_plan_me(),
-            self.board_wrapper.get_feature_map_flight_plan_opponent(),
-            self.board_wrapper.get_sound_flight_plan_sound_me(),
-            self.board_wrapper.get_sound_flight_plan_sound_opponent(),
-            self.kore_map
-        ])
+        state['maps'] = self.board_wrapper.get_feature_map_collection()
 
         state['scalars'] = np.array([
             self.kore_me,
@@ -75,6 +61,7 @@ class HybridState(KoreState):
             self.shipyard_count_opponent,
             self.shipyard_pos_x,
             self.shipyard_pos_y,
+            self.ships_at_shipyard
         ] + self.valid_action_mask)
 
         return state
@@ -83,7 +70,7 @@ class HybridState(KoreState):
     def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
         shapes = {
             'maps': (15, 21, 21),
-            'scalars': (15,)
+            'scalars': (16,)
         }
 
         return shapes
