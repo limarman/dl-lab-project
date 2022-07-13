@@ -209,6 +209,17 @@ class BoardWrapper:
             return []
         return self.board.current_player.shipyards
 
+    def get_shipyards_of_player(self, player_id: int) -> List[Shipyard]:
+        """
+        Returns a list of shipyards of the player with the given player id
+
+        :return list of type shipyard
+        """
+
+        if self.board.players[player_id].shipyards is None:
+            return []
+        return self.board.players[player_id].shipyards
+
     def get_fleet_pos(self) -> np.ndarray:
         """
         Returns a grid, where the fleets are represented by positive number of ships for current player
@@ -553,14 +564,20 @@ class BoardWrapper:
         """
         Derives from the board state an indicator for the winning player:
         1: Player is winning
-        0: Opponent wins/Game undecided yet/Draw/
+        0: Game undecided yet/Draw/
+        -1: Opponent wins
         """
         if self.get_step(normalized=True) == 1:
             if self.get_kore_me() > self.get_kore_opponent():
                 return 1
+            if self.get_kore_me() < self.get_kore_opponent():
+                return -1
             return 0
         if self.get_shipyard_count_opponent() == 0 and self.get_fleet_count_opponent() == 0:
             return 1
+
+        if self.get_shipyard_count_me() == 0 and self.get_fleet_count_me() == 0:
+            return -1
 
         return 0
 

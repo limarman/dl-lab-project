@@ -11,7 +11,7 @@ from kaggle_environments.envs.kore_fleets.helpers import *
 
 class ActionAdapterRuleBased(ActionAdapter):
 
-    N_ACTIONS: int = 6 #expand, attack, box-farm, axis-farm, build, wait
+    N_ACTIONS: int = 7 #expand, attack, box-farm, axis-farm, build, wait
 
     def __init__(self, single_shipyard=False):
         super().__init__()
@@ -45,18 +45,21 @@ class ActionAdapterRuleBased(ActionAdapter):
             shipyard_action = rba.build_max(shipyard)
             action_name = "Build"
         elif action_idx == 1:
-            shipyard_action = rba.start_optimal_axis_farmer(shipyard, 9)
-            action_name = "Axis Farming"
-        elif action_idx == 2:
             shipyard_action = rba.start_optimal_box_farmer(shipyard, 9)
             action_name = "Box Farming"
+        elif action_idx == 2:
+            shipyard_action = rba.start_optimal_axis_farmer(shipyard, 9)
+            action_name = "Axis Farming"
         elif action_idx == 3:
             shipyard_action = rba.attack_closest(shipyard)
             action_name = "Attack"
         elif action_idx == 4:
-            shipyard_action = rba.expand_optimal(shipyard)
-            action_name = "Expand"
+            shipyard_action = rba.expand_right(shipyard)
+            action_name = "Expand_Right"
         elif action_idx == 5:
+            shipyard_action = rba.expand_down(shipyard)
+            action_name = "Expand_Down"
+        elif action_idx == 6:
             shipyard_action = rba.wait(shipyard)
             action_name = "Wait"
         else:

@@ -1,7 +1,6 @@
 """
 This module implements the A2CAgent class
 """
-import os
 
 import torch
 from stable_baselines3 import A2C
@@ -34,16 +33,16 @@ class A2CAgent:
 
         policy_kwargs = {
             'features_extractor_class': feature_extractor_class,
-            'activation_fn': torch.nn.ReLU,
+            'activation_fn': torch.nn.Sigmoid,
         }
 
         if resume_training:
-            self.__model = A2C.load(f"checkpoints/{run_id}.zip", env=self.env)
+            self.model = A2C.load(f"checkpoints/{run_id}.zip", env=self.env)
         else:
-            self.__model = A2C(
+            self.model = A2C(
                 policy="MultiInputPolicy",
                 env=self.env,
-                learning_rate=0.0008,
+                learning_rate=0.008,
                 verbose=1,
                 tensorboard_log=kore_monitor.tensorboard_log,
                 policy_kwargs=policy_kwargs,
@@ -55,10 +54,10 @@ class A2CAgent:
         Wrapper of the models fit function
         """
         try:
-            self.__model.learn(
+            self.model.learn(
                 total_timesteps=self.n_training_steps,
-                callback=[self.monitor_callback, GameStatCallback(episodes_interval=10), ReplayCallback(episodes_interval=100)],
+                callback=[self.monitor_callback, GameStatCallback(episodes_interval=10), ReplayCallback(episodes_interval=50)],
             )
         finally:
-            self.__model.save(f"checkpoints/{self.run_id}")
+            self.model.save(f"checkpoints/{self.run_id}")
 
