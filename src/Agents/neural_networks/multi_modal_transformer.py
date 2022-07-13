@@ -1,9 +1,14 @@
+import gym
 import torch
+from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 from torch import nn
 import torch.nn.functional as F
+import numpy as np
 
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
+
+from src.Agents.neural_networks.mlp_pytorch import BasicMLP
 
 """
 Adapted from https://github.com/lucidrains/vit-pytorch/blob/main/vit_pytorch/vit.py
@@ -159,16 +164,22 @@ class MultiModalTransformer(nn.Module):
     - game_stats: (batch_size, num_game_stats)
 
     Model output:
-    - Predictions for shipyards: (batch_size, max_num_shipyards, logits)
-
-
+    if apply_mlp_head:
+        - Predictions for shipyards: (batch_size, max_num_shipyards, logits)
+    else:
+        - hidden state for shipyards: (batch_size, max_num_shipyards, hidden_dim)
     """
 
-    def __init__(self, num_actions,
+    HIDDEN_DIM = 64
+
+    def __init__(self,
                  num_channels,
                  num_shipyards_scalars,
-                 num_game_stats):
+                 num_game_stats,
+                 num_actions=None,
+                 apply_mlp_head=False):
         super().__init__()
+        self.apply_mlp_head = apply_mlp_head
         num_patches = 7 * 7
         patch_dim = 3 * 3 * num_channels
         patch_width = 3
@@ -180,11 +191,16 @@ class MultiModalTransformer(nn.Module):
                                              num_patches,
                                              num_shipyards_scalars,
                                              num_game_stats)
-        self.transformer = Transformer(64, 8, 2, 64, 64, 0)
-        self.classifier_head = nn.Sequential(
-            nn.LayerNorm(64),
-            nn.Linear(64, num_actions)
-        )
+
+        self.transformer = Transformer(self.HIDDEN_DIM, 8, 2, self.HIDDEN_DIM, self.HIDDEN_DIM, 0)
+
+        if apply_mlp_head:
+            if not num_actions:
+                raise Exception('Number of actions must be given to apply MLP head')
+            self.classifier_head = nn.Sequential(
+                nn.LayerNorm(64),
+                nn.Linear(64, num_actions)
+            )
         # TODO add softmax?
 
     def forward(self, maps, shipyards, game_stats):
@@ -194,7 +210,40 @@ class MultiModalTransformer(nn.Module):
         _, num_shipyards, _ = shipyards.shape
         shipyard_hidden_states = x[:,:num_shipyards]
 
-        return self.classifier_head(shipyard_hidden_states)
+        if self.apply_mlp_head:
+            out = self.classifier_head(shipyard_hidden_states)
+        else:
+            out = shipyard_hidden_states
+
+        return out
+
+
+class MultiModalNet(BaseFeaturesExtractor):
+    """
+    Wraps multimodal transformer inside a stablebaseline3 feature exctractor class.
+    The feature extractor is followed  by another neural network that functions as
+    the MLP head (the feature extractor is hence shared by policy
+    and value network, whereas the MLP head is different for each of them)
+
+    In this implementation, we only consider the output for one shipyard
+    due to the advantages of the substep method (updating kore, ships etc.
+    before choosing the next action)
+
+    Adapted from https://stable-baselines3.readthedocs.io/en/master/guide/custom_policy.html
+
+    Returns the hidden state for the first shipyard
+    """
+
+    def __init__(self, obs_space_dict: gym.spaces.Dict):
+        super().__init__(obs_space_dict, features_dim=MultiModalTransformer.HIDDEN_DIM)
+        # batch dim is not contained in the shapes
+        num_channels = obs_space_dict['maps'].shape[0]
+        num_shipyard_scalars = obs_space_dict['shipyards'].shape[1]
+        num_game_scalars = obs_space_dict['scalars'].shape[0]
+        self.transformer = MultiModalTransformer(num_channels, num_shipyard_scalars, num_game_scalars)
+
+    def forward(self, inputs: dict[str, torch.Tensor]) -> torch.Tensor:
+        return self.transformer(inputs['maps'], inputs['shipyards'], inputs['scalars'])
 
 
 class MultiModalEmbedding(nn.Module):
@@ -210,11 +259,11 @@ class MultiModalEmbedding(nn.Module):
 
         self.maps_to_embeddings = nn.Sequential(
             Rearrange('b c (h s1) (w s2) -> b (h w) (s1 s2 c)', s1=patch_width, s2=patch_width),
-            SmallMLP(patch_dim, embedding_dim)
+            BasicMLP(patch_dim, embedding_dim)
         )
 
-        self.shipyards_to_embeddings = SmallMLP(num_shipyard_scalars, embedding_dim)
-        self.game_stats_to_embedding = SmallMLP(num_game_stats, embedding_dim)
+        self.shipyards_to_embeddings = BasicMLP(num_shipyard_scalars, embedding_dim)
+        self.game_stats_to_embedding = BasicMLP(num_game_stats, embedding_dim)
 
         self.positions = nn.Parameter(torch.randn(num_patches, embedding_dim))
 
@@ -245,42 +294,29 @@ class MultiModalEmbedding(nn.Module):
                           embedded_game_stats,
                           embedded_patches], dim=1)
 
-
-class SmallMLP(nn.Module):
-    """
-    Different instances of this class are used to create the transformer inputs
-    from patches, shipyard information and game information
-    """
-
-    def __init__(self, input_dim, output_dim, intermediate_dim=64):
-        super().__init__()
-        self.fc1 = nn.Linear(input_dim, intermediate_dim)
-        nn.init.kaiming_uniform_(self.fc1.weight, nonlinearity='relu')
-        nn.init.constant_(self.fc1.bias, 0.0)
-        self.fc2 = nn.Linear(intermediate_dim, intermediate_dim)
-        nn.init.kaiming_uniform_(self.fc2.weight, nonlinearity='relu')
-        nn.init.constant_(self.fc2.bias, 0.0)
-        self.fc3 = nn.Linear(intermediate_dim, output_dim)
-
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
-
-
 batch_size = 2
-game_stats_num = 5
+game_stats_num = 15
 shipyard_stats = 5
-max_shipyards = 10
+max_shipyards = 15
 
-feature_maps = torch.rand((batch_size, 5, 21, 21))
+feature_maps = torch.rand((batch_size, 15, 21, 21))
 shipyards = torch.randn((batch_size, max_shipyards, shipyard_stats))
 game_stats = torch.randn((batch_size, game_stats_num))
 
-transformer = MultiModalTransformer(6,
-                 5,
-                 5,
-                 5)
-print(transformer(feature_maps, shipyards, game_stats).shape)
+input_dict = {
+            'maps': feature_maps,
+            'scalars': game_stats,
+            'shipyards': shipyards
+        }
+
+spaces = {
+    'maps': gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=(15, 21, 21)),
+    'scalars': gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=(15,)),
+    'shipyards': gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=(15,5))
+}
+
+spaces_dict = gym.spaces.Dict(spaces)
+
+model = MultiModalNet(spaces_dict)
+print(model(input_dict).shape)
 

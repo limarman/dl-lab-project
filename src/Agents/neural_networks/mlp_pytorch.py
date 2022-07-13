@@ -2,10 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class BasicMLP(nn.Module):
     """
     Basic MLP that is used in the hybrid network
     """
+
     def __init__(self, num_input_features: int, num_output_features: int):
         super().__init__()
         self.fc1 = nn.Linear(num_input_features, 128)

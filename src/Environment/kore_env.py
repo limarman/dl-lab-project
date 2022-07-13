@@ -11,6 +11,7 @@ from src.Actions.action_adapter import ActionAdapter
 from src.Rewards.kore_reward import KoreReward
 from src.Environment.helpers import get_boards_from_kore_env_state, get_info_logs
 from src.States.board_wrapper import BoardWrapper
+from src.States.multimodal_state import MultimodalState
 
 
 class KoreEnv(gym.Env):
@@ -154,6 +155,10 @@ class KoreEnv(gym.Env):
             'maps': gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=self.state_constr.get_input_shape()['maps']),
             'scalars': gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=self.state_constr.get_input_shape()['scalars'])
         }
+
+        if isinstance(self.state_constr, MultimodalState):
+            spaces['shipyards'] = gym.spaces.Box(low=-np.Inf, high=np.Inf, shape=self.state_constr.get_input_shape()['shipyards'])
+
         return gym.spaces.Dict(spaces)
 
     @property
