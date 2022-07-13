@@ -14,7 +14,7 @@ class RuleBasedActor:
     def __init__(self, board: Board):
         self.board = board
 
-    def expand_optimal(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
+    def expand_right(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
         """
         Applies the expansion strategy from balanced bot
         :param shipyard: shipyard to expand from
@@ -28,31 +28,27 @@ class RuleBasedActor:
         elif validity_check:
             return True
 
-        # copied from balanced agent
-        start_dir = random.randint(0, 3)
-        next_dir = (start_dir + 1) % 4
-        best_kore = 0
-        best_gap1 = 0
-        best_gap2 = 0
-        for gap1 in range(5, 15, 3):
-            for gap2 in range(5, 15, 3):
-                gap2 = random.randint(3, 9)
-                diff1 = Direction.from_index(start_dir).to_point() * gap1
-                diff2 = Direction.from_index(next_dir).to_point() * gap2
-                diff = diff1 + diff2
-                pos = shipyard.position.translate(diff, self.board.configuration.size)
-                h = check_location(self.board, pos, self.board.current_player)
-                if h > best_kore:
-                    best_kore = h
-                    best_gap1 = gap1
-                    best_gap2 = gap2
-        gap1 = str(best_gap1)
-        gap2 = str(best_gap2)
-        flight_plan = Direction.list_directions()[start_dir].to_char() + gap1
-        flight_plan += Direction.list_directions()[next_dir].to_char() + gap2
-        flight_plan += "C"
+        flight_plan = "E4C"
 
-        return ShipyardAction.launch_fleet_with_flight_plan(max(50 + 7, int(shipyard.ship_count / 2)), flight_plan)
+        return ShipyardAction.launch_fleet_with_flight_plan(max(57, int(shipyard.ship_count / 2)), flight_plan)
+
+    def expand_down(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
+        """
+        Applies the expansion strategy from balanced bot
+        :param shipyard: shipyard to expand from
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
+        :return: expanding action as ShipyardAction
+        """
+
+        if shipyard is None or shipyard.ship_count < 57:
+            return None
+
+        elif validity_check:
+            return True
+
+        flight_plan = "S4C"
+
+        return ShipyardAction.launch_fleet_with_flight_plan(max(57, int(shipyard.ship_count / 2)), flight_plan)
 
     def expand_randomly(self, shipyard: Shipyard, radius: int, non_expand_margin: int, validity_check=False) -> ShipyardAction:
         """
@@ -143,7 +139,10 @@ class RuleBasedActor:
         :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
         :return:
         """
-        if shipyard is None or shipyard.ship_count < 3:
+
+        build_validity = self.build_max(shipyard, validity_check=True)
+        box_farmer_validity = self.start_optimal_box_farmer(shipyard, radius=9, validity_check=True)
+        if shipyard is None or build_validity is True or box_farmer_validity is True or shipyard.ship_count < 3:
             return None
 
         elif validity_check:
@@ -153,7 +152,7 @@ class RuleBasedActor:
         max_x, max_y = self._argmax_of_2dim_square(kore_map, 2 * radius + 1)
         flight_plan = self._get_box_farmer_flight_plan(max_x - radius, radius - max_y)
 
-        return ShipyardAction.launch_fleet_with_flight_plan(3, flight_plan)
+        return ShipyardAction.launch_fleet_with_flight_plan(shipyard.ship_count, flight_plan)
 
     def build_max(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
         """
@@ -196,6 +195,12 @@ class RuleBasedActor:
         if enemy_shipyard is None:
             return None
 
+        distance_vec = enemy_shipyard.position - shipyard.position
+        distance = abs(distance_vec.x) + abs(distance_vec.y)
+
+        if distance > 10:
+            return None
+
         if validity_check:
             return True
 
@@ -208,6 +213,10 @@ class RuleBasedActor:
         return ShipyardAction.launch_fleet_with_flight_plan(no_ships, flight_plan)
 
     def wait(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
+        build_validity = self.build_max(shipyard, validity_check=True)
+        if build_validity:
+            return None
+
         if validity_check:
             # otherwise the shipyard action evaluates to None (interpreted as False) in the action mask
             return True

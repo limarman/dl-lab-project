@@ -34,7 +34,7 @@ class A2CAgent:
 
         policy_kwargs = {
             'features_extractor_class': feature_extractor_class,
-            'activation_fn': torch.nn.ReLU,
+            'activation_fn': torch.nn.Sigmoid,
         }
 
         if resume_training:
@@ -43,7 +43,7 @@ class A2CAgent:
             self.__model = A2C(
                 policy="MultiInputPolicy",
                 env=self.env,
-                learning_rate=0.0008,
+                learning_rate=0.008,
                 verbose=1,
                 tensorboard_log=kore_monitor.tensorboard_log,
                 policy_kwargs=policy_kwargs,
@@ -57,7 +57,7 @@ class A2CAgent:
         try:
             self.__model.learn(
                 total_timesteps=self.n_training_steps,
-                callback=[self.monitor_callback, GameStatCallback(episodes_interval=10), ReplayCallback(episodes_interval=100)],
+                callback=[self.monitor_callback, GameStatCallback(episodes_interval=10), ReplayCallback(episodes_interval=50)],
             )
         finally:
             self.__model.save(f"checkpoints/{self.run_id}")

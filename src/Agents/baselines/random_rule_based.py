@@ -38,7 +38,7 @@ def _agent(obs, config, single_shipyard: bool):
             shipyard_action = rba.attack_closest(shipyard)
         elif action_idx == 4:
             # print("expand")
-            shipyard_action = rba.expand_optimal(shipyard)
+            shipyard_action = rba.expand_right(shipyard)
         else:
             shipyard_action = None
 

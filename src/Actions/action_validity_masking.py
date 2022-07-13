@@ -9,11 +9,12 @@ def get_action_validity_mask(shipyard: Shipyard, board: Board) -> List[int]:
     rba = RuleBasedActor(board)
     possible_actions = [
         rba.build_max(shipyard, validity_check=True),
-        rba.start_optimal_axis_farmer(shipyard, 9, validity_check=True),
         rba.start_optimal_box_farmer(shipyard, 9, validity_check=True),
+        rba.start_optimal_axis_farmer(shipyard, 9, validity_check=True),
         rba.attack_closest(shipyard, validity_check=True),
-        rba.expand_optimal(shipyard, validity_check=True),
-        rba.wait(shipyard, validity_check=True)
+        rba.expand_right(shipyard, validity_check=True),
+        rba.expand_down(shipyard, validity_check=True),
+        rba.wait(shipyard, validity_check=True),
     ]
 
     valid_action_mask = [
