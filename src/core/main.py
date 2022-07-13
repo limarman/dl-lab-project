@@ -49,7 +49,9 @@ def main():
                           feature_extractor_class=HybridNetBasicCNN)
     kore_agent.fit()
 
-    win_rate_evaluator = WinRateEvaluator(kore_agent)
+    opponents = ["balanced", "random", "do_nothing", "miner"]
+    win_rate_evaluator = WinRateEvaluator(kore_agent, opponents)
+    win_rate_evaluator.run()
 
 
 if __name__ == "__main__":
