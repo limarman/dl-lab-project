@@ -243,7 +243,10 @@ class MultiModalNet(BaseFeaturesExtractor):
         self.transformer = MultiModalTransformer(num_channels, num_shipyard_scalars, num_game_scalars)
 
     def forward(self, inputs: dict[str, torch.Tensor]) -> torch.Tensor:
-        return self.transformer(inputs['maps'], inputs['shipyards'], inputs['scalars'])
+        hidden_states = self.transformer(inputs['maps'], inputs['shipyards'], inputs['scalars'])
+        # only use hidden state from the first shipyard
+        # shape is (batch_dim, num_shipyards, hidden_state)
+        return hidden_states[:,0,:]
 
 
 class MultiModalEmbedding(nn.Module):

@@ -4,11 +4,13 @@ import uuid
 from src.Actions.action_adapter_rule_based import ActionAdapterRuleBased
 from src.Agents.a2c_agent import A2CAgent
 from src.Agents.neural_networks.hybrid_net import HybridResNet, HybridTransformer, HybridNetBasicCNN
+from src.Agents.neural_networks.multi_modal_transformer import MultiModalNet
 from src.Environment.kore_env_factory import KoreEnvFactory
 from src.Monitoring.kore_monitor import KoreMonitor
 from src.Rewards.advantage_reward import AdvantageReward
 from src.Rewards.win_reward import WinReward
 from src.States.hybrid_state import HybridState
+from src.States.multimodal_state import MultimodalState
 
 
 def main():
@@ -24,7 +26,7 @@ def main():
         run_id = 'local' + str(uuid.uuid1())
         n_training_steps = 8500000
 
-    state_constr = HybridState
+    state_constr = MultimodalState
     win_reward = AdvantageReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
 
@@ -43,7 +45,7 @@ def main():
                           n_training_steps=n_training_steps,
                           resume_training=resume_training,
                           run_id=run_id,
-                          feature_extractor_class=HybridNetBasicCNN)
+                          feature_extractor_class=MultiModalNet)
     kore_agent.fit()
 
 

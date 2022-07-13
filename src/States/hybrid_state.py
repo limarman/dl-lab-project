@@ -36,9 +36,9 @@ class HybridState(KoreState):
             self.max_spawn_at_shipyard = shipyard.max_spawn
         else:
             self.shipyard_pos_x = 5
-            self.shipyard_pos_y = 5
+            self.shipyard_pos_y = 15
             self.valid_action_mask = [0 for _ in range(ActionAdapterRuleBased().N_ACTIONS)]
-            self.ships_at_shipyard = shipyard.ship_count
+            self.ships_at_shipyard = 0
             self.max_spawn_at_shipyard = 0
 
         tensor = self._get_tensor()
