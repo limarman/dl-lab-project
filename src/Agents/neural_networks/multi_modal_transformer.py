@@ -55,7 +55,7 @@ class MultiModalTransformer(nn.Module):
                                              num_shipyards_scalars,
                                              num_game_stats)
 
-        self.transformer = Transformer(self.HIDDEN_DIM, 8, 2, self.HIDDEN_DIM, self.HIDDEN_DIM, 0)
+        self.transformer = Transformer(self.HIDDEN_DIM, 4, 4, self.HIDDEN_DIM, self.HIDDEN_DIM, 0)
 
         if apply_mlp_head:
             if not num_actions:

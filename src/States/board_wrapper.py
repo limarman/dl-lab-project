@@ -72,10 +72,9 @@ class BoardWrapper:
         """
         all_shipyards = list(self.player_me.shipyards)
         if start_with:
-            if start_with not in all_shipyards:
-                print(2)
-            all_shipyards.remove(start_with)
-            shipyards = [start_with] + all_shipyards
+            # remove shipyard and add at first position
+            shipyards = [shipyard for shipyard in all_shipyards if shipyard.id != start_with.id]
+            shipyards = [start_with] + shipyards
         else:
             # side effect of substep simulation
             shipyards = []

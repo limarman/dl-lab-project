@@ -28,10 +28,10 @@ def main():
         n_training_steps = 150000000
     else:
         run_id = 'local' + str(uuid.uuid1())
-        n_training_steps = 8000
+        n_training_steps = 800
 
-    state_constr = HybridState # MultimodalState
-    feature_extractor = HybridNetBasicCNN
+    state_constr = MultimodalState
+    feature_extractor = MultiModalNet
     reward = AdvantageReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
 
@@ -55,7 +55,10 @@ def main():
     kore_agent.fit()
 
     opponents = ["balanced", "random", "do_nothing", "miner"]
-    win_rate_evaluator = WinRateEvaluator(kore_agent, opponents, wandb_run=kore_monitor.run)
+    win_rate_evaluator = WinRateEvaluator(kore_agent,
+                                          opponents,
+                                          state_constr,
+                                          wandb_run=kore_monitor.run)
     win_rate_evaluator.run()
 
 

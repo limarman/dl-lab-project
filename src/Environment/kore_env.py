@@ -75,13 +75,6 @@ class KoreEnv(gym.Env):
             self._game_step()
             self.game_step_flag = True
 
-        # update shipyards to simulations
-        updated_shipyards = []
-        for shipyard in self.shipyards:
-            if shipyard.id in self.boards[0].shipyards:
-                updated_shipyards.append(self.boards[0].shipyards[shipyard.id])
-        self.shipyards = updated_shipyards
-
         if self.shipyards:
             self.current_shipyard = self.shipyards.pop(0)
         else:

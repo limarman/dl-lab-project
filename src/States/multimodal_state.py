@@ -56,7 +56,6 @@ class MultimodalState(KoreState):
 
         state['maps'] = self.board_wrapper.get_feature_map_collection()
 
-        # TODO remove shipyard scalars here?
         state['scalars'] = np.array([
                                         self.kore_me,
                                         self.kore_opponent,
@@ -88,8 +87,8 @@ class MultimodalState(KoreState):
         num_actions = ActionAdapterRuleBased.N_ACTIONS
         shapes = {
             'maps': (15, 21, 21),
-            'scalars': (11+num_actions,),
-            'shipyards': (15, 4+num_actions)
+            'scalars': (11 + num_actions,),
+            'shipyards': (15, 4 + num_actions)
         }
 
         return shapes
