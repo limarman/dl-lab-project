@@ -71,9 +71,10 @@ class HybridState(KoreState):
 
     @staticmethod
     def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
+        num_actions = ActionAdapterRuleBased.N_ACTIONS
         shapes = {
             'maps': (15, 21, 21),
-            'scalars': (17,)
+            'scalars': (11+num_actions,)
         }
 
         return shapes

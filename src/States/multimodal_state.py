@@ -72,8 +72,9 @@ class MultimodalState(KoreState):
                                     ] + self.valid_action_mask)
 
         # apply zero padding for efficient batch training
-        shipyard_vectors = np.zeros((15, 10))
-        shipyard_infos = self.board_wrapper.get_shipyard_vectors(start_with=self.current_shipyard)[:15]
+        max_num_shipyards, num_scalars = self.get_input_shape()['shipyards']
+        shipyard_vectors = np.zeros((max_num_shipyards, num_scalars))
+        shipyard_infos = self.board_wrapper.get_shipyard_vectors(start_with=self.current_shipyard)[:max_num_shipyards]
         if shipyard_infos.any():
             # if there really are shipyards
             shipyard_vectors[:shipyard_infos.shape[0], :shipyard_infos.shape[1]] = shipyard_infos
@@ -84,10 +85,11 @@ class MultimodalState(KoreState):
 
     @staticmethod
     def get_input_shape() -> Dict[str, Union[Tuple[int, int, int], Tuple[int]]]:
+        num_actions = ActionAdapterRuleBased.N_ACTIONS
         shapes = {
             'maps': (15, 21, 21),
-            'scalars': (17,),
-            'shipyards': (15, 10)
+            'scalars': (11+num_actions,),
+            'shipyards': (15, 4+num_actions)
         }
 
         return shapes
