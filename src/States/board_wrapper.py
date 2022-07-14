@@ -5,6 +5,8 @@ import numpy as np
 from kaggle_environments.envs.kore_fleets.kore_fleets import get_col_row, get_to_pos
 from numpy import ndarray
 
+from src.Actions.action_validity_masking import get_action_validity_mask
+
 
 class BoardWrapper:
     """
@@ -35,6 +37,62 @@ class BoardWrapper:
             self.player_me = board.current_player
             if board.opponents:
                 self.player_opponent = board.opponents.pop()
+
+    def get_feature_map_collection(self) -> ndarray:
+        """
+        Returns the feature all important feature maps
+        with shape (15,21,21)
+        """
+        maps = np.stack([
+            self.get_ships_me_map(),
+            self.get_ships_opponent_map(),
+            self.get_shipyards_id_me(),
+            self.get_shipyards_id_opponent(),
+            self.get_shipyards_me_map(),
+            self.get_shipyards_opponent_map(),
+            self.get_max_spawn_me_map(),
+            self.get_max_spawn_opponent_map(),
+            self.get_cargo_me_map(),
+            self.get_cargo_opponent_map(),
+            self.get_feature_map_flight_plan_me(),
+            self.get_feature_map_flight_plan_opponent(),
+            self.get_sound_flight_plan_sound_me(),
+            self.get_sound_flight_plan_sound_opponent(),
+            self.get_overlapping_kore_map()
+        ])
+
+        return maps
+
+    def get_shipyard_vectors(self, start_with: Shipyard=None):
+        """
+        Returns for each shipyard a vector with all information with shape (num_shipyards, 4+num_actions)
+
+        The start_with indicates which shipyard should be first in the array
+        (important to select the right hidden state in the transformer)
+        """
+        all_shipyards = list(self.player_me.shipyards)
+        if start_with:
+            if start_with not in all_shipyards:
+                print(2)
+            all_shipyards.remove(start_with)
+            shipyards = [start_with] + all_shipyards
+        else:
+            # side effect of substep simulation
+            shipyards = []
+
+        vector_list = []
+
+        for shipyard in shipyards:
+            action_mask = get_action_validity_mask(shipyard, self.board)
+            vector_list.append([
+                    shipyard.max_spawn,
+                    shipyard.ship_count,
+                    shipyard.position.x,
+                    shipyard.position.y
+                ] + action_mask)
+            shipyard.max_spawn
+
+        return np.array(vector_list)
 
     def get_kore_map(self) -> [float]:
         """

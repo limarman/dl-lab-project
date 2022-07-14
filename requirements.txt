@@ -7,3 +7,4 @@ numpy==1.21.6
 torch==1.11.0
 wandb==0.12.16
 stable_baselines3
+einops

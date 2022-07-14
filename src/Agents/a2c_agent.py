@@ -33,7 +33,9 @@ class A2CAgent:
 
         policy_kwargs = {
             'features_extractor_class': feature_extractor_class,
-            'activation_fn': torch.nn.Sigmoid,
+            'activation_fn': torch.nn.ReLU,
+            'optimizer_class': torch.optim.Adam,
+            # optimizer_kwargs: dict()
         }
 
         if resume_training:
@@ -60,4 +62,3 @@ class A2CAgent:
             )
         finally:
             self.model.save(f"checkpoints/{self.run_id}")
-
