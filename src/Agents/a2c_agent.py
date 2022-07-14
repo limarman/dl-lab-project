@@ -35,6 +35,8 @@ class A2CAgent:
         policy_kwargs = {
             'features_extractor_class': feature_extractor_class,
             'activation_fn': torch.nn.ReLU,
+            'optimizer_class': torch.optim.Adam,
+            # optimizer_kwargs: dict()
         }
 
         if resume_training:
