@@ -29,7 +29,7 @@ class A2CAgent:
         self.n_training_steps = n_training_steps
         self.run_id = run_id
 
-        kore_monitor.set_run_name(self.name)
+
 
         policy_kwargs = {
             'features_extractor_class': feature_extractor_class,

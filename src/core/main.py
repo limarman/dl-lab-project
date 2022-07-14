@@ -30,11 +30,12 @@ def main():
         run_id = 'local' + str(uuid.uuid1())
         n_training_steps = 8000
 
-    state_constr = MultimodalState
-    advantage_reward = AdvantageReward()
+    state_constr = HybridState # MultimodalState
+    feature_extractor = HybridNetBasicCNN
+    reward = AdvantageReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
 
-    kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, advantage_reward)
+    kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, reward)
     env = kore_env_factory.build_multicore_env()
 
     if os.path.exists(f"checkpoints/{run_id}.zip"):
@@ -42,14 +43,15 @@ def main():
     else:
         resume_training = False
 
+    run_name = 'A2C: ' + reward.__class__.__name__ + ' - ' + feature_extractor.__name__
     kore_monitor = KoreMonitor(run_id, resume_training=resume_training)
-    kore_monitor.set_run_name('Win Reward - Substeps')
+    kore_monitor.set_run_name(run_name)
     kore_agent = A2CAgent(env=env,
                           kore_monitor=kore_monitor,
                           n_training_steps=n_training_steps,
                           resume_training=resume_training,
                           run_id=run_id,
-                          feature_extractor_class=MultiModalNet)
+                          feature_extractor_class=feature_extractor)
     kore_agent.fit()
 
     opponents = ["balanced", "random", "do_nothing", "miner"]
