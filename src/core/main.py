@@ -55,7 +55,7 @@ def main():
     kore_agent.fit()
 
     opponents = ["balanced", "random", "do_nothing", "miner"]
-    win_rate_evaluator = WinRateEvaluator(kore_agent, opponents)
+    win_rate_evaluator = WinRateEvaluator(kore_agent, opponents, wandb_run=kore_monitor.run)
     win_rate_evaluator.run()
 
 

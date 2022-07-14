@@ -1,5 +1,6 @@
 from typing import List
 
+import wandb
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.vec_env import VecNormalize
 
@@ -12,13 +13,21 @@ from src.States.hybrid_state import HybridState
 
 class WinRateEvaluator:
 
-    def __init__(self, agent: A2CAgent, opponents: List[str]):
+    def __init__(self, agent: A2CAgent, opponents: List[str], wandb_run=None):
         self.__agent = agent
         self.__opponents = opponents
+        self.__wandb_run = wandb_run
 
     def run(self):
+        columns = ['Enemy Agent', 'Win rate mean', 'Win rate std']
+        data = []
         for enemy_agent in self.__opponents:
-            self.__evaluate_against_enemy_agent(enemy_agent)
+            win_rate_mean, win_rate_std = self.__evaluate_against_enemy_agent(enemy_agent)
+            data.append([enemy_agent, win_rate_mean, win_rate_std])
+
+        if self.__wandb_run:
+            table = wandb.Table(columns=columns, data=data)
+            self.__wandb_run.log({'Evaluation against Enemies after Training': table})
 
     def __evaluate_against_enemy_agent(self, enemy_agent: str):
         env = self.__get_opponent_env(enemy_agent)
@@ -35,6 +44,8 @@ class WinRateEvaluator:
         print(f"Win rate mean: {win_rate_mean}")
         print(f"Win rate std: {win_rate_std}")
         print("-----------------------------------------------")
+
+        return win_rate_mean, win_rate_std
 
     def __get_opponent_env(self, enemy_agent: str) -> VecNormalize:
         state_constr = HybridState
