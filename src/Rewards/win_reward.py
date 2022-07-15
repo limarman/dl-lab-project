@@ -33,5 +33,4 @@ class WinReward(KoreReward):
         return max(kore_delta, 0)
 
     def get_reward(self, previous_state: KoreState, next_state: KoreState, action: Dict[str, str]):
-        has_won = 1 if next_state.board_wrapper.game_result() == 1 else 0
-        return has_won
+        return next_state.board_wrapper.game_result()

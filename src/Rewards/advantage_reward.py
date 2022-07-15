@@ -51,12 +51,28 @@ class AdvantageReward(KoreReward):
         return self.get_advantage(next_state) - self.get_advantage(previous_state)
 
     def get_advantage(self, kore_state: KoreState) -> float:
+        kore_advantage = self.__get_kore_advantage(kore_state)
         ship_advantage = self.__get_ship_advantage(kore_state)
         spawn_advantage = self.__get_spawn_advantage(kore_state)
+        cargo_advantage = self.__get_cargo_advantage(kore_state)
 
-        mean_advantage = (ship_advantage + spawn_advantage) / 2
+        mean_advantage = (kore_advantage + ship_advantage + spawn_advantage + cargo_advantage) / 4
 
         return mean_advantage
+
+    def __get_cargo_advantage(self, kore_state: KoreState) -> float:
+        player_cargo = kore_state.board_wrapper.get_cargo_me()
+        opponent_cargo = kore_state.board_wrapper.get_cargo_opponent()
+        total_cargo = player_cargo + opponent_cargo
+
+        return player_cargo / (total_cargo + 0.0001)
+
+    def __get_kore_advantage(self, kore_state: KoreState) -> float:
+        player_kore = kore_state.board_wrapper.get_kore_me()
+        opponent_kore = kore_state.board_wrapper.get_kore_opponent()
+        total_kore = player_kore + opponent_kore
+
+        return player_kore / (total_kore + 0.0001)
 
     def __get_ship_advantage(self, kore_state: KoreState) -> float:
         player_ship_count = kore_state.board_wrapper.get_ship_count_me()
