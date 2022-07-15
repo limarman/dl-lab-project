@@ -29,8 +29,6 @@ class A2CAgent:
         self.n_training_steps = n_training_steps
         self.run_id = run_id
 
-
-
         policy_kwargs = {
             'features_extractor_class': feature_extractor_class,
             'activation_fn': torch.nn.ReLU,

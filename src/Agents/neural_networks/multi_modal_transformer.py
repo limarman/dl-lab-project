@@ -1,3 +1,5 @@
+from typing import Dict
+
 import gym
 import torch
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
@@ -106,7 +108,7 @@ class MultiModalNet(BaseFeaturesExtractor):
         # or take  the max_num of shipyards in the batch as padding len
         self.transformer = MultiModalTransformer(num_channels, num_shipyard_scalars, num_game_scalars)
 
-    def forward(self, inputs: dict[str, torch.Tensor]) -> torch.Tensor:
+    def forward(self, inputs: Dict[str, torch.Tensor]) -> torch.Tensor:
         hidden_states = self.transformer(inputs['maps'], inputs['shipyards'], inputs['scalars'])
         # only use hidden state from the first shipyard
         # shape is (batch_dim, num_shipyards, hidden_state)

@@ -27,7 +27,7 @@ class MultimodalState(KoreState):
         self.shipyard_count_me = self.board_wrapper.get_shipyard_count_me()
         self.shipyard_count_opponent = self.board_wrapper.get_shipyard_count_opponent()
         self.step_normalized = self.board_wrapper.get_step()
-        self.cargo = self.board_wrapper.get_cargo()
+        self.cargo = self.board_wrapper.get_cargo_me()
         self.current_shipyard = shipyard
         if shipyard:
             self.shipyard_pos_x = shipyard.position.x
