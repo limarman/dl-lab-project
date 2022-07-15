@@ -1,5 +1,6 @@
 from typing import Dict
 
+import math
 import gym
 import torch
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
@@ -10,7 +11,7 @@ import numpy as np
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange
 
-from src.Agents.neural_networks.mlp_pytorch import BasicMLP
+from src.Agents.neural_networks.mlp_pytorch import BasicMLP, TinyMLP
 
 
 class MultiModalTransformer(nn.Module):
@@ -72,7 +73,7 @@ class MultiModalTransformer(nn.Module):
         x = self.transformer(x)
 
         _, num_shipyards, _ = shipyards.shape
-        shipyard_hidden_states = x[:,:num_shipyards]
+        shipyard_hidden_states = x[:, :num_shipyards]
 
         if self.apply_mlp_head:
             out = self.classifier_head(shipyard_hidden_states)
@@ -112,7 +113,7 @@ class MultiModalNet(BaseFeaturesExtractor):
         hidden_states = self.transformer(inputs['maps'], inputs['shipyards'], inputs['scalars'])
         # only use hidden state from the first shipyard
         # shape is (batch_dim, num_shipyards, hidden_state)
-        return hidden_states[:,0,:]
+        return hidden_states[:, 0, :]
 
 
 class MultiModalEmbedding(nn.Module):
@@ -123,18 +124,25 @@ class MultiModalEmbedding(nn.Module):
                  embedding_dim,
                  num_patches,
                  num_shipyard_scalars,
-                 num_game_stats):
+                 num_game_stats,
+                 sinusoidal_embedding=True):
         super().__init__()
+        self.embedding_dim = embedding_dim
+        self.sinusoidal_emebedding = sinusoidal_embedding
 
+        self.maps_to_patches = Rearrange('b c (h s1) (w s2) -> b (h w) (s1 s2 c)', s1=patch_width, s2=patch_width)
         self.maps_to_embeddings = nn.Sequential(
-            Rearrange('b c (h s1) (w s2) -> b (h w) (s1 s2 c)', s1=patch_width, s2=patch_width),
-            BasicMLP(patch_dim, embedding_dim)
+            self.maps_to_patches,
+            TinyMLP(patch_dim, embedding_dim)
         )
 
-        self.shipyards_to_embeddings = BasicMLP(num_shipyard_scalars, embedding_dim)
-        self.game_stats_to_embedding = BasicMLP(num_game_stats, embedding_dim)
+        self.shipyards_to_embeddings = TinyMLP(num_shipyard_scalars, embedding_dim)
+        self.game_stats_to_embedding = TinyMLP(num_game_stats, embedding_dim)
 
-        self.positions = nn.Parameter(torch.randn(num_patches, embedding_dim))
+        if sinusoidal_embedding:
+            self.positions = self._get_positional_encoding_for_patches()
+        else:
+            self.positions = nn.Parameter(torch.randn(num_patches, embedding_dim))
 
     def forward(self, maps, shipyards, game_stats):
         """
@@ -146,7 +154,7 @@ class MultiModalEmbedding(nn.Module):
         embedded_shipyards = self.shipyards_to_embeddings(shipyards)
         # shape: (batch_size, num_shipyards, embedding_size)
         embedded_game_stats = self.game_stats_to_embedding(game_stats)
-        # shape (batch_size, num_shipyards, embedding_size)
+        # shape (batch_size, embedding_size)
         embedded_patches = self.maps_to_embeddings(maps)
         # shape: (batch_size, num_patches, embedding_size)
         embedded_game_stats = embedded_game_stats.unsqueeze(1)
@@ -154,7 +162,8 @@ class MultiModalEmbedding(nn.Module):
         # add position embedding
         embedded_patches += self.positions
 
-        # TODO maybe add sinusoidal position encodings
+        if self.sinusoidal_emebedding:
+            embedded_shipyards += self._get_positional_encoding_for_shipyards(shipyards)
 
         # start with shipyards (order is important since we need to retrieve
         # the classification tensors in the same order)
@@ -162,6 +171,80 @@ class MultiModalEmbedding(nn.Module):
         return torch.cat([embedded_shipyards,
                           embedded_game_stats,
                           embedded_patches], dim=1)
+
+    def _get_positional_encoding(self, x: int, y: int) -> torch.Tensor:
+        """
+        We used the 2D-Adaption of sinusoidal positional embedding of
+        Raisi, Zobeir, et al. "2D positional embedding-based transformer for scene text recognition."
+
+        This means to encode the x_coordinate in the upper embedding half and the y_coordinate in
+        the lower embedding half
+        """
+
+        assert embedding_dim % 4 == 0, "embedding_dim must be dividable by four"
+
+        encoding = torch.zeros((self.embedding_dim))
+
+        for i in range(self.embedding_dim // 4):
+            d_half = self.embedding_dim // 2
+            factor = (1e-4) ** (4 * i / self.embedding_dim)
+
+            encoding[2 * i] = math.sin(x * factor)
+            encoding[2 * i + 1] = math.cos(x * factor)
+            encoding[2 * i + d_half] = math.sin(y * factor)
+            encoding[2 * i + 1 + d_half] = math.cos(y * factor)
+
+        return encoding
+
+    def _get_positional_encoding_for_patches(self) -> torch.Tensor:
+        """
+        Calculates the positional embedding for patches. We take the position in the middle as reference.
+        We simulate the patch decomposition with natural numbers to make sure, that we have the correct positions.
+
+        Returns encodings of shape: (batch_size, num_patches, embedding_dim)
+        """
+        numbers = torch.arange(0, 21)
+        y_map = torch.stack([numbers]*21)
+        x_map = torch.transpose(y_map,0,1)
+
+        patch_converter = nn.Sequential(self.)
+
+        # adding batch and channel dim
+        y_map = y_map.view(1,1,21,21)
+        x_map = x_map.view(1,1,21,21)
+        y_patches = self.maps_to_patches(y_map)
+        x_patches = self.maps_to_patches(x_map)
+
+        num_patches = y_patches.size(1)
+        encoding = []
+        for i in range(num_patches):
+            # x_patches have the form (n,n,n,n+,n+1, ...)
+            x_middle = x_patches[0,i,4]
+            # y_patches have the form (n, n+1, n+2, n, n+1, ...)
+            y_middle = y_patches[0,i,1]
+            encoding.append(self._get_positional_encoding(x_middle,y_middle))
+
+        return torch.stack(encoding)
+
+    def _get_positional_encoding_for_shipyards(self, shipyards) -> torch.Tensor:
+        """
+        Calculates the positional encoding for shipyards with
+        shape (batch_size, num_shipyards, ebedding_dim)
+
+        The input shipyard has shape (batch_size, num_shipyards, num_shipyard_features)
+        """
+        encodings = []
+
+        num_shipyards = shipyards.size(1)
+
+        for i in range(num_shipyards):
+            x = shipyards[0, i, 0]
+            y = shipyards[0, i, 1]
+            encoding = self._get_positional_encoding(x, y)
+            encodings.append(encoding)
+
+        return torch.stack(encodings)
+
 
 """
 ***********************************************************************************************************

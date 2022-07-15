@@ -30,8 +30,8 @@ def main():
         run_id = 'local' + str(uuid.uuid1())
         n_training_steps = 5000000
 
-    state_constr = HybridState
-    feature_extractor = HybridNetBasicCNN
+    state_constr = MultimodalState
+    feature_extractor = MultiModalNet
     reward = AdvantageReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
 
