@@ -1,3 +1,5 @@
+from math import cos, sin
+
 from kaggle_environments.envs.kore_fleets.helpers import *
 import numpy
 import random
@@ -13,6 +15,72 @@ class RuleBasedActor:
 
     def __init__(self, board: Board):
         self.board = board
+
+    def expand_circular(self, shipyard: Shipyard, angle: float = 30, ccw: bool = True, validity_check=False) -> ShipyardAction:
+        """
+        Applies expanding in an given angle
+        :param shipyard: shipyard to expand from
+        :param angle: the angle of expansion
+        :param ccw: if expansion is counter-clockwise
+        :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
+        :return: expanding action as ShipyardAction
+        """
+
+        if shipyard is None or shipyard.ship_count < 57:
+            return None
+
+        elif validity_check:
+            return True
+
+        x_pos = shipyard.position.x
+        y_pos = shipyard.position.y
+
+        x_pos_euclidean = x_pos - 10
+        y_pos_euclidean = y_pos - 10
+
+        radians = math.radians(angle)
+        if ccw:
+            x_pos_rotated = round(x_pos_euclidean * cos(radians) - y_pos_euclidean * sin(radians))
+            y_pos_rotated = round(x_pos_euclidean * sin(radians) + y_pos_euclidean * cos(radians))
+        else:
+            x_pos_rotated = -round(x_pos_euclidean * sin(radians) + y_pos_euclidean * cos(radians))
+            y_pos_rotated = -round(x_pos_euclidean * cos(radians) - y_pos_euclidean * sin(radians))
+
+        x_pos_expansion = x_pos_rotated + 10
+        y_pos_expansion = y_pos_rotated + 10
+
+        x_move_to_expansion = x_pos_expansion - x_pos
+        y_move_to_expansion = y_pos_expansion - y_pos
+
+        horizontal_dir = "E" if x_move_to_expansion > 0 else "W"
+        vertical_dir = "N" if y_move_to_expansion > 0 else "S"
+
+        x_move_str = "" if abs(x_move_to_expansion) - 1 <= 0 else str(abs(x_move_to_expansion) - 1)
+        y_move_str = "" if abs(y_move_to_expansion) - 1 <= 0 else str(abs(y_move_to_expansion) - 1)
+
+        flight_plan = f"{horizontal_dir}{x_move_str}{vertical_dir}{y_move_str}C"
+
+        return ShipyardAction.launch_fleet_with_flight_plan(max(57, int(shipyard.ship_count / 2)), flight_plan)
+
+    def expand_towards_middle(self, shipyard: Shipyard, distance_factor: float, validity_check=False):
+        if shipyard is None or shipyard.ship_count < 57:
+            return None
+
+        elif validity_check:
+            return True
+
+        x_move_to_middle = round((10 - shipyard.position.x) * distance_factor)
+        y_move_to_middle = round((10 - shipyard.position.y) * distance_factor)
+
+        horizontal_dir = "E" if x_move_to_middle > 0 else "W"
+        vertical_dir = "N" if y_move_to_middle > 0 else "S"
+
+        x_move_str = "" if abs(x_move_to_middle) - 1 <= 0 else str(abs(x_move_to_middle) - 1)
+        y_move_str = "" if abs(y_move_to_middle) - 1 <= 0 else str(abs(y_move_to_middle) - 1)
+
+        flight_plan = f"{horizontal_dir}{x_move_str}{vertical_dir}{y_move_str}C"
+
+        return ShipyardAction.launch_fleet_with_flight_plan(max(57, int(shipyard.ship_count / 2)), flight_plan)
 
     def expand_right(self, shipyard: Shipyard, validity_check=False) -> ShipyardAction:
         """

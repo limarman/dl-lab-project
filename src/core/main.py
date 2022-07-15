@@ -25,10 +25,10 @@ def main():
         n_training_steps = 150000000
     else:
         run_id = 'local' + str(uuid.uuid1())
-        n_training_steps = 8000
+        n_training_steps = 5000000
 
     state_constr = HybridState
-    advantage_reward = AdvantageReward()
+    advantage_reward = WinReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
 
     kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, advantage_reward)

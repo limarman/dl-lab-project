@@ -335,11 +335,17 @@ class BoardWrapper:
             step = step / self.board.configuration.episode_steps
         return step
 
-    def get_cargo(self) -> float:
+    def get_cargo_me(self) -> float:
         """
         Returns the number of cargo that is on the fleets
         """
         return sum([fleet.kore for fleet in self.player_me.fleets])
+
+    def get_cargo_opponent(self) -> float:
+        """
+        Returns the number of cargo that is on the opponents fleets
+        """
+        return sum([fleet.kore for fleet in self.player_opponent.fleets])
 
     def get_fleet_count_me(self) -> int:
         return len(self.player_me.fleets)

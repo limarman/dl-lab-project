@@ -5,7 +5,7 @@ import numpy as np
 from gym.core import ActType, ObsType
 from gym.vector.utils import spaces
 from kaggle_environments import make
-from kaggle_environments.envs.kore_fleets.helpers import ShipyardAction
+from kaggle_environments.envs.kore_fleets.helpers import ShipyardAction, Board
 
 from src.Actions.action_adapter import ActionAdapter
 from src.Rewards.kore_reward import KoreReward
@@ -44,7 +44,7 @@ class KoreEnv(gym.Env):
         self.current_shipyard = None,
         self.current_action = None,
         self.current_action_name = None,
-        self.last_game_step_board = None,
+        self.last_game_step_board: Board = None,
         self.game_step_flag = None
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
