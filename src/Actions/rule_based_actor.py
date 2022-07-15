@@ -232,8 +232,7 @@ class RuleBasedActor:
         if not probabilistic:
             slice_no, max_x, max_y = self._argmax_of_3dim_square(kore_maps, 2 * radius + 1)
         else:
-            slice_no, max_x, max_y = self._probabilistic_argmax_of_3dim_square(kore_maps, 2 * radius + 1,
-                                                                               pre_transform= lambda x : x**6)
+            slice_no, max_x, max_y = self._probabilistic_argmax_of_3dim_square(kore_maps, 2 * radius + 1)
 
         flight_plan = self._get_boomerang_farmer_flight_plan(max_x - radius, radius - max_y, slice_no == 0)
 
@@ -602,11 +601,10 @@ class RuleBasedActor:
 
         return slice_no, x, y
 
-    def _probabilistic_argmax_of_3dim_square(self, array: numpy.ndarray, size: int,
-                                             pre_transform = lambda x: x) -> Tuple[int,int,int]:
+    def _probabilistic_argmax_of_3dim_square(self, array: numpy.ndarray, size: int) -> Tuple[int, int, int]:
         """
             Returns a tuple pointing to a position in the 3 dim square matrix which is a sample from the value induced
-            probability distribution of the matrix (after the transform)
+            probability distribution of the matrix (passed through a softmax)
             note that the output is to be interpreted as coordinates, thus flipping the dimensions from usual matrix notation
             :param array: 3 dimensional numpy array
             :param size: diameter of one slice of the 3 dim array
@@ -614,9 +612,8 @@ class RuleBasedActor:
             :return: Tuple(slice_no, x, y)        """
 
         number_of_slices, _, _ = array.shape
-        max_indices_1d = pre_transform(array.flatten())
-        normalizing_const = numpy.sum(max_indices_1d)
-        max_indices_1d = max_indices_1d / normalizing_const
+        max_indices_1d = self._softmax(array)
+        max_indices_1d = max_indices_1d.flatten()
         max_indices_1d = numpy.random.choice(list(range(len(max_indices_1d))), 1, p=max_indices_1d)[0]
         slice_no = int(max_indices_1d / size**2)
         max_indices_1d = max_indices_1d % size**2
@@ -870,3 +867,8 @@ class RuleBasedActor:
         return flight_path_y + (flight_path_x if trailing_digits or not flight_path_x else flight_path_x[
             0]) if random.random() < .5 else flight_path_x + (
             flight_path_y if trailing_digits or not flight_path_y else flight_path_y[0])
+
+    def _softmax(self, x: numpy.ndarray, axis=None):
+        x2 = x - x.max(axis=axis, keepdims=True)
+        y = numpy.exp(x2)
+        return y / y.sum(axis=axis, keepdims=True)
