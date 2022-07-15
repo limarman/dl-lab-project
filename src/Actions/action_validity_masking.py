@@ -10,10 +10,16 @@ def get_action_validity_mask(shipyard: Shipyard, board: Board) -> List[int]:
     possible_actions = [
         rba.build_max(shipyard, validity_check=True),
         rba.start_optimal_box_farmer(shipyard, 9, validity_check=True),
+        rba.start_optimal_boomerang_farmer(shipyard, 9, validity_check=True),
         rba.start_optimal_axis_farmer(shipyard, 9, validity_check=True),
         rba.attack_closest(shipyard, validity_check=True),
-        rba.expand_right(shipyard, validity_check=True),
-        rba.expand_down(shipyard, validity_check=True),
+        rba.expand_circular(shipyard, angle=30, validity_check=True),
+        rba.expand_circular(shipyard, angle=90, validity_check=True),
+        rba.expand_circular(shipyard, angle=30, ccw=False, validity_check=True),
+        rba.expand_circular(shipyard, angle=90, ccw=False, validity_check=True),
+        rba.expand_towards_middle(shipyard, distance_factor=0.25, validity_check=True),
+        rba.expand_towards_middle(shipyard, distance_factor=0.5, validity_check=True),
+        rba.expand_towards_middle(shipyard,distance_factor=1.0, validity_check=True),
         rba.wait(shipyard, validity_check=True),
     ]
 

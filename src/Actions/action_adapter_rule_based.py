@@ -11,7 +11,7 @@ from kaggle_environments.envs.kore_fleets.helpers import *
 
 class ActionAdapterRuleBased(ActionAdapter):
 
-    N_ACTIONS: int = 7 #expand, attack, box-farm, axis-farm, build, wait
+    N_ACTIONS: int = 13 #expand, attack, box-farm, axis-farm, build, wait
 
     def __init__(self, single_shipyard=False):
         super().__init__()
@@ -48,18 +48,36 @@ class ActionAdapterRuleBased(ActionAdapter):
             shipyard_action = rba.start_optimal_box_farmer(shipyard, 9)
             action_name = "Box Farming"
         elif action_idx == 2:
+            shipyard_action = rba.start_optimal_boomerang_farmer(shipyard, 9)
+            action_name = "Boomerang Farming"
+        elif action_idx == 3:
             shipyard_action = rba.start_optimal_axis_farmer(shipyard, 9)
             action_name = "Axis Farming"
-        elif action_idx == 3:
+        elif action_idx == 4:
             shipyard_action = rba.attack_closest(shipyard)
             action_name = "Attack"
-        elif action_idx == 4:
-            shipyard_action = rba.expand_right(shipyard)
-            action_name = "Expand_Right"
         elif action_idx == 5:
-            shipyard_action = rba.expand_down(shipyard)
-            action_name = "Expand_Down"
+            shipyard_action = rba.expand_circular(shipyard, ccw=True, angle=30)
+            action_name = "Expand Circular CCW 30 degree"
         elif action_idx == 6:
+            shipyard_action = rba.expand_circular(shipyard, ccw=True, angle=90)
+            action_name = "Expand Circular CCW 90 degree"
+        elif action_idx == 7:
+            shipyard_action = rba.expand_circular(shipyard, ccw=False, angle=30)
+            action_name = "Expand Circular CW 30 degree"
+        elif action_idx == 8:
+            shipyard_action = rba.expand_circular(shipyard, ccw=False, angle=90)
+            action_name = "Expand Circular CW 90 degree"
+        elif action_idx == 9:
+            shipyard_action = rba.expand_towards_middle(shipyard, distance_factor=0.25)
+            action_name = "Expand towards middle 1/4"
+        elif action_idx == 10:
+            shipyard_action = rba.expand_towards_middle(shipyard, distance_factor=0.5)
+            action_name = "Expand towards middle 1/2"
+        elif action_idx == 11:
+            shipyard_action = rba.expand_towards_middle(shipyard, distance_factor=1.0)
+            action_name = "Expand towards middle 1/1"
+        elif action_idx == 12:
             shipyard_action = rba.wait(shipyard)
             action_name = "Wait"
         else:
