@@ -49,7 +49,7 @@ class MultiModalTransformer(nn.Module):
         num_patches = 7 * 7
         patch_dim = 3 * 3 * num_channels
         patch_width = 3
-        embedding_dim = 64
+        embedding_dim = self.HIDDEN_DIM
 
         self.embedding = MultiModalEmbedding(patch_dim,
                                              patch_width,
@@ -181,7 +181,7 @@ class MultiModalEmbedding(nn.Module):
         the lower embedding half
         """
 
-        assert embedding_dim % 4 == 0, "embedding_dim must be dividable by four"
+        assert self.embedding_dim % 4 == 0, "embedding_dim must be dividable by four"
 
         encoding = torch.zeros((self.embedding_dim))
 
@@ -206,8 +206,6 @@ class MultiModalEmbedding(nn.Module):
         numbers = torch.arange(0, 21)
         y_map = torch.stack([numbers]*21)
         x_map = torch.transpose(y_map,0,1)
-
-        patch_converter = nn.Sequential(self.)
 
         # adding batch and channel dim
         y_map = y_map.view(1,1,21,21)

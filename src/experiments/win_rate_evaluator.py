@@ -14,11 +14,12 @@ from src.States.hybrid_state import HybridState
 
 class WinRateEvaluator:
 
-    def __init__(self, agent: A2CAgent, opponents: List[str], state_constr, wandb_run=None):
+    def __init__(self, agent: A2CAgent, opponents: List[str], state_constr, n_episodes=20, wandb_run=None):
         self.__agent = agent
         self.__opponents = opponents
         self.__wandb_run = wandb_run
         self.__state_constr = state_constr
+        self.__n_episodes = n_episodes
 
     def run(self):
         columns = ['Enemy Agent', 'Win rate mean', 'Win rate std']
@@ -37,7 +38,7 @@ class WinRateEvaluator:
         win_rate_mean, win_rate_std = evaluate_policy(
             model=self.__agent.model,
             env=env,
-            n_eval_episodes=2,
+            n_eval_episodes=self.__n_episodes,
             deterministic=True,
         )
 
@@ -50,13 +51,13 @@ class WinRateEvaluator:
         return win_rate_mean, win_rate_std
 
     def __get_opponent_env(self, enemy_agent: str) -> VecNormalize:
-        advantage_reward = AdvantageReward()
+        win_reward = WinReward()
         rule_based_action_adapter = ActionAdapterRuleBased()
 
         kore_env_factory = KoreEnvFactory(
             state_constr=self.__state_constr,
             action_adapter=rule_based_action_adapter,
-            kore_reward=advantage_reward,
+            kore_reward=win_reward,
             enemy_agent=enemy_agent,
         )
 
