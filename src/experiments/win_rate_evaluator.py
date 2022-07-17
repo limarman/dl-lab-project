@@ -37,7 +37,7 @@ class WinRateEvaluator:
         win_rate_mean, win_rate_std = evaluate_policy(
             model=self.__agent.model,
             env=env,
-            n_eval_episodes=2,
+            n_eval_episodes=10,
             deterministic=True,
         )
 
@@ -50,7 +50,7 @@ class WinRateEvaluator:
         return win_rate_mean, win_rate_std
 
     def __get_opponent_env(self, enemy_agent: str) -> VecNormalize:
-        advantage_reward = AdvantageReward()
+        advantage_reward = WinReward()
         rule_based_action_adapter = ActionAdapterRuleBased()
 
         kore_env_factory = KoreEnvFactory(
