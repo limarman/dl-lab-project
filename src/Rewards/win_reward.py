@@ -34,3 +34,6 @@ class WinReward(KoreReward):
 
     def get_reward(self, previous_state: KoreState, next_state: KoreState, action: Dict[str, str]):
         return next_state.board_wrapper.game_result()
+
+    def reset(self):
+        pass

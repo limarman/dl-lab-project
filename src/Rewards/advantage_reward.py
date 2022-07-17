@@ -126,3 +126,6 @@ class AdvantageReward(KoreReward):
         for shipyard in opponent_shipyards:
             opponent_shipyards_value += self.__shipyard_value + shipyard.max_spawn * self.__spawn_value
         return opponent_kore_value + opponent_ship_value + opponent_shipyards_value
+
+    def reset(self):
+        pass

@@ -10,6 +10,7 @@ from src.Agents.neural_networks.multi_modal_transformer import MultiModalNet
 from src.Environment.kore_env_factory import KoreEnvFactory
 from src.Monitoring.kore_monitor import KoreMonitor
 from src.Rewards.advantage_reward import AdvantageReward
+from src.Rewards.competitive_kore_delta_reward import CompetitiveKoreDeltaReward
 from src.Rewards.win_reward import WinReward
 from src.States.hybrid_state import HybridState
 from src.experiments.win_rate_evaluator import WinRateEvaluator
@@ -33,6 +34,7 @@ def main():
     state_constr = MultimodalState
     feature_extractor = MultiModalNet
     reward = AdvantageReward()
+    #reward = CompetitiveKoreDeltaReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
 
     kore_env_factory = KoreEnvFactory(state_constr, rule_based_action_adapter, reward)

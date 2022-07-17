@@ -84,7 +84,7 @@ class KoreEnv(gym.Env):
         next_state = self.state_constr(self.boards[self.player_id], self.current_shipyard)
 
         if self.game_step_flag:
-            self.reward = self.reward_calculator.get_reward(self.current_state, next_state, None)
+            self.reward = self.reward_calculator.get_reward(self.current_state, next_state, self.shipyard_actions)
         else:
             self.reward = 0
 
@@ -143,6 +143,8 @@ class KoreEnv(gym.Env):
         self.shipyards = self.boards[0].current_player.shipyards
         self.current_shipyard = self.shipyards.pop()
         self.current_state = self.state_constr(self.boards[self.player_id], self.current_shipyard)
+
+        self.reward_calculator.reset()
 
         return self.current_state.tensor
 
