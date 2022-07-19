@@ -14,6 +14,9 @@
 # declare the merged STDOUT/STDERR file
 #SBATCH --output=/home/ob606396/lab/dl-lab-project/jobscripts/output.%J.txt
 
+# request one volta gpus (CLAIX18)
+#SBATCH --gres=gpu:volta:1
+
 # setting time to one minute (--time=d-hh:mm:ss)
 #SBATCH --time=0-00:05:00
 
