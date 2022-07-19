@@ -327,12 +327,6 @@ class RuleBasedActor:
         if enemy_shipyard is None:
             return None
 
-        distance_vec = enemy_shipyard.position - shipyard.position
-        distance = abs(distance_vec.x) + abs(distance_vec.y)
-
-        if distance > 10:
-            return None
-
         if validity_check:
             return True
 
