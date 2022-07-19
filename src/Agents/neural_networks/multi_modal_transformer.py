@@ -222,7 +222,9 @@ class MultiModalEmbedding(nn.Module):
             y_middle = y_patches[0,i,1]
             encoding.append(self._get_positional_encoding(x_middle,y_middle))
 
-        return torch.stack(encoding)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        return torch.stack(encoding).to(device)
 
     def _get_positional_encoding_for_shipyards(self, shipyards) -> torch.Tensor:
         """
@@ -241,7 +243,9 @@ class MultiModalEmbedding(nn.Module):
             encoding = self._get_positional_encoding(x, y)
             encodings.append(encoding)
 
-        return torch.stack(encodings)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        return torch.stack(encodings).to(device)
 
 
 """
