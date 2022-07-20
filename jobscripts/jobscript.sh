@@ -14,17 +14,16 @@
 # declare the merged STDOUT/STDERR file
 #SBATCH --output=/home/ob606396/lab/dl-lab-project/jobscripts/output.%J.txt
 
-# request one volta gpus (CLAIX18)
-#SBATCH --gres=gpu:volta:1
-
 # setting time to one minute (--time=d-hh:mm:ss)
-#SBATCH --time=0-00:05:00
+#SBATCH --time=0-00:10:00
 
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=nils.eberhardt@rwth-aachen.de
 
 #SBATCH --account=lect0082
 
+# set interrupt to make final evaluation
+#SBATCH --signal=B:TERM@300
 
 # Change to working directory
 cd /home/ob606396/lab/dl-lab-project
@@ -40,4 +39,4 @@ export WANDB_ENTITY=rl-dl-lab
 conda activate lab3.10
 
 # beginning of executable commands
-python3 -m src.core.main
+exec python3 -m src.core.main

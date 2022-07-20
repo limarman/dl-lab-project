@@ -53,10 +53,7 @@ class A2CAgent:
         """
         Wrapper of the models fit function
         """
-        try:
-            self.model.learn(
+        self.model.learn(
                 total_timesteps=self.n_training_steps,
                 callback=[self.monitor_callback, GameStatCallback(episodes_interval=10), ReplayCallback(episodes_interval=50)],
             )
-        finally:
-            self.model.save(f"checkpoints/{self.run_id}")

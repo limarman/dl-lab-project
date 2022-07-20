@@ -1,4 +1,5 @@
 import os
+import signal
 import uuid
 
 from stable_baselines3.common.evaluation import evaluate_policy
@@ -31,8 +32,8 @@ def main():
         run_id = 'local' + str(uuid.uuid1())
         n_training_steps = 5000000
 
-    state_constr = MultimodalState
-    feature_extractor = MultiModalNet
+    state_constr = HybridState
+    feature_extractor = HybridResNet
     reward = AdvantageReward()
     #reward = CompetitiveKoreDeltaReward()
     rule_based_action_adapter = ActionAdapterRuleBased()
@@ -54,15 +55,24 @@ def main():
                           resume_training=resume_training,
                           run_id=run_id,
                           feature_extractor_class=feature_extractor)
-    kore_agent.fit()
 
     opponents = ["balanced", "random", "do_nothing", "miner"]
     win_rate_evaluator = WinRateEvaluator(kore_agent,
                                           opponents,
                                           state_constr,
                                           wandb_run=kore_monitor.run)
-    win_rate_evaluator.run()
 
+    def handle_interrupt(sigmun, frame):
+        # save model and evaluate after training
+        # time for interrupt can be specified in the jobscript
+        print('Catched Interrupt')
+        kore_agent.model.save(f"checkpoints/{run_id}")
+        print('Model saved')
+        win_rate_evaluator.run()
+        print('Final evaluation is completed')
+
+    signal.signal(signal.SIGTERM, handle_interrupt)
+    kore_agent.fit()
 
 if __name__ == "__main__":
     main()
