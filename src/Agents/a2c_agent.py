@@ -22,7 +22,8 @@ class A2CAgent:
                  run_id: str,
                  n_training_steps: int = 1500000,
                  name='A2C', resume_training=False,
-                 feature_extractor_class: HybridNet=HybridResNet):
+                 feature_extractor_class: HybridNet=HybridResNet,
+                 optimizer: torch.optim=torch.optim.Adam):
         self.name = name
         self.env = env
         self.monitor_callback = kore_monitor.callback
@@ -32,7 +33,7 @@ class A2CAgent:
         policy_kwargs = {
             'features_extractor_class': feature_extractor_class,
             'activation_fn': torch.nn.ReLU,
-            'optimizer_class': torch.optim.Adam,
+            'optimizer_class': optimizer,
             # optimizer_kwargs: dict()
         }
 
