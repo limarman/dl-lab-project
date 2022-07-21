@@ -9,6 +9,7 @@ from src.Agents.a2c_agent import A2CAgent
 from src.Environment.kore_env_factory import KoreEnvFactory
 from src.Rewards.advantage_reward import AdvantageReward
 from src.Rewards.win_reward import WinReward
+from src.Rewards.win_reward_for_eval import WinRewardForEval
 from src.States.hybrid_state import HybridState
 
 
@@ -39,7 +40,7 @@ class WinRateEvaluator:
             model=self.__agent.model,
             env=env,
             n_eval_episodes=self.__n_episodes,
-            deterministic=True,
+            deterministic=False,
         )
 
         print("-----------------------------------------------")
@@ -51,7 +52,7 @@ class WinRateEvaluator:
         return win_rate_mean, win_rate_std
 
     def __get_opponent_env(self, enemy_agent: str) -> VecNormalize:
-        win_reward = WinReward()
+        win_reward = WinRewardForEval()
         rule_based_action_adapter = ActionAdapterRuleBased()
 
         kore_env_factory = KoreEnvFactory(
