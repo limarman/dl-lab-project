@@ -23,7 +23,9 @@ class A2CAgent:
                  n_training_steps: int = 1500000,
                  name='A2C', resume_training=False,
                  feature_extractor_class: HybridNet=HybridResNet,
-                 optimizer: torch.optim=torch.optim.Adam):
+                 optimizer: torch.optim=torch.optim.Adam,
+                 max_grad_norm=0.5,
+                 lr=0.008):
         self.name = name
         self.env = env
         self.monitor_callback = kore_monitor.callback
@@ -43,11 +45,12 @@ class A2CAgent:
             self.model = A2C(
                 policy="MultiInputPolicy",
                 env=self.env,
-                learning_rate=0.008,
+                learning_rate=lr,
                 verbose=1,
                 tensorboard_log=kore_monitor.tensorboard_log,
                 policy_kwargs=policy_kwargs,
-                gamma=1
+                gamma=1,
+                max_grad_norm=max_grad_norm,
             )
 
     def fit(self):

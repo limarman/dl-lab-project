@@ -81,14 +81,21 @@ class BoardWrapper:
 
         vector_list = []
 
+        first = True
         for shipyard in shipyards:
             action_mask = get_action_validity_mask(shipyard, self.board)
             # keep this order as we need to retrieve this information in the transformer
+            if first:
+                first_shipyard = 1
+                first = False
+            else:
+                first_shipyard = 0
             vector_list.append([
                     shipyard.position.x,
                     shipyard.position.y,
                     shipyard.max_spawn,
-                    shipyard.ship_count
+                    shipyard.ship_count,
+                    first_shipyard,
                 ] + action_mask)
 
         return np.array(vector_list)

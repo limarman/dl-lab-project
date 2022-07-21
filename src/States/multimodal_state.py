@@ -88,7 +88,7 @@ class MultimodalState(KoreState):
         shapes = {
             'maps': (15, 21, 21),
             'scalars': (11 + num_actions,),
-            'shipyards': (15, 4 + num_actions)
+            'shipyards': (15, 5 + num_actions)
         }
 
         return shapes

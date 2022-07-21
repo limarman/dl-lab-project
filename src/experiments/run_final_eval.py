@@ -5,7 +5,7 @@ from src.Monitoring.kore_monitor import KoreMonitor
 from src.Rewards.advantage_reward import AdvantageReward
 from src.States.multimodal_state import MultimodalState
 from src.experiments.win_rate_evaluator import WinRateEvaluator
-
+from src.States.hybrid_state import HybridState
 
 def main():
     """
@@ -33,10 +33,12 @@ def main():
                           feature_extractor_class=feature_extractor)
 
     opponents = ["balanced", "random", "do_nothing", "miner"]
+    print('here')
     win_rate_evaluator = WinRateEvaluator(kore_agent,
                                           opponents,
                                           state_constr,
-                                          wandb_run=kore_monitor.run)
+                                          wandb_run=None,
+                                          n_episodes=100)
     win_rate_evaluator.run()
 
 

@@ -22,6 +22,9 @@
 
 #SBATCH --account=lect0082
 
+# request one volta gpus (CLAIX18)
+#SBATCH --gres=gpu:volta:1
+
 # set interrupt to make final evaluation
 #SBATCH --signal=B:TERM@300
 
