@@ -57,21 +57,23 @@ def main():
                           feature_extractor_class=feature_extractor)
 
     opponents = ["balanced", "random", "do_nothing", "miner"]
-    win_rate_evaluator = WinRateEvaluator(kore_agent,
-                                          opponents,
-                                          state_constr,
-                                          wandb_run=kore_monitor.run)
+
 
     def handle_interrupt(sigmun, frame):
         # save model and evaluate after training
         # time for interrupt can be specified in the jobscript
         print('Catched Interrupt')
+        win_rate_evaluator = WinRateEvaluator(kore_agent,
+                                              opponents,
+                                              state_constr,
+                                              wandb_run=kore_monitor.run)
         kore_agent.model.save(f"checkpoints/{run_id}")
         print('Model saved')
         win_rate_evaluator.run()
         print('Final evaluation is completed')
 
     signal.signal(signal.SIGTERM, handle_interrupt)
+
     kore_agent.fit()
 
 if __name__ == "__main__":
