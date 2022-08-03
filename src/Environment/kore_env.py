@@ -12,7 +12,7 @@ from src.Rewards.kore_reward import KoreReward
 from src.Environment.helpers import get_boards_from_kore_env_state, get_info_logs
 from src.States.board_wrapper import BoardWrapper
 from src.States.multimodal_state import MultimodalState
-
+import src.core.global_vars
 
 class KoreEnv(gym.Env):
     ENV_NAME: str = "kore_fleets"
@@ -47,6 +47,7 @@ class KoreEnv(gym.Env):
         self.current_action_name = None,
         self.last_game_step_board: Board = None,
         self.game_step_flag = None
+        src.core.global_vars.init_global_step()  # initialize the step counter
 
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         """
@@ -94,6 +95,9 @@ class KoreEnv(gym.Env):
         if self.env.done:
             self.replay = self.render()
 
+        # increment the global step count
+        src.core.global_vars.increment_step_count()
+            
         return next_state.tensor, self.reward, self.env.done, info
 
     def _shipyard_sub_step(self):
