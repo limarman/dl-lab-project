@@ -38,7 +38,6 @@ class AnnealingReward(KoreReward):
         It also returns reward info now"""
 
         time = src.core.global_vars.return_step_count()
-        print("time: ", time)
 
         first_reward_value = self.first_reward.get_reward(previous_state, next_state, action)
         last_reward_value = self.last_reward.get_reward(previous_state, next_state, action)
