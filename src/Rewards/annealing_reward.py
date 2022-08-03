@@ -47,9 +47,9 @@ class AnnealingReward(KoreReward):
 
         annealing_reward = first_reward_value * E + last_reward_value * (1 - E)
 
-        annealing_reward_info = {"E": E}
+#         annealing_reward_info = {"E": E}
 
-        return annealing_reward, annealing_reward_info
+        return annealing_reward
 
     def reset(self):
         pass
