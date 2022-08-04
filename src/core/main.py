@@ -59,10 +59,11 @@ def main():
     opponents = ["balanced", "random", "do_nothing", "miner"]
 
 
-    def handle_interrupt(sigmun, frame):
+    def after_training_eval(sigmun=None, frame=None):
+        # Called at the SIGTERM interrupt (requires the above params)
         # save model and evaluate after training
         # time for interrupt can be specified in the jobscript
-        print('Catched Interrupt')
+        print('After training evaluation started')
         win_rate_evaluator = WinRateEvaluator(kore_agent,
                                               opponents,
                                               state_constr,
@@ -72,9 +73,12 @@ def main():
         win_rate_evaluator.run()
         print('Final evaluation is completed')
 
-    signal.signal(signal.SIGTERM, handle_interrupt)
+    signal.signal(signal.SIGTERM, after_training_eval)
 
     kore_agent.fit()
+    # in case training was not interrupted by SIGTERM
+    # perform after training eval
+    after_training_eval()
 
 if __name__ == "__main__":
     main()
