@@ -12,8 +12,6 @@ import src.core.global_vars
 
 
 class RewardNNTrainEnvSelfplay(SelfPlayEnv):
-    """Run the typical self-play version of game and save the states in the appropriate folder.
-    These states are later used to train a neural network to predict the winner of a game."""
 
     def __init__(self, state_constr, action_adapter: ActionAdapter, kore_reward: KoreReward, run_id, enemy_agent):
         super().__init__(state_constr, action_adapter, kore_reward, run_id, enemy_agent)
@@ -35,6 +33,7 @@ class RewardNNTrainEnvSelfplay(SelfPlayEnv):
         next_state_tensor, reward, done, info = super(RewardNNTrainEnvSelfplay, self).step(action)
 
         # save state for each step
+
         useful_tensor = {'maps': next_state_tensor['maps'][[0, 1, 4, 5, 12, 13]],  # we only select some maps from the state (look at board_wrapper)
                          'scalars': next_state_tensor['scalars']}
 
@@ -43,6 +42,7 @@ class RewardNNTrainEnvSelfplay(SelfPlayEnv):
 
         # if done, check win or not, place the tensors in the appropriate folders
         if done:
+
             # increment the global episode count
             src.core.global_vars.increment_episode_number()
 

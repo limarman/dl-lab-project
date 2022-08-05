@@ -12,8 +12,6 @@ import src.core.global_vars
 
 
 class RewardNNTrainEnv(KoreEnv):
-    """Wrapper over the KoreEnv class with the additional ability to save the labeled states.
-    This is later used to train a neural network to predict the win probability of a game."""
 
     def __init__(self, state_constr, action_adapter: ActionAdapter, kore_reward: KoreReward, enemy_agent):
         super().__init__(state_constr, action_adapter, kore_reward, enemy_agent)

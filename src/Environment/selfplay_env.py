@@ -19,15 +19,15 @@ import src.core.global_vars
 
 
 class SelfPlayEnv(KoreEnv):
-    """Wrapper over the KoreEnv with the additional ability to execute self play """
+    # wrapper over the KoreEnv with the additional ability to execute self play
 
     def __init__(self,
-                 state_constr,  # eg hybrid state
-                 action_adapter: ActionAdapter,
-                 kore_reward: KoreReward,
-                 run_id,
-                 enemy_agent: Union[str, Callable] = 'balanced',
-                 ):
+            state_constr,  # eg hybrid state
+            action_adapter: ActionAdapter,
+            kore_reward: KoreReward,
+            run_id,
+            enemy_agent: Union[str, Callable] = 'balanced',
+                ):
 
         self.self_play_window = 10  # size of replay model memory
         self.opponent_agent_name = None
@@ -40,6 +40,7 @@ class SelfPlayEnv(KoreEnv):
         self.render_ = None
         self.next_state = None
         self.run_id = run_id
+        # print("run id: ", self.run_id)
         self.model_path = "selfplay_models"
         self.model_name = "PPO"
 
@@ -58,6 +59,13 @@ class SelfPlayEnv(KoreEnv):
         super(SelfPlayEnv, self).__init__(state_constr, action_adapter, kore_reward, enemy_agent=self.opponent_agent,
                                           opponent_agent_name=self.opponent_agent_name)
 
+
+    # def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
+    #     self.next_state, self.reward, self.done, self.info = super(SelfPlayEnv, self).step(action)
+    #
+    #     return self.next_state, self.reward, self.done, self.info
+
+
     def step(self, action: ActType) -> Tuple[ObsType, float, bool, dict]:
         # action is a list (len = N_ACTIONS) of ints (this comes from the NN)
         """
@@ -74,9 +82,7 @@ class SelfPlayEnv(KoreEnv):
         if self.current_shipyard:  # for the first run this comes from the reset() function and later from the _game_step
             # current_action is of the type ShipyardAction
             # this is where we get a my_action in the form the kore expects (action from NN is fed to the step function)
-            self.current_action, self.current_action_name = self.action_adapter.agent_to_kore_action(action,
-                                                                                                     board_wrapper,
-                                                                                                     self.current_shipyard)
+            self.current_action, self.current_action_name = self.action_adapter.agent_to_kore_action(action, board_wrapper, self.current_shipyard)
         else:  # we have exhausted all the shipyards
             self.current_action, self.current_action_name = {}, {}
 
@@ -87,7 +93,7 @@ class SelfPlayEnv(KoreEnv):
 
         # self.shipyards is the list of shipyards that still need to be processed until the next game step
         if self.shipyards or self.shipyards_enemy:  # checking if there are still some shipyards left
-            self._shipyard_sub_step()  # simulate actions for all shipyards and update the board
+            self._shipyard_sub_step() # simulate actions for all shipyards and update the board
             self.game_step_flag = False
         else:
             self._game_step()
@@ -99,16 +105,19 @@ class SelfPlayEnv(KoreEnv):
             # we have lost since we have no shipyards
             self.current_shipyard = None
 
+        # TODO: Move this part to the selfplay_env
         if self.shipyards_enemy:
             self.current_shipyard_enemy = self.shipyards_enemy.pop(0)
         else:
             # we have lost since we have no shipyards
             self.current_shipyard_enemy = None
 
+
         next_state = self.state_constr(self.boards[self.player_id], self.current_shipyard, recenter=False)
+
         if self.game_step_flag:
             self.reward, self.reward_info = self.reward_calculator.get_reward(self.current_state, next_state, None)
-            self.anneal_time += 1
+            self.anneal_time +=1
         else:
             self.reward = 0
 
@@ -120,8 +129,8 @@ class SelfPlayEnv(KoreEnv):
         else:
             info = info | {'E': 0}
 
-        info = info | {'enemy agent': self.opponent_agent_name} | {'my action name list': self.my_action_names} | {
-            'enemy action name list': self.opponent_action_names}
+        info = info | {'enemy agent': self.opponent_agent_name} | {'my action name list': self.my_action_names} | {'enemy action name list': self.opponent_action_names}
+
 
         # print(f"opponent_agent_name: {self.opponent_agent_name}")
 
@@ -133,9 +142,12 @@ class SelfPlayEnv(KoreEnv):
         # increment the global step count
         src.core.global_vars.increment_step_count()
 
+
         # print("Opponent model:", self.opponent_agent_name)
 
         return next_state.tensor, self.reward, self.env.done, info
+
+
 
     def reset(self) -> Union[ObsType, Tuple[ObsType, dict]]:
         self.current_state = super(SelfPlayEnv, self).reset()
@@ -146,10 +158,12 @@ class SelfPlayEnv(KoreEnv):
 
         return self.current_state
 
+
     def render(self, mode="html"):
         self.render_ = super(SelfPlayEnv, self).render(mode)
 
         return self.render_
+
 
     def _game_step(self):
         """
@@ -172,9 +186,7 @@ class SelfPlayEnv(KoreEnv):
 
             if self.current_shipyard_enemy:  # if there is any enemy shipyard, only then take the action...
                 enemy_action, _ = self.opponent_agent.predict(state.tensor)
-                next_opponent_action, next_opponent_action_name = self.action_adapter.agent_to_kore_action(enemy_action,
-                                                                                                           board_wrapper,
-                                                                                                           self.current_shipyard_enemy)
+                next_opponent_action, next_opponent_action_name = self.action_adapter.agent_to_kore_action(enemy_action, board_wrapper, self.current_shipyard_enemy)
             else:
                 next_opponent_action, next_opponent_action_name = {}, {}
 
@@ -195,10 +207,11 @@ class SelfPlayEnv(KoreEnv):
 
             self.opponent_action_names.append('Balanced Agent')  # w&b login purposes
 
+
+
         # print("next_opponent_action: ", next_opponent_action)
 
-        step_result = self.env.step(
-            next_kore_action)  # Env step NOT our step function defined above. This is the kore action.
+        step_result = self.env.step(next_kore_action)  # Env step NOT our step function defined above. This is the kore action.
         self.boards = get_boards_from_kore_env_state(step_result, self.env.configuration)
 
         self.shipyard_actions = {}
@@ -212,6 +225,7 @@ class SelfPlayEnv(KoreEnv):
 
         self.last_game_step_board = copy.deepcopy(self.boards[0])
         self.last_game_step_board_enemy = copy.deepcopy(self.boards[1])
+
 
     def _shipyard_sub_step(self):
         """
@@ -232,8 +246,11 @@ class SelfPlayEnv(KoreEnv):
                 action_object = ShipyardAction.from_str(self.shipyard_actions[shipyard.id])
                 shipyard.next_action = action_object
 
+
         self.boards[self.player_id] = current_copy.next()
         self.boards[self.enemy_id] = current_copy_enemy.next()
+
+
 
     def setup_enemy(self, p=0.8, q=0.3):
         """Load a previously saved model as the enemy.
@@ -247,19 +264,21 @@ class SelfPlayEnv(KoreEnv):
 
         k = random.uniform(0, 1)
 
-        if (not self.enemy_models) or (len(self.enemy_models) < 3) or (
-                k < q):  # checking if there is no preexisting model in the model folder
-            # or if there are not enough model saved  # 6
-            # or sample the balanced agent with probability q
+
+        if (not self.enemy_models) or (len(self.enemy_models) < 3) or (k < q):  # checking if there is no preexisting model in the model folder
+                                                                          # or if there are not enough model saved  # 6
+                                                                          # or sample the balanced agent with probability q
             # print("Using balanced agent")
             self.opponent_agent = self.env.agents[self.enemy_agent]  # use balanced agent
             self.opponent_agent_name = 0
 
         else:  # pick an agent from the folder using 80/20 rule
             j = random.uniform(0, 1)
-            if j < p:  # pick the last (best) agent
+            if j < p:  #  pick the last (best) agent
                 self.opponent_agent = self.enemy_models[-1]
                 self.opponent_agent_name = self.enemy_model_names[-1]
+
+                # print("ENEMY AGENT: ", self.enemy_models[-1])
 
             else:  # select a random agent
                 start = 0
@@ -267,6 +286,8 @@ class SelfPlayEnv(KoreEnv):
                 i = random.randint(start, end)
                 self.opponent_agent = self.enemy_models[i]
                 self.opponent_agent_name = self.enemy_model_names[i]
+
+            # print("using loaded agent: ", self.opponent_agent_name)
 
 
     def _load_model(self, name):
@@ -280,10 +301,11 @@ class SelfPlayEnv(KoreEnv):
                 # print("loaded PPO successfully")
                 return ppo_model
             except Exception as e:
-                time.sleep(5)
-                print(e)
+                    time.sleep(5)
+                    print(e)
         else:
             raise Exception(f'\n{model_path} not found')
+
 
     def _load_all_models(self):
         path = os.path.join(os.path.abspath("../selfplay_models/"), self.model_name, self.run_id)
@@ -296,5 +318,7 @@ class SelfPlayEnv(KoreEnv):
             models['model name'].append(self._model_name_int(model_name))
         return models
 
+
     def _model_name_int(self, model_name_str):
         return int(model_name_str.split("_")[1])
+
