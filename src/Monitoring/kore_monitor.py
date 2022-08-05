@@ -6,7 +6,9 @@ from src.Monitoring.missing_entity_exception import MissingEntityException
 
 WANDB_PROJECT_NAME: str = "rl-dl-lab"
 ENTITY_NAME_ENV_NAME: str = "WANDB_ENTITY"
-ENTITY_NAME: str = os.environ.get(ENTITY_NAME_ENV_NAME)
+# ENTITY_NAME: str = os.environ.get(ENTITY_NAME_ENV_NAME)
+
+ENTITY_NAME = "hasham"
 
 
 class KoreMonitor:
@@ -32,7 +34,7 @@ class KoreMonitor:
         self.callback = WandbCallback(
             gradient_save_freq=100,
             model_save_path=f"runs/{self.run.id}",
-            verbose=2
+            verbose=0
         )
 
         self.tensorboard_log = f"runs/{self.run.id}"
