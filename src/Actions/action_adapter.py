@@ -14,7 +14,7 @@ class ActionAdapter(ABC):
         pass
 
     @abstractmethod
-    def agent_to_kore_action(self, agent_action: ndarray, board_wrapper: BoardWrapper) -> (Dict[str, str], Dict[str, str]):
+    def agent_to_kore_action(self, agent_action: ndarray, board_wrapper: BoardWrapper, shipyard) -> (Dict[str, str], Dict[str, str]):
         """
         Returns the Kore action (first Dict) and the high-level action name for logging purposes (second dict)
         """

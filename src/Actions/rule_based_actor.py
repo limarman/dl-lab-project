@@ -265,7 +265,6 @@ class RuleBasedActor:
 
     def start_optimal_axis_farmer(self, shipyard, radius, validity_check=False):
         """
-
         :param shipyard:
         :param radius:
         :param validity_check: only true when called from get_invalid_action_mask; returns True is action is valid
