@@ -1,0 +1,15 @@
+
+starting epochs...
+Epoch: 0 Train Loss: tensor(19.6673) Train Accuracy: 0.5882352941176471 Test Accuracy: 0.4
+Traceback (most recent call last):
+  File "C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\train.py", line 132, in <module>
+    main()
+  File "C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\train.py", line 127, in main
+    torch.save(hybrid_net.state_dict(), os.path.join(model_save_path,f'model_{epoch}.pth'))
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\serialization.py", line 377, in save
+    with _open_file_like(f, 'wb') as opened_file:
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\serialization.py", line 231, in _open_file_like
+    return _open_file(name_or_buffer, mode)
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\serialization.py", line 212, in __init__
+    super(_open_file, self).__init__(open(name, mode))
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\Zakir Hussain\\Documents\\RWTH Aachen\\Semester 3 - RWTH\\Lab\\Github code\\7 PPO\\dl-lab-project-main (7)\\dl-lab-project-main\\src\\state_tensors\\best_reward_NN.model\\model_0.pth'

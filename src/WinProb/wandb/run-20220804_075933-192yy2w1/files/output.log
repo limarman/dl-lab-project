@@ -1,0 +1,21 @@
+
+starting epochs...
+Epoch: 0 Train Loss: tensor(38.8510) Train Accuracy: 0.6705882352941176 Test Accuracy: 0.4
+Epoch: 1 Train Loss: tensor(28.1053) Train Accuracy: 0.4235294117647059 Test Accuracy: 0.4
+Epoch: 2 Train Loss: tensor(7.9434) Train Accuracy: 0.5529411764705883 Test Accuracy: 0.9
+Traceback (most recent call last):
+  File "C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\train.py", line 132, in <module>
+    main()
+  File "C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\train.py", line 95, in main
+    for i, (maps, scalars, winners) in enumerate(test_data):
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\utils\data\dataloader.py", line 530, in __next__
+    data = self._next_data()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\utils\data\dataloader.py", line 1196, in _next_data
+    self._shutdown_workers()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\utils\data\dataloader.py", line 1322, in _shutdown_workers
+    w.join(timeout=_utils.MP_STATUS_CHECK_INTERVAL)
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\multiprocessing\process.py", line 149, in join
+    res = self._popen.wait(timeout)
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\multiprocessing\popen_spawn_win32.py", line 108, in wait
+    res = _winapi.WaitForSingleObject(int(self._handle), msecs)
+KeyboardInterrupt

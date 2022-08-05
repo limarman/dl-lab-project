@@ -1,0 +1,41 @@
+2022-08-04 04:58:13,450 INFO    MainThread:19624 [wandb_setup.py:_flush():76] Loading settings from C:\Users\Zakir Hussain\.config\wandb\settings
+2022-08-04 04:58:13,450 INFO    MainThread:19624 [wandb_setup.py:_flush():76] Loading settings from C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\wandb\settings
+2022-08-04 04:58:13,450 INFO    MainThread:19624 [wandb_setup.py:_flush():76] Loading settings from environment variables: {'entity': 'hasham'}
+2022-08-04 04:58:13,450 INFO    MainThread:19624 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'train.py', 'program': 'C:\\Users\\Zakir Hussain\\Documents\\RWTH Aachen\\Semester 3 - RWTH\\Lab\\Github code\\7 PPO\\dl-lab-project-main (7)\\dl-lab-project-main\\src\\WinProb\\train.py'}
+2022-08-04 04:58:13,458 INFO    MainThread:19624 [wandb_init.py:_log_setup():428] Logging user logs to C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\wandb\run-20220804_045813-204qet7j\logs\debug.log
+2022-08-04 04:58:13,458 INFO    MainThread:19624 [wandb_init.py:_log_setup():429] Logging internal logs to C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\wandb\run-20220804_045813-204qet7j\logs\debug-internal.log
+2022-08-04 04:58:13,458 INFO    MainThread:19624 [wandb_init.py:init():462] calling init triggers
+2022-08-04 04:58:13,458 INFO    MainThread:19624 [wandb_init.py:init():465] wandb.init called with sweep_config: {}
+config: {}
+2022-08-04 04:58:13,458 INFO    MainThread:19624 [wandb_init.py:init():515] starting backend
+2022-08-04 04:58:13,458 INFO    MainThread:19624 [backend.py:_multiprocessing_setup():97] multiprocessing start_methods=spawn, using: spawn
+2022-08-04 04:58:13,481 INFO    MainThread:19624 [backend.py:ensure_launched():217] starting backend process...
+2022-08-04 04:58:13,800 INFO    MainThread:19624 [backend.py:ensure_launched():222] started backend process with pid: 11144
+2022-08-04 04:58:13,800 INFO    MainThread:19624 [wandb_init.py:init():525] backend started and connected
+2022-08-04 04:58:13,831 INFO    MainThread:19624 [wandb_init.py:init():596] updated telemetry
+2022-08-04 04:58:13,831 INFO    MainThread:19624 [wandb_init.py:init():627] communicating run to backend with 30 second timeout
+2022-08-04 04:58:43,844 INFO    MainThread:19624 [interface_shared.py:_communicate_run():326] couldn't get run from backend
+2022-08-04 04:58:43,844 ERROR   MainThread:19624 [wandb_init.py:init():636] backend process timed out
+2022-08-04 04:58:43,844 ERROR   MainThread:19624 [wandb_init.py:init():647] encountered error: Error communicating with wandb process
+try: wandb.init(settings=wandb.Settings(start_method='fork'))
+or:  wandb.init(settings=wandb.Settings(start_method='thread'))
+For more info see: https://docs.wandb.ai/library/init#init-start-error
+2022-08-04 04:58:43,978 ERROR   MainThread:19624 [wandb_init.py:init():1026] error
+Traceback (most recent call last):
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\wandb\sdk\wandb_init.py", line 999, in init
+    run = wi.init()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\wandb\sdk\wandb_init.py", line 651, in init
+    backend.cleanup()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\wandb\sdk\backend\backend.py", line 246, in cleanup
+    self.interface.join()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\wandb\sdk\interface\interface_shared.py", line 475, in join
+    super().join()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\wandb\sdk\interface\interface.py", line 666, in join
+    _ = self._communicate_shutdown()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\wandb\sdk\interface\interface_shared.py", line 472, in _communicate_shutdown
+    _ = self._communicate(record)
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\wandb\sdk\interface\interface_shared.py", line 226, in _communicate
+    return self._communicate_async(rec, local=local).get(timeout=timeout)
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\wandb\sdk\interface\interface_shared.py", line 231, in _communicate_async
+    raise Exception("The wandb backend process has shutdown")
+Exception: The wandb backend process has shutdown

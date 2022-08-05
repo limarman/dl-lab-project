@@ -1,0 +1,16 @@
+{
+    "os": "Windows-10-10.0.22621-SP0",
+    "python": "3.10.5",
+    "heartbeatAt": "2022-08-04T03:45:09.297211",
+    "startedAt": "2022-08-04T03:45:03.002234",
+    "docker": null,
+    "cpu_count": 8,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "C:\\Users\\Zakir Hussain\\Documents\\RWTH Aachen\\Semester 3 - RWTH\\Lab\\Github code\\7 PPO\\dl-lab-project-main (7)\\dl-lab-project-main\\src\\WinProb\\train.py",
+    "codePath": "train.py",
+    "host": "My",
+    "username": "Zakir Hussain",
+    "executable": "C:\\Users\\Zakir Hussain\\Documents\\RWTH Aachen\\Semester 3 - RWTH\\Lab\\Github code\\2\\dl-lab-project-main (1)\\venv\\Scripts\\python.exe"
+}

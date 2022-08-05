@@ -1,0 +1,30 @@
+
+starting epochs...
+Epoch: 0 Train Loss: tensor(6.6309) Train Accuracy: 0.6470588235294118 Test Accuracy: 0.4
+Epoch: 1 Train Loss: tensor(0.7617) Train Accuracy: 0.9176470588235294 Test Accuracy: 0.85
+Epoch: 2 Train Loss: tensor(0.1631) Train Accuracy: 0.9647058823529412 Test Accuracy: 0.65
+Epoch: 3 Train Loss: tensor(0.0420) Train Accuracy: 0.9764705882352941 Test Accuracy: 1.0
+Traceback (most recent call last):
+  File "C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\train.py", line 128, in <module>
+    main()
+  File "C:\Users\Zakir Hussain\Documents\RWTH Aachen\Semester 3 - RWTH\Lab\Github code\7 PPO\dl-lab-project-main (7)\dl-lab-project-main\src\WinProb\train.py", line 65, in main
+    for i, (maps, scalars, winners) in enumerate(train_data):
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\utils\data\dataloader.py", line 530, in __next__
+    data = self._next_data()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\utils\data\dataloader.py", line 1207, in _next_data
+    idx, data = self._get_data()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\utils\data\dataloader.py", line 1173, in _get_data
+    success, data = self._try_get_data()
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\site-packages\torch\utils\data\dataloader.py", line 1011, in _try_get_data
+    data = self._data_queue.get(timeout=timeout)
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\multiprocessing\queues.py", line 113, in get
+    if not self._poll(timeout):
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\multiprocessing\connection.py", line 262, in poll
+    return self._poll(timeout)
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\multiprocessing\connection.py", line 335, in _poll
+    return bool(wait([self], timeout))
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\multiprocessing\connection.py", line 884, in wait
+    ready_handles = _exhaustive_wait(waithandle_to_obj.keys(), timeout)
+  File "C:\Users\Zakir Hussain\AppData\Local\Programs\Python\Python310\lib\multiprocessing\connection.py", line 816, in _exhaustive_wait
+    res = _winapi.WaitForMultipleObjects(L, False, timeout)
+KeyboardInterrupt
