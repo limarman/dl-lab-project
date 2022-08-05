@@ -46,19 +46,19 @@ class BoardWrapper:
         maps = np.stack([
             self.get_ships_me_map(),
             self.get_ships_opponent_map(),
-            self.get_shipyards_id_me(),
-            self.get_shipyards_id_opponent(),
+            self.get_shipyards_id_me(),  # not using for reward NN
+            self.get_shipyards_id_opponent(),  # not using for reward NN
             self.get_shipyards_me_map(),
             self.get_shipyards_opponent_map(),
-            self.get_max_spawn_me_map(),
-            self.get_max_spawn_opponent_map(),
-            self.get_cargo_me_map(),
-            self.get_cargo_opponent_map(),
-            self.get_feature_map_flight_plan_me(),
-            self.get_feature_map_flight_plan_opponent(),
+            self.get_max_spawn_me_map(),  # not using for reward NN
+            self.get_max_spawn_opponent_map(),  # not using for reward NN
+            self.get_cargo_me_map(),  # not using for reward NN
+            self.get_cargo_opponent_map(),  # not using for reward NN
+            self.get_feature_map_flight_plan_me(),  # not using for reward NN
+            self.get_feature_map_flight_plan_opponent(),  # not using for reward NN
             self.get_sound_flight_plan_sound_me(),
             self.get_sound_flight_plan_sound_opponent(),
-            self.get_overlapping_kore_map()
+            self.get_overlapping_kore_map()  # not using for reward NN
         ])
 
         return maps
