@@ -48,7 +48,7 @@ class AdvantageReward(KoreReward):
         return max(kore_delta, 0)
 
     def get_reward(self, previous_state: KoreState, next_state: KoreState, action: Dict[str, str]):
-        return self.get_advantage(next_state)
+        return self.get_advantage(next_state), {}
 
     def get_advantage(self, kore_state: KoreState) -> float:
         kore_advantage = self.__get_kore_advantage(kore_state)

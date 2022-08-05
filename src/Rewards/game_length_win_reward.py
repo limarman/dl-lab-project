@@ -60,6 +60,3 @@ class GameLengthProportionalWinReward(KoreReward):
 
         #if not end of the game
         return 0
-
-    def reset(self):
-        pass

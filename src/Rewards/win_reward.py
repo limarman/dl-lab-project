@@ -13,6 +13,7 @@ class WinReward(KoreReward):
         """
         TODO add some weights/params here
         """
+        super().__init__()
 
     @staticmethod
     def get_reward_from_action(current_state: KoreState, actions) -> float:
@@ -33,7 +34,5 @@ class WinReward(KoreReward):
         return max(kore_delta, 0)
 
     def get_reward(self, previous_state: KoreState, next_state: KoreState, action: Dict[str, str]):
-        return next_state.board_wrapper.game_result()
-
-    def reset(self):
-        pass
+        # reward that gets outputted
+        return next_state.board_wrapper.game_result(), {}

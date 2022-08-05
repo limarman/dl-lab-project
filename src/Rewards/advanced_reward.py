@@ -53,6 +53,3 @@ class AdvancedReward(KoreReward):
     @staticmethod
     def get_reward(previous_state: AdvancedState, next_state: AdvancedState, action: Dict[str, str]):
         return AdvancedReward.get_reward_from_states(previous_state, next_state)
-
-    def reset(self):
-        pass

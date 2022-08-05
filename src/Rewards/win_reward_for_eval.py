@@ -11,6 +11,9 @@ class WinRewardForEval(WinReward):
         super().__init__()
 
     def get_reward(self, *args):
-        reward = super().get_reward(*args)
+        reward, _ = super().get_reward(*args)
         non_negative_reward = max(0, reward)
-        return non_negative_reward
+        return non_negative_reward, "Win Reward for Eval used"  # none is for info
+
+    def reset(self):
+        pass

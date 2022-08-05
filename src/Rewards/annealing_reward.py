@@ -6,6 +6,7 @@ from src.Rewards.kore_reward import KoreReward
 import numpy as np
 import src.core.global_vars
 
+
 class AnnealingReward(KoreReward):
     """
     Starts from a dense reward and slowly anneals towards a sparse reward.
@@ -19,10 +20,10 @@ class AnnealingReward(KoreReward):
         super().__init__()
         self.first_reward = first_reward
         self.last_reward = last_reward
-        self.temp = 50000
+        self.temp = 28000
 
         # initialize the step counter
-        src.core.global_vars.init_global_step()
+        src.core.global_vars.init_global_step(0)  # add the step to start from, default = 0
 
     @staticmethod
     def get_reward_from_action(current_state: KoreState, actions):
@@ -39,21 +40,13 @@ class AnnealingReward(KoreReward):
 
         time = src.core.global_vars.return_step_count()
 
-        first_reward_value = self.first_reward.get_reward(previous_state, next_state, action)
-        last_reward_value = self.last_reward.get_reward(previous_state, next_state, action)
-
-        E = np.e ** -(time/self.temp)
-
+        first_reward_value, first_reward_info = self.first_reward.get_reward(previous_state, next_state, action)
+        last_reward_value, last_reward_info = self.last_reward.get_reward(previous_state, next_state, action)
+        E = np.e ** -(time / self.temp)
         annealing_reward = first_reward_value * E + last_reward_value * (1 - E)
+        annealing_reward_info = {"E": E} | first_reward_info | last_reward_info
 
-#         annealing_reward_info = {"E": E}
-
-        return annealing_reward
+        return annealing_reward, annealing_reward_info
 
     def reset(self):
         pass
-
-
-
-
-

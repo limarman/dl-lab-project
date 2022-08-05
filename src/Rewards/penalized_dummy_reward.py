@@ -41,6 +41,3 @@ class PenalizedDummyReward(KoreReward):
         reward = max(kore_delta, 0) + waiting * -100
 
         return reward
-
-    def reset(self):
-        pass

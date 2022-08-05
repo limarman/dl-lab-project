@@ -40,6 +40,3 @@ class DummyReward(KoreReward):
         reward = max(kore_delta, 0)
 
         return reward
-
-    def reset(self):
-        pass
