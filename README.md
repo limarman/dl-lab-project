@@ -8,7 +8,7 @@ The project is divided into a jobscripts, src and test folder. Furthermore, ther
   - Action Adapters
   - Validity Action Masking
 * Agents
-  - A2C, DQN 
+  - A2C, DQN, PPO
   - Neural Networks (Pytorch for A2C/PPO, Keras for DQN)
   - Baselines / Opponent Agents
   - Policies for DQN
